@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/HR-AUTOMATION/">
+    <Project Path="HR-AUTOMATION.Application/HR-AUTOMATION.Application.csproj" />
+    <Project Path="HR-AUTOMATION.Domain/HR-AUTOMATION.Domain.csproj" />
+    <Project Path="HR-AUTOMATION.Infrastructure/HR-AUTOMATION.Infrastructure.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="HR-AUTOMATION-API/HR-AUTOMATION-API.csproj" />
+  <Project Path="Shared.Kernel/Shared.Kernel.csproj" Id="6e0affbf-d9b6-4a05-b9c8-5382a3dd80ea" />
+</Solution>

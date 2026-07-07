@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+
+# Ignorar la carpeta de Docker de Visual Studio
+.dockerignore
+Dockerfile
+
+.git
+*.json
+.gitignore
+.vs
+.vscode
+
+# Ignorar archivos de secretos locales y configuraciones de usuario
+*.user
+appsettings.Development.json

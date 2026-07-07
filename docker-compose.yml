@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU25-ubuntu-22.04
+    container_name: HR_Automation_DB
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=HRAutomationSecure2026!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    # Esto asegura que la API no intente conectar hasta que SQL esté listo
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "HRAutomationSecure2026!", "-Q", "SELECT 1", "-C"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  hr-automation-api:
+    image: ${DOCKER_REGISTRY-}hr-automation-api
+    container_name: HR_Automation_API
+    build:
+      context: .
+      dockerfile: HR-AUTOMATION-API/Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      sqlserver:
+        condition: service_healthy # Espera al healthcheck
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+ 
+volumes:
+  sqldata:

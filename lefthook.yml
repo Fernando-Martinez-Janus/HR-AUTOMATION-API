@@ -1,0 +1,27 @@
+output:
+  - meta
+  - success
+  - summary
+  - execution
+
+colors: false
+
+pre-commit:
+  parallel: false
+  commands:
+    dotnet-format:
+      glob: "*.cs"
+      run: dotnet format HR-AUTOMATION-API.slnx --verify-no-changes --verbosity normal --include {staged_files}
+
+    check-appsettings:
+      glob: "appsettings*.json"
+      run: |
+        echo "ERROR: Estás intentando subir archivos de configuración con variables de entorno:"
+        echo "{staged_files}"
+        echo "Quítalos del commit con: git restore --staged {staged_files}"
+        exit 1
+
+pre-push:
+  commands:
+    dotnet-build:
+      run: dotnet build HR-AUTOMATION-API --configuration Release --verbosity minimal
