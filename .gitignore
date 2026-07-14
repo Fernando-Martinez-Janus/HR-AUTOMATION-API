@@ -30,3 +30,4 @@
 /Shared.Kernel/bin/Release/net10.0
 /HR-AUTOMATION.Infrastructure/appsettings.json
 /HR-AUTOMATION-API/Properties/PublishProfiles
+/HR-AUTOMATION-API/appsettings.Development.json
