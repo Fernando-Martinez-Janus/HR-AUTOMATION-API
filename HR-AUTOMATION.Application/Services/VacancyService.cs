@@ -1,6 +1,8 @@
 using FluentValidation.Results;
+using HR_AUTOMATION.Application.IServices;
 using HR_AUTOMATION.Application.Validators;
 using HR_AUTOMATION.Domain.IRepositories;
+using HR_AUTOMATION.Domain.Models;
 using Microsoft.Extensions.Logging;
 using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Enums;
@@ -34,7 +36,9 @@ namespace HR_AUTOMATION.Application.Services
                     input.CriticalityLevelId, input.VacancyStatusId, input.VacancyTitle,
                     input.ClientName, input.ProjectName, input.VacancyLocation,
                     input.PositionCount, input.SalaryRangeMin, input.SalaryRangeMax,
-                    input.RequestDate, input.DeadlineDate, input.CreatedBy);
+                    input.RequestDate, input.DeadlineDate,
+                    input.ModalityId, input.ContractTypeId, input.CurrencyId, input.PayFrequencyId, input.Notes,
+                    input.CreatedBy);
                 return new VacancyViewModel
                 {
                     Id = newId,
@@ -51,6 +55,11 @@ namespace HR_AUTOMATION.Application.Services
                     SalaryRangeMax = input.SalaryRangeMax,
                     RequestDate = input.RequestDate,
                     DeadlineDate = input.DeadlineDate,
+                    ModalityId = input.ModalityId,
+                    ContractTypeId = input.ContractTypeId,
+                    CurrencyId = input.CurrencyId,
+                    PayFrequencyId = input.PayFrequencyId,
+                    Notes = input.Notes,
                     IsEnabled = true
                 };
             }
@@ -61,30 +70,35 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        public async Task<VacancyViewModel> UpsertAsync(VacancyInputModel input)
+        {
+            try
+            {
+                input.Normalize();
+                long result = await _repository.UpsertAsync(null, input.OrganizationId, input.ProfileId,
+                    input.CriticalityLevelId, input.VacancyStatusId, input.VacancyTitle,
+                    input.ClientName, input.ProjectName, input.VacancyLocation,
+                    input.PositionCount, input.SalaryRangeMin, input.SalaryRangeMax,
+                    input.RequestDate, input.DeadlineDate,
+                    input.ModalityId, input.ContractTypeId, input.CurrencyId, input.PayFrequencyId, input.Notes,
+                    input.CreatedBy, input.CreatedBy);
+                var item = await _repository.GetByIdAsync((int)result);
+                if (item == null) throw new ResponseExceptionFactory(Exceptions.VacancyNotFound);
+                return MapToViewModel(item);
+            }
+            catch (Exception ex) when (ex is not ResponseExceptionFactory)
+            {
+                _logger.LogError(ex, "Error upserting vacancy");
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<VacancyViewModel>> GetAllAsync(int organizationId, int rows_page, int page_number)
         {
             try
             {
                 var items = await _repository.GetAllAsync(organizationId, rows_page, page_number);
-                return items.Select(item => new VacancyViewModel
-                {
-                    Id = item.Id,
-                    OrganizationId = item.OrganizationId,
-                    ProfileId = item.ProfileId,
-                    CriticalityLevelId = item.CriticalityLevelId,
-                    VacancyStatusId = item.VacancyStatusId,
-                    VacancyTitle = item.VacancyTitle,
-                    ClientName = item.ClientName,
-                    ProjectName = item.ProjectName,
-                    VacancyLocation = item.VacancyLocation,
-                    PositionCount = item.PositionCount,
-                    SalaryRangeMin = item.SalaryRangeMin,
-                    SalaryRangeMax = item.SalaryRangeMax,
-                    RequestDate = item.RequestDate,
-                    DeadlineDate = item.DeadlineDate,
-                    IsEnabled = item.IsEnabled,
-                    TotalRecords = item.TotalRecords
-                });
+                return items.Select(MapToViewModel);
             }
             catch (Exception ex)
             {
@@ -99,25 +113,7 @@ namespace HR_AUTOMATION.Application.Services
             {
                 var item = await _repository.GetByIdAsync(id);
                 if (item == null) return null;
-                return new VacancyViewModel
-                {
-                    Id = item.Id,
-                    OrganizationId = item.OrganizationId,
-                    ProfileId = item.ProfileId,
-                    CriticalityLevelId = item.CriticalityLevelId,
-                    VacancyStatusId = item.VacancyStatusId,
-                    VacancyTitle = item.VacancyTitle,
-                    ClientName = item.ClientName,
-                    ProjectName = item.ProjectName,
-                    VacancyLocation = item.VacancyLocation,
-                    PositionCount = item.PositionCount,
-                    SalaryRangeMin = item.SalaryRangeMin,
-                    SalaryRangeMax = item.SalaryRangeMax,
-                    RequestDate = item.RequestDate,
-                    DeadlineDate = item.DeadlineDate,
-                    IsEnabled = item.IsEnabled,
-                    TotalRecords = item.TotalRecords
-                };
+                return MapToViewModel(item);
             }
             catch (Exception ex)
             {
@@ -144,7 +140,9 @@ namespace HR_AUTOMATION.Application.Services
                 await _repository.UpdateAsync(id, input.ProfileId, input.CriticalityLevelId,
                     input.VacancyStatusId, input.VacancyTitle, input.ClientName, input.ProjectName,
                     input.VacancyLocation, input.PositionCount, input.SalaryRangeMin,
-                    input.SalaryRangeMax, input.RequestDate, input.DeadlineDate, input.CreatedBy);
+                    input.SalaryRangeMax, input.RequestDate, input.DeadlineDate,
+                    input.ModalityId, input.ContractTypeId, input.CurrencyId, input.PayFrequencyId, input.Notes,
+                    input.CreatedBy);
             }
             catch (Exception ex) when (ex is not ResponseExceptionFactory)
             {
@@ -168,5 +166,32 @@ namespace HR_AUTOMATION.Application.Services
                 throw;
             }
         }
+
+        private static VacancyViewModel MapToViewModel(Vacancy item) => new()
+        {
+            Id = item.Id,
+            OrganizationId = item.OrganizationId,
+            ProfileId = item.ProfileId,
+            ProfileName = item.ProfileName,
+            CriticalityLevelId = item.CriticalityLevelId,
+            VacancyStatusId = item.VacancyStatusId,
+            StatusName = item.StatusName,
+            VacancyTitle = item.VacancyTitle,
+            ClientName = item.ClientName,
+            ProjectName = item.ProjectName,
+            VacancyLocation = item.VacancyLocation,
+            PositionCount = item.PositionCount,
+            SalaryRangeMin = item.SalaryRangeMin,
+            SalaryRangeMax = item.SalaryRangeMax,
+            RequestDate = item.RequestDate,
+            DeadlineDate = item.DeadlineDate,
+            ModalityId = item.ModalityId,
+            ContractTypeId = item.ContractTypeId,
+            CurrencyId = item.CurrencyId,
+            PayFrequencyId = item.PayFrequencyId,
+            Notes = item.Notes,
+            IsEnabled = item.IsEnabled,
+            TotalRecords = item.TotalRecords
+        };
     }
 }

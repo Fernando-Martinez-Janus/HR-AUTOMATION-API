@@ -46,6 +46,27 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("deadline_date")]
         public DateTime? DeadlineDate { get; set; }
 
+        [Column("modality_id")]
+        public int? ModalityId { get; set; }
+
+        [Column("contract_type_id")]
+        public int? ContractTypeId { get; set; }
+
+        [Column("currency_id")]
+        public int? CurrencyId { get; set; }
+
+        [Column("pay_frequency_id")]
+        public int? PayFrequencyId { get; set; }
+
+        [Column("notes")]
+        public string? Notes { get; set; }
+
+        [Column("profile_name")]
+        public string? ProfileName { get; set; }
+
+        [Column("status_name")]
+        public string? StatusName { get; set; }
+
         [Column("is_enabled")]
         public bool IsEnabled { get; set; }
 

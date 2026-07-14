@@ -58,6 +58,19 @@ namespace HR_AUTOMATION_API.Controllers
             return StatusCode(StatusCodes.Status201Created, response);
         }
 
+        [HttpPost("draft")]
+        [MapToApiVersion("1")]
+        public async Task<IActionResult> Upsert([FromBody] VacancyInputModel input)
+        {
+            var result = await _vacancyService.UpsertAsync(input);
+            var response = new Response<VacancyViewModel>
+            {
+                Code = StatusCodes.Status200OK,
+                DataResponse = result
+            };
+            return Ok(response);
+        }
+
         [HttpPut("{id:int}")]
         [MapToApiVersion("1")]
         public async Task<IActionResult> Update(int id, [FromBody] VacancyInputModel input)

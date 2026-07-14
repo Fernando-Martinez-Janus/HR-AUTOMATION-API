@@ -13,6 +13,11 @@ public class VacancyInputModel
     public decimal? SalaryRangeMax { get; set; }
     public DateTime? RequestDate { get; set; }
     public DateTime? DeadlineDate { get; set; }
+    public int? ModalityId { get; set; }
+    public int? ContractTypeId { get; set; }
+    public int? CurrencyId { get; set; }
+    public int? PayFrequencyId { get; set; }
+    public string? Notes { get; set; }
     public int CreatedBy { get; set; }
 
     public void Normalize()
@@ -21,5 +26,6 @@ public class VacancyInputModel
         ClientName = ClientName?.Trim();
         ProjectName = ProjectName?.Trim();
         VacancyLocation = VacancyLocation?.Trim();
+        Notes = Notes?.Trim();
     }
 }
