@@ -75,7 +75,7 @@ namespace HR_AUTOMATION.Application.Services
             try
             {
                 input.Normalize();
-                long result = await _repository.UpsertAsync(null, input.OrganizationId, input.ProfileId,
+                long result = await _repository.UpsertAsync(input.VacancyId, input.OrganizationId, input.ProfileId,
                     input.CriticalityLevelId, input.VacancyStatusId, input.VacancyTitle,
                     input.ClientName, input.ProjectName, input.VacancyLocation,
                     input.PositionCount, input.SalaryRangeMin, input.SalaryRangeMax,

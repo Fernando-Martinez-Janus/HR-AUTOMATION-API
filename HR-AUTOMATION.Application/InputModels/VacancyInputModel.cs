@@ -1,5 +1,6 @@
 public class VacancyInputModel
 {
+    public int? VacancyId { get; set; }
     public int? OrganizationId { get; set; }
     public int? ProfileId { get; set; }
     public int? CriticalityLevelId { get; set; }
