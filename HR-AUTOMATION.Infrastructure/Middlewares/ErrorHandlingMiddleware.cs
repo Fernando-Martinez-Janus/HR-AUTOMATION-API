@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shared.Kernel.Responses;
+using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 
 namespace HR_AUTOMATION.Infrastructure.Middlewares
@@ -68,7 +69,7 @@ namespace HR_AUTOMATION.Infrastructure.Middlewares
             string result = JsonConvert.SerializeObject(response, _jsonSerializerSettings);
 
             context.Response.StatusCode = response.Code;
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = MediaTypes.Json;
 
             return context.Response.WriteAsync(result);
         }

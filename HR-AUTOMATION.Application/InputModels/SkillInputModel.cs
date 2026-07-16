@@ -1,12 +1,14 @@
-public class SkillInputModel
+﻿namespace HR_AUTOMATION.Application.InputModels
 {
-    public int OrganizationId { get; set; }
-    public int SkillCategoryId { get; set; }
-    public string SkillName { get; set; } = string.Empty;
-    public int CreatedBy { get; set; }
-
-    public void Normalize()
+    public class SkillInputModel
     {
-        SkillName = SkillName.Trim();
+        public int? OrganizationId { get; set; }
+        public int SkillCategoryId { get; set; }
+        public string SkillName { get; set; } = null!;
+
+        public void Normalize()
+        {
+            SkillName = SkillName.Trim();
+        }
     }
 }

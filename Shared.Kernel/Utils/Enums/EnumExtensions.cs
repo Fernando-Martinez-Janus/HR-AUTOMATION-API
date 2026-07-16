@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 namespace Shared.Kernel.Utils.Enums
 {
@@ -36,12 +33,12 @@ namespace Shared.Kernel.Utils.Enums
         /// The enum value.
         /// </param>
         /// <returns>
-        /// The value defined in the <see cref="InfoAttribute"/> if present;
+        /// The value defined in the <see cref="EnumInfo"/> if present;
         /// otherwise, the underlying numeric value of the enum.
         /// </returns>
         public static int GetValue(this Enum enumValue)
         {
-            InfoAttribute? attr = enumValue.GetCustomAttibute<InfoAttribute>();
+            EnumInfo? attr = enumValue.GetCustomAttibute<EnumInfo>();
 
             return attr?.Value ?? Convert.ToInt32(enumValue);
         }
@@ -53,12 +50,12 @@ namespace Shared.Kernel.Utils.Enums
         /// The enum value.
         /// </param>
         /// <returns>
-        /// The description defined in the <see cref="InfoAttribute"/> if present;
+        /// The description defined in the <see cref="EnumInfo"/> if present;
         /// otherwise, the enum member name.
         /// </returns>
         public static string GetDescription(this Enum enumValue)
         {
-            InfoAttribute? attr = enumValue.GetCustomAttibute<InfoAttribute>();
+            EnumInfo? attr = enumValue.GetCustomAttibute<EnumInfo>();
 
             return attr?.Description ?? enumValue.ToString();
         }

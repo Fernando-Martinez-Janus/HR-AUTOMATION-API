@@ -1,8 +1,11 @@
-public class SkillCategoryViewModel
+﻿namespace HR_AUTOMATION.Application.ViewModels
 {
-    public int Id { get; set; }
-    public int OrganizationId { get; set; }
-    public string CategoryName { get; set; } = string.Empty;
-    public bool IsEnabled { get; set; }
-    public int TotalRecords { get; set; }
+    public class SkillCategoryViewModel
+    {
+        public int SkillCategoryId { get; set; }
+        public int OrganizationId { get; set; }
+        public string CategoryName { get; set; } = null!;
+        public string? IconName { get; set; }
+        public int SortOrder { get; set; }
+    }
 }
