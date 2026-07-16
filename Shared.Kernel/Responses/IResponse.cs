@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Kernel.Responses
+﻿namespace Shared.Kernel.Responses
 {
     /// <summary>
     /// Interface of the response.

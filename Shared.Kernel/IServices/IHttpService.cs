@@ -1,4 +1,5 @@
-﻿using Shared.Kernel.Services;
+﻿using Shared.Kernel.InputModels;
+using Shared.Kernel.ViewModels;
 
 namespace Shared.Kernel.IServices
 {
