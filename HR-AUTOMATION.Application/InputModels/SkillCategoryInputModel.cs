@@ -1,11 +1,15 @@
-public class SkillCategoryInputModel
+﻿namespace HR_AUTOMATION.Application.InputModels
 {
-    public int OrganizationId { get; set; }
-    public string CategoryName { get; set; } = string.Empty;
-    public int CreatedBy { get; set; }
-
-    public void Normalize()
+    public class SkillCategoryInputModel
     {
-        CategoryName = CategoryName.Trim();
+        public int? OrganizationId { get; set; }
+        public string CategoryName { get; set; } = null!;
+        public string? IconName { get; set; }
+
+        public void Normalize()
+        {
+            CategoryName = CategoryName.Trim();
+            IconName = string.IsNullOrWhiteSpace(IconName) ? null : IconName.Trim();
+        }
     }
 }

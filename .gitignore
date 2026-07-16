@@ -19,10 +19,11 @@
 /Shared.Kernel/obj
 /HR-AUTOMATION.Application/bin/Debug/net10.0/HR-AUTOMATION.Application.deps.json
 /HR-AUTOMATION.Application/bin/Debug/net10.0
-/HR-AUTOMATION-API/appsettings.json
 *.txt
 /bin/Debug
 /obj
+/Logs
+*.http
 /HR-AUTOMATION-API/bin/Release/net10.0
 /HR-AUTOMATION.Application/bin/Release/net10.0
 /HR-AUTOMATION.Domain/bin/Release/net10.0

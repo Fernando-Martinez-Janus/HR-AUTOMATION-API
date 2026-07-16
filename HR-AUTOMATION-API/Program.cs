@@ -1,164 +1,145 @@
-
 using Asp.Versioning;
-using HR_AUTOMATION.Application;
 using HR_AUTOMATION.Application.IServices;
 using HR_AUTOMATION.Application.Services;
-using HR_AUTOMATION.Domain.IRepositories;
-using HR_AUTOMATION.Infrastructure;
+using HR_AUTOMATION.Infrastructure.Constants;
 using HR_AUTOMATION.Infrastructure.Hubs;
 using HR_AUTOMATION.Infrastructure.Middlewares;
-using HR_AUTOMATION.Infrastructure.Repositories;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Serilog;
-using Shared.Kernel.Appsettings;
 using Shared.Kernel.IRepositories;
+using Shared.Kernel.IServices;
 using Shared.Kernel.Repositories;
 using Shared.Kernel.Responses;
+using Shared.Kernel.Services;
+using Shared.Kernel.Utils.Constants;
+using Shared.Kernel.Utils.Enums;
+using StackExchange.Redis;
+using System.Reflection;
 using System.Threading.RateLimiting;
 
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var builder = WebApplication.CreateBuilder(args);
+// Add services to the container.
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    string connectionString = builder.Configuration.GetValue<string>(AppConstants.RedisConnectionStringKey)!;
 
+    return ConnectionMultiplexer.Connect(connectionString);
+});
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICacheService, RedisService>();
+builder.Services.AddScoped<ISharedRepository, SqlServerRepository>();
+builder.Services.AddScoped<IHttpService, HttpService>();
+builder.Services.AddScoped<IHttpContextService, HttpContextService>();
 
-
-//builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new ApiVersion(1);
-    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = VersioningConstants.AssumeDefaultVersionWhenUnspecified;
+    options.DefaultApiVersion = new ApiVersion(VersioningConstants.DefaultApiVersion);
+    options.ReportApiVersions = VersioningConstants.ReportApiVersions;
     options.ApiVersionReader = new UrlSegmentApiVersionReader();
 }).AddApiExplorer(options =>
 {
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
+    options.GroupNameFormat = VersioningConstants.GroupNameFormat;
+    options.SubstituteApiVersionInUrl = VersioningConstants.SubstituteApiVersionInUrl;
 });
-
 builder.Services.AddRateLimiter(options =>
 {
     options.OnRejected = async (context, token) =>
     {
         Response response = new()
         {
-            Code = StatusCodes.Status429TooManyRequests,
-            ResponseMessage = "Too many requests. Please try again later."
+            Code = Exceptions.TooManyRequests.GetValue(),
+            ResponseMessage = Exceptions.TooManyRequests.GetDescription()
         };
 
         string json = JsonConvert.SerializeObject(response);
 
-        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.StatusCode = Exceptions.TooManyRequests.GetValue();
+        context.HttpContext.Response.ContentType = MediaTypes.Json;
 
         await context.HttpContext.Response.WriteAsync(json, token);
     };
 
-    options.AddPolicy("general", httpContext =>
+    options.AddPolicy(RateLimitConstants.DefaultPolicy, httpContext =>
     {
-        string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? RateLimitConstants.Unknown;
 
         return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = 50,
-            Window = TimeSpan.FromSeconds(60),
-            QueueLimit = 0
+            PermitLimit = RateLimitConstants.DefaultPermitLimit,
+            Window = TimeSpan.FromMilliseconds(RateLimitConstants.DefaultWindowMilliseconds),
+            QueueLimit = RateLimitConstants.DefaultQueueLimit
         });
     });
+});
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    options.IncludeXmlComments(xmlPath);
 });
 
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<ISharedRepository, SharedRepository>();
-builder.Services.AddScoped<ISeniorityLevelRepository, SeniorityLevelRepository>();
-builder.Services.AddScoped<ISeniorityLevelService, SeniorityLevelService>();
-builder.Services.AddScoped<IAreaLevelRepository, AreaLevelRepository>();
-builder.Services.AddScoped<IAreaLevelService, AreaLevelService>();
-builder.Services.AddScoped<ISkillRepository, SkillRepository>();
-builder.Services.AddScoped<ISkillService, SkillService>();
-builder.Services.AddScoped<ISkillCategoryRepository, SkillCategoryRepository>();
-builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
-builder.Services.AddScoped<IProfileSkillRepository, ProfileSkillRepository>();
-builder.Services.AddScoped<IProfileSkillService, ProfileSkillService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
-
-builder.Services.AddScoped<IVacancyStatusRepository, VacancyStatusRepository>();
-builder.Services.AddScoped<IVacancyStatusService, VacancyStatusService>();
-
-builder.Services.AddScoped<IVacancyRepository, VacancyRepository>();
-builder.Services.AddScoped<IVacancyService, VacancyService>();
-
-builder.Services.AddScoped<ICriticalityLevelRepository, CriticalityLevelRepository>();
-builder.Services.AddScoped<ICriticalityLevelService, CriticalityLevelService>();
-builder.Services.AddScoped<ISkillLevelRepository, SkillLevelRepository>();
-builder.Services.AddScoped<ISkillLevelService, SkillLevelService>();
-
-builder.Services.AddScoped<Shared.Kernel.IServices.IHttpService, Shared.Kernel.Services.HttpService>();
-builder.Services.AddScoped<IOllamaRequestService, OllamaRequestService>();
-
-builder.Services.Configure<OllamaConfigurations>(builder.Configuration.GetSection("OllamaConfigurations"));
-
-builder.Services.AddScoped<Shared.Kernel.JWT.JWTService>();
-builder.Services.AddScoped<LoginService>();
-builder.Services.AddOpenApi();
-builder.Services.AddSignalR();
-
-
-string cns = builder.Configuration.GetValue<string>("ConnectionString")!;
-builder.Services.AddDbContext<Context>((options) => options.UseNpgsql(cns));
-builder.Services.Configure<ConnectionConfigurations>(builder.Configuration.GetSection("ConnectionConfigurations"));
-
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor |
-                       ForwardedHeaders.XForwardedProto
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
-
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.MapOpenApi();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseSerilogRequestLogging();
 
 app.UseRouting();
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseHttpsRedirection();
+
 app.UseRateLimiter();
 
 app.UseCors(options =>
 {
-    options.WithOrigins(builder.Configuration.GetSection("Cors").GetSection("AllowedOrigins").GetChildren().Select(child => child.Value).ToArray()!)
-        .WithHeaders(builder.Configuration.GetSection("Cors").GetSection("AllowedHeaders").GetChildren().Select(child => child.Value).ToArray()!)
-        .WithMethods(builder.Configuration.GetSection("Cors").GetSection("AllowedMethods").GetChildren().Select(child => child.Value).ToArray()!)
-        .WithExposedHeaders(builder.Configuration.GetSection("Cors").GetSection("ExposedHeaders").GetChildren().Select(child => child.Value).ToArray()!)
+    string[] allowedOrigins = builder.Configuration.GetSection(CorsConstants.AllowedOriginsKey).Get<string[]>() ?? [];
+    string[] allowedHeader = builder.Configuration.GetSection(CorsConstants.AllowedHeadersKey).Get<string[]>() ?? [];
+    string[] allowedMethods = builder.Configuration.GetSection(CorsConstants.AllowedMethodsKey).Get<string[]>() ?? [];
+    string[] exposedHeaders = builder.Configuration.GetSection(CorsConstants.ExposedHeadersKey).Get<string[]>() ?? [];
+
+    options
+        .WithOrigins(allowedOrigins)
+        .WithHeaders(allowedHeader)
+        .WithMethods(allowedMethods)
+        .WithExposedHeaders(exposedHeaders)
         .AllowCredentials();
 });
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<NotificationHub>("/hubs/alerts");
+
+app.MapHub<NotificationHub>(HubConstants.NotificationEndpoint);
 
 app.Run();
