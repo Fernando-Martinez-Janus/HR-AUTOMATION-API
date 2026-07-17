@@ -18,7 +18,7 @@
         /// <summary>
         /// Default number of requests allowed within the time window.
         /// </summary>
-        public const int DefaultPermitLimit = 60;
+        public const int DefaultPermitLimit = 70;
 
         /// <summary>
         /// Default time window in milliseconds.
