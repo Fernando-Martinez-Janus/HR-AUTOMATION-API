@@ -12,7 +12,7 @@
         SkillCategoryNameLengthInvalid,
         [EnumInfo(400, "Skill Category icon name must not exceed 50 characters")]
         SkillCategoryIconNameLengthInvalid,
-        [EnumInfo(400, "Skill name must not exceed 100 characters")]
+        [EnumInfo(400, "Skill name must not exceed 150 characters")]
         SkillNameLengthInvalid,
 
 

@@ -18,7 +18,7 @@ namespace HR_AUTOMATION.Application.Validators
             RuleFor(x => x.SkillName)
                 .NotEmpty()
                 .WithErrorCode(Exceptions.NameRequired.ToString())
-                .MaximumLength(100)
+                .MaximumLength(160)
                 .WithErrorCode(Exceptions.SkillNameLengthInvalid.ToString());
         }
     }
