@@ -15,5 +15,6 @@
         public const string SeniorityLevelChanged = "seniorityLevelChanged";
         public const string QuestionCategoryChanged = "questionCategoryChanged";
         public const string OrganizationChanged = "organizationChanged";
+        public const string VacancyChanged = "vacancyChanged";
     }
 }

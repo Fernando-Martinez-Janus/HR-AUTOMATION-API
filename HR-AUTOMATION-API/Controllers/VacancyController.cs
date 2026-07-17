@@ -1,90 +1,117 @@
 using Asp.Versioning;
+using HR_AUTOMATION.Application.InputModels;
+using HR_AUTOMATION.Application.IServices;
+using HR_AUTOMATION.Application.ViewModels;
+using HR_AUTOMATION.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Shared.Kernel.Responses;
+using Shared.Kernel.Utils.Constants;
+using Shared.Kernel.ViewModels;
 
 namespace HR_AUTOMATION_API.Controllers
 {
     [ApiController]
-    [ApiVersion("1")]
+    [Produces(MediaTypes.Json)]
+    [EnableRateLimiting(RateLimitConstants.DefaultPolicy)]
+    [Tags("Vacancies")]
     [Route("api/v{version:apiVersion}/vacancies")]
-    [EnableRateLimiting("general")]
-    public class VacancyController : ControllerBase
+    public class VacancyController(IVacancyService vacancyService) : ControllerBase
     {
-        private readonly IVacancyService _vacancyService;
-
-        public VacancyController(IVacancyService vacancyService)
-        {
-            _vacancyService = vacancyService;
-        }
+        private readonly IVacancyService _vacancyService = vacancyService;
 
         [HttpGet]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetAll([FromQuery] int organizationId, [FromQuery] int rows_page, [FromQuery] int page_number)
+        [ProducesResponseType(typeof(Response<PaginationResponse<VacancyViewModel>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Search([FromQuery] VacancySearchInputModel model)
         {
-            var result = await _vacancyService.GetAllAsync(organizationId, rows_page, page_number);
-            var response = new Response<IEnumerable<VacancyViewModel>>
+            PaginationResponse<VacancyViewModel> result = await _vacancyService.SearchAsync(model);
+
+            Response<PaginationResponse<VacancyViewModel>> response = new()
             {
                 Code = StatusCodes.Status200OK,
                 DataResponse = result
             };
-            return Ok(response);
+
+            return StatusCode(response.Code, response);
         }
 
         [HttpGet("{id:int}")]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> GetById(int id)
+        [ProducesResponseType(typeof(Response<VacancyViewModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get(int id)
         {
-            var result = await _vacancyService.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            var response = new Response<VacancyViewModel>
+            VacancyViewModel result = await _vacancyService.GetAsync(id);
+
+            Response<VacancyViewModel> response = new()
             {
                 Code = StatusCodes.Status200OK,
                 DataResponse = result
             };
-            return Ok(response);
+
+            return StatusCode(response.Code, response);
         }
 
         [HttpPost]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Create([FromBody] VacancyInputModel input)
+        [ProducesResponseType(typeof(Response), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Create([FromBody] VacancyInputModel model)
         {
-            var result = await _vacancyService.CreateAsync(input);
-            var response = new Response<int>
+            int result = await _vacancyService.CreateAsync(model);
+
+            Response<int> response = new()
             {
                 Code = StatusCodes.Status201Created,
-                DataResponse = result.Id
+                DataResponse = result
             };
-            return StatusCode(StatusCodes.Status201Created, response);
+
+            return StatusCode(response.Code, response);
         }
 
         [HttpPost("draft")]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Upsert([FromBody] VacancyInputModel input)
+        [ProducesResponseType(typeof(Response<VacancyViewModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Upsert([FromBody] VacancyInputModel model)
         {
-            var result = await _vacancyService.UpsertAsync(input);
-            var response = new Response<VacancyViewModel>
+            VacancyViewModel result = await _vacancyService.UpsertAsync(model);
+
+            Response<VacancyViewModel> response = new()
             {
                 Code = StatusCodes.Status200OK,
                 DataResponse = result
             };
+
             return Ok(response);
         }
 
         [HttpPut("{id:int}")]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Update(int id, [FromBody] VacancyInputModel input)
+        [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> Update(int id, [FromBody] VacancyInputModel model)
         {
-            await _vacancyService.UpdateAsync(id, input);
-            return NoContent();
+            await _vacancyService.UpdateAsync(id, model);
+
+            Response response = new()
+            {
+                Code = StatusCodes.Status204NoContent
+            };
+
+            return StatusCode(response.Code, response);
         }
 
         [HttpDelete("{id:int}")]
         [MapToApiVersion("1")]
-        public async Task<IActionResult> Delete(int id, [FromQuery] int updatedBy)
+        [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> Delete(int id)
         {
-            await _vacancyService.DeleteAsync(id, updatedBy);
-            return NoContent();
+            await _vacancyService.DeleteAsync(id);
+
+            Response response = new()
+            {
+                Code = StatusCodes.Status204NoContent
+            };
+
+            return StatusCode(response.Code, response);
         }
     }
 }

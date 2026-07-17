@@ -1,9 +1,16 @@
-public interface IVacancyService
+using HR_AUTOMATION.Application.InputModels;
+using HR_AUTOMATION.Application.ViewModels;
+using Shared.Kernel.ViewModels;
+
+namespace HR_AUTOMATION.Application.IServices
 {
-    Task<VacancyViewModel> CreateAsync(VacancyInputModel input);
-    Task<IEnumerable<VacancyViewModel>> GetAllAsync(int organizationId, int rows_page, int page_number);
-    Task<VacancyViewModel?> GetByIdAsync(int id);
-    Task<VacancyViewModel> UpsertAsync(VacancyInputModel input);
-    Task UpdateAsync(int id, VacancyInputModel input);
-    Task DeleteAsync(int id, int updatedBy);
+    public interface IVacancyService
+    {
+        Task<PaginationResponse<VacancyViewModel>> SearchAsync(VacancySearchInputModel model);
+        Task<VacancyViewModel> GetAsync(int id);
+        Task<int> CreateAsync(VacancyInputModel model);
+        Task<VacancyViewModel> UpsertAsync(VacancyInputModel model);
+        Task UpdateAsync(int id, VacancyInputModel model);
+        Task DeleteAsync(int id);
+    }
 }

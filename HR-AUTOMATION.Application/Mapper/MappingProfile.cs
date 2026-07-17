@@ -95,6 +95,30 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.OrganizationId, model => model.MapFrom(m => m.Id))
                 .ForMember(view => view.OrganizationName, model => model.MapFrom(m => m.Name))
                 .ForMember(view => view.Slug, model => model.MapFrom(m => m.Slug));
+
+            CreateMap<Vacancy, VacancyViewModel>(MemberList.None)
+                .ForMember(view => view.Id, model => model.MapFrom(m => m.Id))
+                .ForMember(view => view.OrganizationId, model => model.MapFrom(m => m.OrganizationId))
+                .ForMember(view => view.ProfileId, model => model.MapFrom(m => m.ProfileId))
+                .ForMember(view => view.ProfileName, model => model.MapFrom(m => m.ProfileName))
+                .ForMember(view => view.CriticalityLevelId, model => model.MapFrom(m => m.CriticalityLevelId))
+                .ForMember(view => view.VacancyStatusId, model => model.MapFrom(m => m.VacancyStatusId))
+                .ForMember(view => view.StatusName, model => model.MapFrom(m => m.StatusName))
+                .ForMember(view => view.VacancyTitle, model => model.MapFrom(m => m.VacancyTitle))
+                .ForMember(view => view.ClientName, model => model.MapFrom(m => m.ClientName))
+                .ForMember(view => view.ProjectName, model => model.MapFrom(m => m.ProjectName))
+                .ForMember(view => view.VacancyLocation, model => model.MapFrom(m => m.VacancyLocation))
+                .ForMember(view => view.PositionCount, model => model.MapFrom(m => m.PositionCount))
+                .ForMember(view => view.SalaryRangeMin, model => model.MapFrom(m => m.SalaryRangeMin))
+                .ForMember(view => view.SalaryRangeMax, model => model.MapFrom(m => m.SalaryRangeMax))
+                .ForMember(view => view.RequestDate, model => model.MapFrom(m => m.RequestDate))
+                .ForMember(view => view.DeadlineDate, model => model.MapFrom(m => m.DeadlineDate))
+                .ForMember(view => view.ModalityId, model => model.MapFrom(m => m.ModalityId))
+                .ForMember(view => view.ContractTypeId, model => model.MapFrom(m => m.ContractTypeId))
+                .ForMember(view => view.CurrencyId, model => model.MapFrom(m => m.CurrencyId))
+                .ForMember(view => view.PayFrequencyId, model => model.MapFrom(m => m.PayFrequencyId))
+                .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
+                .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
         }
     }
 }

@@ -50,7 +50,12 @@
         OrganizationNameLengthInvalid,
         [EnumInfo(400, "Organization slug must not exceed 50 characters")]
         OrganizationSlugLengthInvalid,
-
+        [EnumInfo(400, "Vacancy title is required")]
+        VacancyTitleRequired,
+        [EnumInfo(400, "Vacancy title must not exceed 200 characters")]
+        VacancyTitleLengthInvalid,
+        [EnumInfo(400, "Position count must be greater than 0")]
+        VacancyPositionCountInvalid,
 
         #endregion
 
@@ -81,6 +86,8 @@
         QuestionCategoryNotFound,
         [EnumInfo(404, "Organization Not Found")]
         OrganizationNotFound,
+        [EnumInfo(404, "Vacancy Not Found")]
+        VacancyNotFound,
         #endregion
 
         #region 429 - Too Many Requests

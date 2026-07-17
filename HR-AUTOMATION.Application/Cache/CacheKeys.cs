@@ -26,5 +26,6 @@
         public const string SeniorityLevelKey = "senioritylevel";
         public const string QuestionCategoryKey = "questioncategory";
         public const string OrganizationEntityKey = "organization";
+        public const string VacancyKey = "vacancy";
     }
 }
