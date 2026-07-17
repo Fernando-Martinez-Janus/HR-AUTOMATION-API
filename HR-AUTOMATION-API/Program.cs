@@ -38,6 +38,17 @@ builder.Services.AddScoped<IHttpContextService, HttpContextService>();
 
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<ISkillLevelService, SkillLevelService>();
+builder.Services.AddScoped<IAreaLevelService, AreaLevelService>();
+builder.Services.AddScoped<ICriticalityLevelService, CriticalityLevelService>();
+builder.Services.AddScoped<IRejectionReasonService, RejectionReasonService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IPaymentPeriodService, PaymentPeriodService>();
+builder.Services.AddScoped<IEmploymentTypeService, EmploymentTypeService>();
+builder.Services.AddScoped<IWorkModalityService, WorkModalityService>();
+builder.Services.AddScoped<ISeniorityLevelService, SeniorityLevelService>();
+builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>

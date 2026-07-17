@@ -13,6 +13,9 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("reason_description")]
         public string Description { get; set; } = null!;
 
+        [Column("is_definitive")]
+        public bool IsDefinitive { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
