@@ -22,6 +22,15 @@ using Shared.Kernel.ViewModels;
 
 namespace HR_AUTOMATION.Application.Services
 {
+    /// <summary>
+    /// Provides business logic for managing vacancies.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="sharedRepository">The shared repository instance.</param>
+    /// <param name="cacheService">The cache service instance.</param>
+    /// <param name="configuration">The application configuration provider.</param>
+    /// <param name="httpContextService">The HTTP context service instance.</param>
+    /// <param name="notificationHub">The SignalR notification hub context.</param>
     public class VacancyService(
         ILogger<VacancyService> logger,
         ISharedRepository sharedRepository,
@@ -43,6 +52,10 @@ namespace HR_AUTOMATION.Application.Services
         private readonly TimeSpan _cacheLongExpiration =
             TimeSpan.FromMilliseconds(configuration.GetValue<long>(AppConstants.RedisLongExpiration));
 
+        /// <summary>
+        /// Normalizes and validates the input model before processing.
+        /// Throws a validation exception if the model is invalid.
+        /// </summary>
         private void ValidateModel(VacancyInputModel model)
         {
             int? organizationId = _httpContextService.GetOrganizationId();
@@ -61,6 +74,11 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Updates the cache version and notifies the appropriate SignalR groups that vacancies have changed.
+        /// </summary>
+        /// <param name="organizationId">The organization identifier to notify. If <see langword="null"/>, only the global notification is sent.</param>
+        /// <param name="id">The vacancy Id to delete from cache (optional).</param>
         private async Task HandleChangedAsync(int? organizationId = null, int? id = null)
         {
             if (id.HasValue)
@@ -82,6 +100,11 @@ namespace HR_AUTOMATION.Application.Services
             await _notificationHub.Clients.Groups(notifyTo).SendAsync(HubKeys.VacancyChanged);
         }
 
+        /// <summary>
+        /// Retrieves vacancies matching the specified search criteria.
+        /// </summary>
+        /// <param name="model">The search criteria.</param>
+        /// <returns>A paginated collection of matching vacancies.</returns>
         public async Task<PaginationResponse<VacancyViewModel>> SearchAsync(VacancySearchInputModel model)
         {
             try
@@ -132,6 +155,12 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a vacancy by its identifier.
+        /// </summary>
+        /// <param name="id">The identifier of the vacancy.</param>
+        /// <returns>The requested <see cref="VacancyViewModel"/>.</returns>
+        /// <exception cref="ResponseExceptionFactory">Thrown when the specified vacancy does not exist.</exception>
         public async Task<VacancyViewModel> GetAsync(int id)
         {
             try
@@ -166,6 +195,12 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Creates a new vacancy.
+        /// </summary>
+        /// <param name="model">The vacancy information.</param>
+        /// <returns>The identifier of the newly created vacancy.</returns>
+        /// <exception cref="ResponseExceptionFactory">Thrown when the vacancy cannot be created.</exception>
         public async Task<int> CreateAsync(VacancyInputModel model)
         {
             try
@@ -207,6 +242,11 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Creates or updates a vacancy (draft). If the vacancy identifier is provided, the existing vacancy is updated; otherwise, a new one is created.
+        /// </summary>
+        /// <param name="model">The vacancy information.</param>
+        /// <returns>The <see cref="VacancyViewModel"/> of the upserted vacancy.</returns>
         public async Task<VacancyViewModel> UpsertAsync(VacancyInputModel model)
         {
             try
@@ -264,6 +304,11 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Updates an existing vacancy.
+        /// </summary>
+        /// <param name="id">The identifier of the vacancy to update.</param>
+        /// <param name="model">The updated vacancy information.</param>
         public async Task UpdateAsync(int id, VacancyInputModel model)
         {
             try
@@ -303,6 +348,10 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        /// <summary>
+        /// Deletes an existing vacancy.
+        /// </summary>
+        /// <param name="id">The identifier of the vacancy to delete.</param>
         public async Task DeleteAsync(int id)
         {
             try

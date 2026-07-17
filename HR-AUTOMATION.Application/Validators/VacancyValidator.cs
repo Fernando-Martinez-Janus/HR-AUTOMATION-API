@@ -4,6 +4,9 @@ using Shared.Kernel.Utils.Enums;
 
 namespace HR_AUTOMATION.Application.Validators
 {
+    /// <summary>
+    /// Defines validation rules for the <see cref="VacancyInputModel"/> model.
+    /// </summary>
     public class VacancyValidator : AbstractValidator<VacancyInputModel>
     {
         public VacancyValidator()
