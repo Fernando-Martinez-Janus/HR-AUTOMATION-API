@@ -113,10 +113,10 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.SalaryRangeMax, model => model.MapFrom(m => m.SalaryRangeMax))
                 .ForMember(view => view.RequestDate, model => model.MapFrom(m => m.RequestDate))
                 .ForMember(view => view.DeadlineDate, model => model.MapFrom(m => m.DeadlineDate))
-                .ForMember(view => view.ModalityId, model => model.MapFrom(m => m.ModalityId))
-                .ForMember(view => view.ContractTypeId, model => model.MapFrom(m => m.ContractTypeId))
+                .ForMember(view => view.WorkModalityId, model => model.MapFrom(m => m.WorkModalityId))
+                .ForMember(view => view.EmploymentTypeId, model => model.MapFrom(m => m.EmploymentTypeId))
                 .ForMember(view => view.CurrencyId, model => model.MapFrom(m => m.CurrencyId))
-                .ForMember(view => view.PayFrequencyId, model => model.MapFrom(m => m.PayFrequencyId))
+                .ForMember(view => view.PaymentPeriodId, model => model.MapFrom(m => m.PaymentPeriodId))
                 .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
                 .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
         }

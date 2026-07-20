@@ -88,12 +88,12 @@ namespace HR_AUTOMATION.Application.ViewModels
         /// <summary>
         /// Gets or sets the work modality identifier.
         /// </summary>
-        public int? ModalityId { get; set; }
+        public int? WorkModalityId { get; set; }
 
         /// <summary>
-        /// Gets or sets the contract type identifier.
+        /// Gets or sets the employment type identifier.
         /// </summary>
-        public int? ContractTypeId { get; set; }
+        public int? EmploymentTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the currency identifier.
@@ -101,9 +101,9 @@ namespace HR_AUTOMATION.Application.ViewModels
         public int? CurrencyId { get; set; }
 
         /// <summary>
-        /// Gets or sets the payment frequency identifier.
+        /// Gets or sets the payment period identifier.
         /// </summary>
-        public int? PayFrequencyId { get; set; }
+        public int? PaymentPeriodId { get; set; }
 
         /// <summary>
         /// Gets or sets additional notes.

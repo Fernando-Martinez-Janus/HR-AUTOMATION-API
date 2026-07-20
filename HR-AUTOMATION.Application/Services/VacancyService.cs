@@ -221,10 +221,10 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_salary_range_max", model.SalaryRangeMax),
                     new("@p_request_date", model.RequestDate),
                     new("@p_deadline_date", model.DeadlineDate),
-                    new("@p_modality_id", model.ModalityId),
-                    new("@p_contract_type_id", model.ContractTypeId),
+                    new("@p_modality_id", model.WorkModalityId),
+                    new("@p_contract_type_id", model.EmploymentTypeId),
                     new("@p_currency_id", model.CurrencyId),
-                    new("@p_pay_frequency_id", model.PayFrequencyId),
+                    new("@p_pay_frequency_id", model.PaymentPeriodId),
                     new("@p_notes", model.Notes),
                     new("@p_created_by", _httpContextService.GetUserId())
                 ];
@@ -268,10 +268,10 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_salary_range_max", model.SalaryRangeMax),
                     new("@p_request_date", model.RequestDate),
                     new("@p_deadline_date", model.DeadlineDate),
-                    new("@p_modality_id", model.ModalityId),
-                    new("@p_contract_type_id", model.ContractTypeId),
+                    new("@p_modality_id", model.WorkModalityId),
+                    new("@p_contract_type_id", model.EmploymentTypeId),
                     new("@p_currency_id", model.CurrencyId),
-                    new("@p_pay_frequency_id", model.PayFrequencyId),
+                    new("@p_pay_frequency_id", model.PaymentPeriodId),
                     new("@p_notes", model.Notes),
                     new("@p_created_by", _httpContextService.GetUserId()),
                     new("@p_updated_by", _httpContextService.GetUserId())
@@ -329,10 +329,10 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_salary_range_max", model.SalaryRangeMax),
                     new("@p_request_date", model.RequestDate),
                     new("@p_deadline_date", model.DeadlineDate),
-                    new("@p_modality_id", model.ModalityId),
-                    new("@p_contract_type_id", model.ContractTypeId),
+                    new("@p_modality_id", model.WorkModalityId),
+                    new("@p_contract_type_id", model.EmploymentTypeId),
                     new("@p_currency_id", model.CurrencyId),
-                    new("@p_pay_frequency_id", model.PayFrequencyId),
+                    new("@p_pay_frequency_id", model.PaymentPeriodId),
                     new("@p_notes", model.Notes),
                     new("@p_updated_by", _httpContextService.GetUserId())
                 ];
