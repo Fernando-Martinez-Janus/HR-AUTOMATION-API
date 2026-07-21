@@ -295,7 +295,7 @@ namespace HR_AUTOMATION.Application.Services
             try
             {
                 List<KeyValuePair<string, object?>> parameters = [
-                    new("@p_id", id),
+                    new("@p_skill_id", id),
                     new("@p_updated_by", _httpContextService.GetUserId()),
                 ];
 
