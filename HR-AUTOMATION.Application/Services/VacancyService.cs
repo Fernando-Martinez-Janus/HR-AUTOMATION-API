@@ -135,7 +135,11 @@ namespace HR_AUTOMATION.Application.Services
                 List<KeyValuePair<string, object?>> parameters = [
                     new("@p_organization_id", model.OrganizationId),
                     new("@page_number", model.PageNumber),
-                    new("@rows_page", model.PageSize)
+                    new("@rows_page", model.PageSize),
+                    new("@p_status_name", model.StatusName),
+                    new("@p_vacancy_location", model.Location),
+                    new("@p_criticality_level_id", model.CriticalityLevelId),
+                    new("@p_search", model.SearchTerm)
                 ];
 
                 IEnumerable<Vacancy> result = await _sharedRepository.QueryAsync<Vacancy>("[recruitment].[web_get_vacancies]", parameters);

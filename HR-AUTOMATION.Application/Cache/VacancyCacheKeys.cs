@@ -17,13 +17,19 @@ namespace HR_AUTOMATION.Application.Cache
             string scope = model?.OrganizationId?.ToString() ?? CacheKeys.AllOrganizationsKey;
             string searchHashed = string.IsNullOrEmpty(model?.SearchTerm) ? CacheKeys.SearchEmptyKey : CacheKeyHelper.ComputeHash(model.SearchTerm);
 
+            string statusNameHash = string.IsNullOrEmpty(model?.StatusName) ? CacheKeys.SearchEmptyKey : CacheKeyHelper.ComputeHash(model.StatusName);
+            string locationHash = string.IsNullOrEmpty(model?.Location) ? CacheKeys.SearchEmptyKey : CacheKeyHelper.ComputeHash(model.Location);
+
             return string.Concat(
                 $"{CacheKeys.VacancyKey}:",
                 $"{CacheKeys.OrganizationKey}:{scope}:",
                 $"{CacheKeys.VersionKey}:{version}:",
                 $"{CacheKeys.SearchKey}:{searchHashed}:",
                 $"{CacheKeys.PageNumberKey}:{model?.PageNumber}:",
-                $"{CacheKeys.PageSizeKey}:{model?.PageSize}"
+                $"{CacheKeys.PageSizeKey}:{model?.PageSize}:",
+                $"status:{statusNameHash}:",
+                $"loc:{locationHash}:",
+                $"clid:{model?.CriticalityLevelId}"
             );
         }
     }
