@@ -18,7 +18,7 @@ using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using Shared.Kernel.Utils.Helpers;
-using System.Data;
+using System.Text.Json;
 
 namespace HR_AUTOMATION.Application.Services;
 
@@ -83,7 +83,6 @@ public class ProfileService(
         if (id.HasValue)
         {
             string idKey = ProfileCacheKeys.ById(id.Value);
-
             await _cacheService.DeleteAsync(idKey);
         }
 
@@ -100,82 +99,22 @@ public class ProfileService(
     }
 
     /// <summary>
-    /// Creates a SqlParameter configured for the recruitment.type_profile_skills table-valued parameter.
+    /// Serializes skills collection into JSON string for SQL OPENJSON consumption.
     /// </summary>
-    private static DataTable CreateProfileSkillsTable(IEnumerable<ProfileSkillInputModel> skills)
+    private static string? SerializeSkillsToJson(IEnumerable<ProfileSkillInputModel>? skills)
     {
-        DataTable table = new("recruitment.type_profile_skills"); // Asignar el nombre del tipo aquí
-
-        table.Columns.Add("skill_id", typeof(int));
-        table.Columns.Add("skill_level_id", typeof(int));
-        table.Columns.Add("is_required", typeof(bool));
-
-        if (skills != null)
+        if (skills == null || !skills.Any())
         {
-            foreach (var skill in skills)
-            {
-                table.Rows.Add(skill.SkillId, skill.SkillLevelId, skill.IsRequired);
-            }
+            return null;
         }
 
-        return table;
+        return JsonSerializer.Serialize(skills.Select(s => new
+        {
+            skill_id = s.SkillId,
+            skill_level_id = s.SkillLevelId,
+            is_required = s.IsRequired
+        }));
     }
-
-    ///// <summary>
-    ///// Retrieves profiles matching the specified search criteria.
-    ///// </summary>
-    ///// <param name="model">The search criteria.</param>
-    ///// <returns>A paginated list of profiles.</returns>
-    //public async Task<PaginationResponse<ProfileViewModel>> SearchAsync(ProfileSearchInputModel model)
-    //{
-    //    try
-    //    {
-    //        int? organizationId = _httpContextService.GetOrganizationId();
-
-    //        model.Normalize();
-    //        model.OrganizationId ??= organizationId;
-
-    //        string versionKey = ProfileCacheKeys.Version(model.OrganizationId);
-    //        string? version = await _cacheService.GetAsync<string>(versionKey);
-
-    //        if (string.IsNullOrWhiteSpace(version))
-    //        {
-    //            version = CacheKeyHelper.GenerateVersion();
-
-    //            await _cacheService.SetAsync(versionKey, version);
-    //        }
-
-    //        string searchKey = ProfileCacheKeys.Search(model, version);
-    //        PaginationResponse<ProfileViewModel>? cacheResult = await _cacheService.GetAsync<PaginationResponse<ProfileViewModel>>(searchKey);
-
-    //        if (cacheResult != null)
-    //        {
-    //            return cacheResult;
-    //        }
-
-    //        List<KeyValuePair<string, object?>> parameters = [
-    //            new("@p_organization_id", model.OrganizationId),
-    //            new("@p_page_number", model.PageNumber),
-    //            new("@p_page_size", model.PageSize),
-    //            new("@p_search_term", model.SearchTerm)
-    //        ];
-
-    //        IEnumerable<ProfileModel> result = await _sharedRepository.QueryAsync<ProfileModel>("[recruitment].[web_get_profiles]", parameters);
-
-    //        IEnumerable<ProfileViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<ProfileViewModel>>(result);
-
-    //        PaginationResponse<ProfileViewModel> paginationResult = new(result.FirstOrDefault()?.TotalCount ?? 0, mappedResult);
-
-    //        await _cacheService.SetAsync(searchKey, paginationResult, _cacheDefaultExpiration);
-
-    //        return paginationResult;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex, nameof(SearchAsync));
-    //        throw;
-    //    }
-    //}
 
     /// <summary>
     /// Retrieves a profile by its identifier.
@@ -187,6 +126,9 @@ public class ProfileService(
     {
         try
         {
+            int organizationId = _httpContextService.GetOrganizationId()
+                ?? throw new ResponseExceptionFactory(Exceptions.OrganizationRequired);
+
             string idKey = ProfileCacheKeys.ById(id);
 
             ProfileViewModel? cacheResult = await _cacheService.GetAsync<ProfileViewModel>(idKey);
@@ -197,7 +139,8 @@ public class ProfileService(
             }
 
             List<KeyValuePair<string, object?>> parameters = [
-                new("@p_id", id)
+                new("@p_profile_id", id),
+                new("@p_organization_id", organizationId)
             ];
 
             ProfileModel result =
@@ -218,7 +161,7 @@ public class ProfileService(
     }
 
     /// <summary>
-    /// Creates a new profile with its associated skills.
+    /// Creates a new profile with its associated skills using JSON parameter.
     /// </summary>
     /// <param name="model">The profile information.</param>
     /// <returns>The identifier of the newly created profile.</returns>
@@ -229,16 +172,16 @@ public class ProfileService(
         {
             ValidateModel(model);
 
-            DataTable skillsTable = CreateProfileSkillsTable(model.Skills);
+            string? skillsJson = SerializeSkillsToJson(model.Skills);
 
             List<KeyValuePair<string, object?>> parameters = [
-                new("@p_organization_id",    model.OrganizationId),
-                new("@p_area_level_id",      model.AreaLevelId),
-                new("@p_seniority_level_id", model.SeniorityLevelId),
-                new("@p_profile_name",       model.ProfileName),
-                new("@p_profile_description",model.ProfileDescription),
-                new("@p_skills",             skillsTable), // Pass DataTable directly
-                new("@p_created_by",         _httpContextService.GetUserId())
+                new("@p_organization_id",     model.OrganizationId),
+                new("@p_area_level_id",       model.AreaLevelId),
+                new("@p_seniority_level_id",  model.SeniorityLevelId),
+                new("@p_profile_name",        model.ProfileName),
+                new("@p_profile_description", model.ProfileDescription),
+                new("@p_skills",              skillsJson),
+                new("@p_created_by",          _httpContextService.GetUserId())
             ];
 
             object? result = await _sharedRepository.QueryScalarAsync("[recruitment].[web_insert_profile]", parameters);
@@ -254,64 +197,38 @@ public class ProfileService(
         }
     }
 
-    ///// <summary>
-    ///// Updates an existing profile.
-    ///// </summary>
-    ///// <param name="id">The profile identifier.</param>
-    ///// <param name="model">The updated profile information.</param>
-    //public async Task UpdateAsync(int id, ProfileInputModel model)
-    //{
-    //    try
-    //    {
-    //        ValidateModel(model);
-
-    //        SqlParameter skillsParam = CreateProfileSkillsParameter(model.Skills);
-
-    //        List<KeyValuePair<string, object?>> parameters = [
-    //            new("@p_id",                 id),
-    //            new("@p_organization_id",    model.OrganizationId),
-    //            new("@p_area_level_id",      model.AreaLevelId),
-    //            new("@p_seniority_level_id", model.SeniorityLevelId),
-    //            new("@p_profile_name",       model.ProfileName),
-    //            new("@p_profile_description",model.ProfileDescription),
-    //            new("@p_skills",             skillsParam),
-    //            new("@p_updated_by",         _httpContextService.GetUserId())
-    //        ];
-
-    //        await _sharedRepository.ExecuteAsync("[recruitment].[web_update_profile]", parameters);
-
-    //        await HandleChangedAsync(model.OrganizationId, id);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex, nameof(UpdateAsync));
-    //        throw;
-    //    }
-    //}
-
     /// <summary>
-    /// Deletes an existing profile.
+    /// Updates an existing profile.
     /// </summary>
-    /// <param name="id">The profile identifier to delete.</param>
-    //public async Task DeleteAsync(int id)
-    //{
-    //    try
-    //    {
-    //        List<KeyValuePair<string, object?>> parameters = [
-    //            new("@p_id", id),
-    //            new("@p_updated_by", _httpContextService.GetUserId())
-    //        ];
+    /// <param name="id">The profile identifier.</param>
+    /// <param name="model">The updated profile information.</param>
+    public async Task UpdateAsync(int id, ProfileInputModel model)
+    {
+        try
+        {
+            ValidateModel(model);
 
-    //        ProfileModel result =
-    //            await _sharedRepository.QuerySingleAsync<ProfileModel>("[recruitment].[web_delete_profile]", parameters)
-    //            ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+            string? skillsJson = SerializeSkillsToJson(model.Skills);
 
-    //        await HandleChangedAsync(result.OrganizationId, id);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex, nameof(DeleteAsync));
-    //        throw;
-    //    }
-    //}
+            List<KeyValuePair<string, object?>> parameters = [
+                new("@p_profile_id",          id),
+                new("@p_organization_id",     model.OrganizationId),
+                new("@p_area_level_id",       model.AreaLevelId),
+                new("@p_seniority_level_id",  model.SeniorityLevelId),
+                new("@p_profile_name",        model.ProfileName),
+                new("@p_profile_description", model.ProfileDescription),
+                new("@p_skills",              skillsJson),
+                new("@p_updated_by",          _httpContextService.GetUserId())
+            ];
+
+            await _sharedRepository.ExecuteAsync("[recruitment].[web_update_profile]", parameters);
+
+            await HandleChangedAsync(model.OrganizationId, id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(UpdateAsync));
+            throw;
+        }
+    }
 }

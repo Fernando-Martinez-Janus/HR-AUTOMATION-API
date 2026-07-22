@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using HR_AUTOMATION.Application.InputModels;
 using HR_AUTOMATION.Application.IServices;
+using HR_AUTOMATION.Application.ViewModels;
 using HR_AUTOMATION.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -22,6 +23,9 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
 {
     private readonly IProfileService _profileService = profileService;
 
+
+
+
     /// <summary>
     /// Creates a new profile with its associated skills.
     /// </summary>
@@ -42,4 +46,28 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
 
         return StatusCode(response.Code, response);
     }
+
+
+    /// <summary>
+    /// Retrieves a profile by its identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the profile.</param>
+    /// <returns>The requested <see cref="ProfileViewModel"/>.</returns>
+    /// <exception cref="ResponseExceptionFactory">Thrown when the specified profile does not exist.</exception>
+    [HttpGet("{id:int}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Response<ProfileViewModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get(int id)
+    {
+        ProfileViewModel result = await _profileService.GetAsync(id);
+
+        Response<ProfileViewModel> response = new()
+        {
+            Code = StatusCodes.Status200OK,
+            DataResponse = result
+        };
+
+        return StatusCode(response.Code, response);
+    }
+
 }
