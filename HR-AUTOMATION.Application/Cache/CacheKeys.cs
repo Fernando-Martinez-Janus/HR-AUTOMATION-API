@@ -27,5 +27,6 @@
         public const string QuestionCategoryKey = "questioncategory";
         public const string OrganizationEntityKey = "organization";
         public const string VacancyKey = "vacancy";
+        public const string SearchRequestKey = "searchrequest";
     }
 }

@@ -119,6 +119,21 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.PaymentPeriodId, model => model.MapFrom(m => m.PaymentPeriodId))
                 .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
                 .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
+            CreateMap<SearchRequestModel, SearchRequestViewModel>(MemberList.None)
+                .ForMember(view => view.SearchRequestId, model => model.MapFrom(m => m.Id))
+                .ForMember(view => view.VacancyId, model => model.MapFrom(m => m.VacancyId))
+                .ForMember(view => view.VacancyTitle, model => model.MapFrom(m => m.VacancyTitle))
+                .ForMember(view => view.ClientName, model => model.MapFrom(m => m.ClientName))
+                .ForMember(view => view.VacancyLocation, model => model.MapFrom(m => m.VacancyLocation))
+                .ForMember(view => view.MinimumExperience, model => model.MapFrom(m => m.MinimumExperience))
+                .ForMember(view => view.MaximumExperience, model => model.MapFrom(m => m.MaximumExperience))
+                .ForMember(view => view.ScolarityId, model => model.MapFrom(m => m.ScolarityId))
+                .ForMember(view => view.ScolarityName, model => model.MapFrom(m => m.ScolarityName))
+                .ForMember(view => view.ProfileJson, model => model.MapFrom(m => m.ProfileJson))
+                .ForMember(view => view.ExcludedCompanies, model => model.MapFrom(m => m.ExcludedCompanies))
+                .ForMember(view => view.ExcludedSchools, model => model.MapFrom(m => m.ExcludedSchools))
+                .ForMember(view => view.SearchStatus, model => model.MapFrom(m => m.SearchStatus))
+                .ForMember(view => view.TotalRecords, model => model.MapFrom(m => m.TotalRecords));
         }
     }
 }
