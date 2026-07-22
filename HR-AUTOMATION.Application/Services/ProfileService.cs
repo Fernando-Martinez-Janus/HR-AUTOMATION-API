@@ -117,6 +117,52 @@ public class ProfileService(
     }
 
     /// <summary>
+    /// Retrieves all profiles for the current or specified organization.
+    /// </summary>
+    /// <param name="organizationId">Optional organization identifier.</param>
+    /// <returns>A list of profiles.</returns>
+    public async Task<IEnumerable<ProfileViewModel>> GetAllAsync(int? organizationId = null)
+    {
+        try
+        {
+            int targetOrgId = organizationId
+                            ?? _httpContextService.GetOrganizationId()
+                            ?? throw new ResponseExceptionFactory(Exceptions.OrganizationRequired);
+
+            string cacheKey = ProfileCacheKeys.All(targetOrgId);
+
+            IEnumerable<ProfileViewModel>? cacheResult = await _cacheService.GetAsync<IEnumerable<ProfileViewModel>>(cacheKey);
+
+            if (cacheResult != null)
+            {
+                return cacheResult;
+            }
+
+            List<KeyValuePair<string, object?>> parameters = [
+                new("p_organization_id", targetOrgId)
+            ];
+
+            // Consulta única usando QueryAsync
+            IEnumerable<ProfileModel> profiles =
+                await _sharedRepository.QueryAsync<ProfileModel>("[recruitment].[web_get_all_profiles_by_organization]", parameters);
+
+            // AutoMapper convierte la lista de perfiles (incluyendo sus Skills deserializadas) a ProfileViewModel
+            List<ProfileViewModel> mappedResult = Mapping.Mapper
+                .Map<IEnumerable<ProfileViewModel>>(profiles)
+                .ToList();
+
+            await _cacheService.SetAsync(cacheKey, mappedResult, _cacheDefaultExpiration);
+
+            return mappedResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(GetAllAsync));
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Retrieves a profile by its identifier.
     /// </summary>
     /// <param name="id">The profile identifier.</param>

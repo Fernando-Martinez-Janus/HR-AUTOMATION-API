@@ -6,6 +6,7 @@
         public const string AllOrganizationsKey = "all";
         public const string VersionKey = "v";
         public const string IdKey = "id";
+        public const string AllKey = "allkey";
         public const string SearchKey = "search";
         public const string SearchEmptyKey = "all";
         public const string PageNumberKey = "page";

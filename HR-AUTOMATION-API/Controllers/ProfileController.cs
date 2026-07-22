@@ -47,6 +47,26 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
         return StatusCode(response.Code, response);
     }
 
+    /// <summary>
+    /// Retrieves all profiles for the specified or current organization.
+    /// </summary>
+    /// <param name="organizationId">Optional organization identifier.</param>
+    /// <returns>A list of <see cref="ProfileViewModel"/>.</returns>
+    [HttpGet]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Response<IEnumerable<ProfileViewModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int? organizationId = null)
+    {
+        IEnumerable<ProfileViewModel> result = await _profileService.GetAllAsync(organizationId);
+
+        Response<IEnumerable<ProfileViewModel>> response = new()
+        {
+            Code = StatusCodes.Status200OK,
+            DataResponse = result
+        };
+
+        return StatusCode(response.Code, response);
+    }
 
     /// <summary>
     /// Retrieves a profile by its identifier.
@@ -59,6 +79,7 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
     [ProducesResponseType(typeof(Response<ProfileViewModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(int id)
     {
+        // 💡 AQUÍ: Debes llamar a GetAsync(id) pasando el parámetro 'id'
         ProfileViewModel result = await _profileService.GetAsync(id);
 
         Response<ProfileViewModel> response = new()

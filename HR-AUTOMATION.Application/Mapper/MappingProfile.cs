@@ -119,6 +119,29 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.PaymentPeriodId, model => model.MapFrom(m => m.PaymentPeriodId))
                 .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
                 .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
+
+
+            CreateMap<ProfileModel, ProfileViewModel>(MemberList.None)
+                .ForMember(view => view.ProfileId, model => model.MapFrom(m => m.ProfileId))
+                .ForMember(view => view.OrganizationId, model => model.MapFrom(m => m.OrganizationId))
+                .ForMember(view => view.AreaLevelId, model => model.MapFrom(m => m.AreaLevelId))
+                .ForMember(view => view.AreaLevelName, model => model.MapFrom(m => m.AreaLevelName))
+                .ForMember(view => view.SeniorityLevelId, model => model.MapFrom(m => m.SeniorityLevelId))
+                .ForMember(view => view.SeniorityLevelName, model => model.MapFrom(m => m.SeniorityLevelName))
+                .ForMember(view => view.ProfileName, model => model.MapFrom(m => m.ProfileName))
+                .ForMember(view => view.ProfileDescription, model => model.MapFrom(m => m.ProfileDescription))
+                .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt))
+                .ForMember(view => view.CreatedBy, model => model.MapFrom(m => m.CreatedBy))
+                .ForMember(view => view.Skills, model => model.MapFrom(m => m.Skills));
+
+            CreateMap<ProfileSkillModel, ProfileSkillViewModel>(MemberList.None)
+                .ForMember(view => view.ProfileSkillId, model => model.MapFrom(m => m.ProfileSkillId))
+                .ForMember(view => view.ProfileId, model => model.MapFrom(m => m.ProfileId))
+                .ForMember(view => view.SkillId, model => model.MapFrom(m => m.SkillId))
+                .ForMember(view => view.SkillName, model => model.MapFrom(m => m.SkillName))
+                .ForMember(view => view.SkillLevelId, model => model.MapFrom(m => m.SkillLevelId))
+                .ForMember(view => view.SkillLevelName, model => model.MapFrom(m => m.SkillLevelName))
+                .ForMember(view => view.IsRequired, model => model.MapFrom(m => m.IsRequired));
         }
     }
 }

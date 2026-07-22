@@ -14,14 +14,17 @@ public interface IProfileService
     /// <param name="model">The profile information.</param>
     /// <returns>The identifier of the newly created profile.</returns>
     Task<int> CreateAsync(ProfileInputModel model);
-
+    /// <summary>
+    /// Retrieves all profiles for the current organization.
+    /// </summary>
+    /// <returns>A list of profiles.</returns>
+    Task<IEnumerable<ProfileViewModel>> GetAllAsync(int? organizationId);
 
     /// <summary>
     /// Retrieves a profile by its identifier.
     /// </summary>
     /// <param name="id">The profile identifier.</param>
-    /// <returns>The <see cref="ProfileViewModel"/> if found; otherwise throws <see cref="ResponseExceptionFactory"/>.</returns>
+    /// <returns>The profile information.</returns>
     Task<ProfileViewModel> GetAsync(int id);
-
 
 }

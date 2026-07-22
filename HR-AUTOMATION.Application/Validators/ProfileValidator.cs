@@ -30,8 +30,8 @@ public class ProfileValidator : AbstractValidator<ProfileInputModel>
             .WithErrorCode(Exceptions.ProfileNameLengthInvalid.ToString());
 
         RuleFor(x => x.ProfileDescription)
+            .NotEmpty()
             .MaximumLength(1000)
-            .WithErrorCode(Exceptions.ProfileDescriptionLengthInvalid.ToString())
-            .When(x => x.ProfileDescription is not null);
+            .WithErrorCode(Exceptions.ProfileDescriptionLengthInvalid.ToString());
     }
 }

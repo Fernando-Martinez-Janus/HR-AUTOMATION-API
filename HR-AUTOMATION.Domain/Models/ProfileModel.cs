@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the profile unique identifier.
         /// </summary>
-        public int Id { get; set; }
+        public int ProfileId { get; set; }
 
         /// <summary>
         /// Gets or sets the organization identifier.
@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets or sets the JSON string or formatted list of associated skills.
         /// </summary>
-        public string? Skills { get; set; }
+        public IEnumerable<ProfileSkillModel> Skills { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the total count of records (used for pagination in search stored procedures).

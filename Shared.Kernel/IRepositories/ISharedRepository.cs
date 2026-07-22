@@ -41,5 +41,7 @@
         /// <param name="parameters">Optional list of parameters to pass to the stored procedure.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the database operation.</param>
         Task ExecuteAsync(string spName, List<KeyValuePair<string, object?>>? parameters = null, CancellationToken cancellationToken = default);
+
+
     }
 }

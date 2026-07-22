@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the profile identifier.
         /// </summary>
-        public int Id { get; set; }
+        public int ProfileId { get; set; }
 
         /// <summary>
         /// Gets or sets the organization identifier.
@@ -48,11 +48,16 @@
         /// <summary>
         /// Gets or sets the collection of skills associated with the profile.
         /// </summary>
-        public IEnumerable<SkillViewModel> Skills { get; set; } = [];
+        public IEnumerable<ProfileSkillViewModel> Skills { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the creation timestamp.
         /// </summary>
         public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Gets id creation.
+        /// </summary>
+        public int CreatedBy { get; set; }
     }
 }
