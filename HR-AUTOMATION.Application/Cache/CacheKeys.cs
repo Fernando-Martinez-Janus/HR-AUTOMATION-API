@@ -11,6 +11,7 @@
         public const string PageNumberKey = "page";
         public const string PageSizeKey = "size";
 
+        public const string ProfileKey = "profile";
         public const string SkillCategoriesFilter = "skillcategories";
 
         public const string SkillCategoryKey = "skillcategory";
