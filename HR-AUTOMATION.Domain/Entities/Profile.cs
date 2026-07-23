@@ -25,6 +25,9 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("icon_name")]
         public string? IconName { get; set; }
 
+        [Column("color")]
+        public string? Color { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 

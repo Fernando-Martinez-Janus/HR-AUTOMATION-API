@@ -51,6 +51,11 @@
         public string? IconName { get; set; }
 
         /// <summary>
+        /// Gets or sets the profile color.
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
         /// Gets or sets the collection of skills associated with the profile.
         /// </summary>
         public IEnumerable<ProfileSkillViewModel> Skills { get; set; } = [];

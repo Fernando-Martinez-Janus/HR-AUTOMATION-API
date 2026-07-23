@@ -133,6 +133,7 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.ProfileName, model => model.MapFrom(m => m.ProfileName))
                 .ForMember(view => view.ProfileDescription, model => model.MapFrom(m => m.ProfileDescription))
                 .ForMember(view => view.IconName, model => model.MapFrom(m => m.IconName))
+                .ForMember(view => view.Color, model => model.MapFrom(m => m.Color))
                 .ForMember(view => view.Skills, model => model.MapFrom(m => m.Skills));
 
             CreateMap<ProfileSkillModel, ProfileSkillViewModel>(MemberList.None)
