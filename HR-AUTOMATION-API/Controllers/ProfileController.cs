@@ -90,10 +90,10 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
 
 
     /// <summary>
-    /// Updates an existing skill.
+    /// Updates an existing profile.
     /// </summary>
-    /// <param name="id">The identifier of the skill to update.</param>
-    /// <param name="model">The updated skill information.</param>
+    /// <param name="id">The identifier of the profile to update.</param>
+    /// <param name="model">The updated profile information.</param>
     [HttpPut("{id:int}")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
@@ -111,9 +111,9 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
 
 
     /// <summary>
-    /// Deletes an existing skill.
+    /// Deletes an existing profile.
     /// </summary>
-    /// <param name="id">The identifier of the skill to delete.</param>
+    /// <param name="id">The identifier of the profile to delete.</param>
     [HttpDelete("{id:int}")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
