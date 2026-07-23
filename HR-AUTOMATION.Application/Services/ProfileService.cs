@@ -247,32 +247,39 @@ public class ProfileService(
     }
 
     /// <summary>
-    /// Updates an existing profile.
+    /// Creates a new profile with its associated skills using JSON parameter.
     /// </summary>
-    /// <param name="id">The profile identifier.</param>
-    /// <param name="model">The updated profile information.</param>
-    public async Task UpdateAsync(int id, ProfileInputModel model)
+    /// <param name="model">The profile information.</param>
+    /// <returns>The identifier of the newly created profile.</returns>
+    /// <exception cref="ResponseExceptionFactory">Thrown when the profile cannot be created.</exception>
+    public async Task<int> UpdateAsync(int id, ProfileInputModel model)
     {
         try
         {
             ValidateModel(model);
 
+            IEnumerable<ProfileSkillModel> skills = Mapping.Mapper.Map<IEnumerable<ProfileSkillModel>>(model.Skills);
+
             List<KeyValuePair<string, object?>> parameters = [
-                new("@p_profile_id",          id),
-                new("@p_organization_id",     model.OrganizationId),
-                new("@p_area_level_id",       model.AreaLevelId),
-                new("@p_seniority_level_id",  model.SeniorityLevelId),
-                new("@p_profile_name",        model.ProfileName),
-                new("@p_profile_description", model.ProfileDescription),
-                new("@p_icon_name",           model.IconName),
-                new("@p_color",               model.Color),
-                new("@p_skills",              JsonConvert.SerializeObject(model.Skills, _jsonSettings)),
-                new("@p_updated_by",          _httpContextService.GetUserId())
+                new("@p_profile_id",            id),
+                new("@p_organization_id",       model.OrganizationId),
+                new("@p_area_level_id",         model.AreaLevelId),
+                new("@p_seniority_level_id",    model.SeniorityLevelId),
+                new("@p_profile_name",          model.ProfileName),
+                new("@p_profile_description",   model.ProfileDescription),
+                new("@p_icon_name",             model.IconName),
+                new("@p_color",                 model.Color),
+                new("@p_skills",                JsonConvert.SerializeObject(skills, _jsonSettings)),
+                new("@p_updated_by",            _httpContextService.GetUserId())
             ];
 
-            await _sharedRepository.ExecuteAsync("[recruitment].[web_update_profile]", parameters);
+            ProfileModel result =
+                await _sharedRepository.QuerySingleAsync<ProfileModel>("[recruitment].[web_update_profile]", parameters)
+                ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
 
-            await HandleChangedAsync(model.OrganizationId, id);
+            await HandleChangedAsync(model.OrganizationId);
+
+            return result.Id;
         }
         catch (Exception ex)
         {

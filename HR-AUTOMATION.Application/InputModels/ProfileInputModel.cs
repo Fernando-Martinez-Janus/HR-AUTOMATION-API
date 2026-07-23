@@ -5,6 +5,8 @@
 /// </summary>
 public class ProfileInputModel
 {
+
+
     /// <summary>
     /// Gets or sets the organization identifier.
     /// </summary>

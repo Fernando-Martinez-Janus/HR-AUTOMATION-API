@@ -30,4 +30,9 @@ public interface IProfileService
     /// <returns>The profile information.</returns>
     Task<ProfileViewModel> GetAsync(int id);
 
+
+
+    Task<int> UpdateAsync(int id, ProfileInputModel model);
+
+
 }
