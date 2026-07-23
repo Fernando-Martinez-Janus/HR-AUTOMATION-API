@@ -32,7 +32,18 @@ public interface IProfileService
 
 
 
+
+    /// <summary>
+    /// Updates an existing profile.
+    /// </summary>
+    /// <param name="id">The identifier of the profile to update.</param>
+    /// <param name="model">The updated profile information.</param>
     Task<int> UpdateAsync(int id, ProfileInputModel model);
 
+    /// <summary>
+    /// Deletes an existing profile.
+    /// </summary>
+    /// <param name="id">The identifier of the profile to delete.</param>
+    Task DeleteAsync(int id);
 
 }

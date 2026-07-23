@@ -287,4 +287,32 @@ public class ProfileService(
             throw;
         }
     }
+
+
+
+    /// <summary>
+    /// Deletes an existing profile.
+    /// </summary>
+    /// <param name="id">The identifier of the skill to delete.</param>
+    public async Task DeleteAsync(int id)
+    {
+        try
+        {
+            List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_profile_id", id),
+                    new("@p_updated_by", _httpContextService.GetUserId()),
+                ];
+
+            SkillModel result =
+               await _sharedRepository.QuerySingleAsync<SkillModel>("[recruitment].[web_delete_profile]", parameters)
+                ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+
+            await HandleChangedAsync(result.OrganizationId, id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(DeleteAsync));
+            throw;
+        }
+    }
 }
