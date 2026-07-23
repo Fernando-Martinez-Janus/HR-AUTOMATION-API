@@ -22,6 +22,9 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("profile_description")]
         public string? ProfileDescription { get; set; }
 
+        [Column("icon_name")]
+        public string? IconName { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 

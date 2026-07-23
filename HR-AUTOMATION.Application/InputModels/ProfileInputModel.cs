@@ -31,6 +31,11 @@ public class ProfileInputModel
     public string ProfileDescription { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the profile icon name.
+    /// </summary>
+    public string? IconName { get; set; }
+
+    /// <summary>
     /// Gets or sets the list of skills to associate with this profile.
     /// </summary>
     public IEnumerable<ProfileSkillInputModel> Skills { get; set; } = [];

@@ -225,6 +225,7 @@ public class ProfileService(
                 new("@p_seniority_level_id",  model.SeniorityLevelId),
                 new("@p_profile_name",        model.ProfileName),
                 new("@p_profile_description", model.ProfileDescription),
+                new("@p_icon_name",           model.IconName),
                 new("@p_skills",              JsonConvert.SerializeObject(skills, _jsonSettings)),
                 new("@p_created_by",          _httpContextService.GetUserId())
             ];
@@ -262,6 +263,7 @@ public class ProfileService(
                 new("@p_seniority_level_id",  model.SeniorityLevelId),
                 new("@p_profile_name",        model.ProfileName),
                 new("@p_profile_description", model.ProfileDescription),
+                new("@p_icon_name",           model.IconName),
                 new("@p_skills",              JsonConvert.SerializeObject(model.Skills, _jsonSettings)),
                 new("@p_updated_by",          _httpContextService.GetUserId())
             ];

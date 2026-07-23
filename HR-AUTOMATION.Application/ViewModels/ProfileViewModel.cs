@@ -46,6 +46,11 @@
         public string? ProfileDescription { get; set; }
 
         /// <summary>
+        /// Gets or sets the profile icon name.
+        /// </summary>
+        public string? IconName { get; set; }
+
+        /// <summary>
         /// Gets or sets the collection of skills associated with the profile.
         /// </summary>
         public IEnumerable<ProfileSkillViewModel> Skills { get; set; } = [];
