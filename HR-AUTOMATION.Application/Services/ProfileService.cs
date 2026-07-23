@@ -12,13 +12,15 @@ using HR_AUTOMATION.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Shared.Kernel.IRepositories;
 using Shared.Kernel.IServices;
 using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using Shared.Kernel.Utils.Helpers;
-using System.Text.Json;
+using Shared.Kernel.Utils.Json;
+using Shared.Kernel.ViewModels;
 
 namespace HR_AUTOMATION.Application.Services;
 
@@ -50,6 +52,11 @@ public class ProfileService(
 
     private readonly TimeSpan _cacheLongExpiration =
         TimeSpan.FromMilliseconds(configuration.GetValue<long>(AppConstants.RedisLongExpiration));
+
+    private readonly JsonSerializerSettings _jsonSettings = new()
+    {
+        ContractResolver = new ColumnAttributeContractResolver()
+    };
 
     /// <summary>
     /// Normalizes and validates the input model before processing.
@@ -99,39 +106,32 @@ public class ProfileService(
     }
 
     /// <summary>
-    /// Serializes skills collection into JSON string for SQL OPENJSON consumption.
+    /// Retrieves profiles matching the specified search criteria.
     /// </summary>
-    private static string? SerializeSkillsToJson(IEnumerable<ProfileSkillInputModel>? skills)
-    {
-        if (skills == null || !skills.Any())
-        {
-            return null;
-        }
-
-        return JsonSerializer.Serialize(skills.Select(s => new
-        {
-            skill_id = s.SkillId,
-            skill_level_id = s.SkillLevelId,
-            is_required = s.IsRequired
-        }));
-    }
-
-    /// <summary>
-    /// Retrieves all profiles for the current or specified organization.
-    /// </summary>
-    /// <param name="organizationId">Optional organization identifier.</param>
-    /// <returns>A list of profiles.</returns>
-    public async Task<IEnumerable<ProfileViewModel>> GetAllAsync(int? organizationId = null)
+    /// <param name="model">The search criteria.</param>
+    /// <returns>A collection of matching profiles.</returns>
+    public async Task<PaginationResponse<ProfileViewModel>> SearchAsync(ProfileSearchInputModel model)
     {
         try
         {
-            int targetOrgId = organizationId
-                            ?? _httpContextService.GetOrganizationId()
-                            ?? throw new ResponseExceptionFactory(Exceptions.OrganizationRequired);
+            int? organizationId = _httpContextService.GetOrganizationId();
 
-            string cacheKey = ProfileCacheKeys.All(targetOrgId);
+            model.Normalize();
+            model.OrganizationId ??= organizationId;
 
-            IEnumerable<ProfileViewModel>? cacheResult = await _cacheService.GetAsync<IEnumerable<ProfileViewModel>>(cacheKey);
+            string versionKey = SkillCacheKeys.Version(model.OrganizationId);
+            string? version = await _cacheService.GetAsync<string>(versionKey);
+
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                version = CacheKeyHelper.GenerateVersion();
+
+                await _cacheService.SetAsync(versionKey, version);
+            }
+
+            string searchKey = ProfileCacheKeys.Search(model, version);
+
+            PaginationResponse<ProfileViewModel>? cacheResult = await _cacheService.GetAsync<PaginationResponse<ProfileViewModel>>(searchKey);
 
             if (cacheResult != null)
             {
@@ -139,25 +139,28 @@ public class ProfileService(
             }
 
             List<KeyValuePair<string, object?>> parameters = [
-                new("p_organization_id", targetOrgId)
+                new("p_organization_id", model.OrganizationId),
+                new("@p_page_number", model.PageNumber),
+                new("@p_page_size", model.PageSize),
+                new("@p_area_level_id", model.AreaLevelId),
+                new("@p_seniority_level_id", model.SeniorityLevelId),
+                new("@p_search_term", model.SearchTerm)
             ];
 
-            // Consulta única usando QueryAsync
-            IEnumerable<ProfileModel> profiles =
-                await _sharedRepository.QueryAsync<ProfileModel>("[recruitment].[web_get_all_profiles_by_organization]", parameters);
+            IEnumerable<ProfileModel> result =
+                await _sharedRepository.QueryAsync<ProfileModel>("[recruitment].[web_get_profiles]", parameters);
 
-            // AutoMapper convierte la lista de perfiles (incluyendo sus Skills deserializadas) a ProfileViewModel
-            List<ProfileViewModel> mappedResult = Mapping.Mapper
-                .Map<IEnumerable<ProfileViewModel>>(profiles)
-                .ToList();
+            IEnumerable<ProfileViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<ProfileViewModel>>(result);
 
-            await _cacheService.SetAsync(cacheKey, mappedResult, _cacheDefaultExpiration);
+            PaginationResponse<ProfileViewModel> paginationResult = new(result.FirstOrDefault()?.TotalCount ?? 0, mappedResult);
 
-            return mappedResult;
+            await _cacheService.SetAsync(searchKey, mappedResult, _cacheDefaultExpiration);
+
+            return paginationResult;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, nameof(GetAllAsync));
+            _logger.LogError(ex, nameof(SearchAsync));
             throw;
         }
     }
@@ -172,9 +175,6 @@ public class ProfileService(
     {
         try
         {
-            int organizationId = _httpContextService.GetOrganizationId()
-                ?? throw new ResponseExceptionFactory(Exceptions.OrganizationRequired);
-
             string idKey = ProfileCacheKeys.ById(id);
 
             ProfileViewModel? cacheResult = await _cacheService.GetAsync<ProfileViewModel>(idKey);
@@ -185,8 +185,7 @@ public class ProfileService(
             }
 
             List<KeyValuePair<string, object?>> parameters = [
-                new("@p_profile_id", id),
-                new("@p_organization_id", organizationId)
+                new("@p_profile_id", id)
             ];
 
             ProfileModel result =
@@ -218,7 +217,7 @@ public class ProfileService(
         {
             ValidateModel(model);
 
-            string? skillsJson = SerializeSkillsToJson(model.Skills);
+            IEnumerable<ProfileSkillModel> skills = Mapping.Mapper.Map<IEnumerable<ProfileSkillModel>>(model.Skills);
 
             List<KeyValuePair<string, object?>> parameters = [
                 new("@p_organization_id",     model.OrganizationId),
@@ -226,15 +225,17 @@ public class ProfileService(
                 new("@p_seniority_level_id",  model.SeniorityLevelId),
                 new("@p_profile_name",        model.ProfileName),
                 new("@p_profile_description", model.ProfileDescription),
-                new("@p_skills",              skillsJson),
+                new("@p_skills",              JsonConvert.SerializeObject(skills, _jsonSettings)),
                 new("@p_created_by",          _httpContextService.GetUserId())
             ];
 
-            object? result = await _sharedRepository.QueryScalarAsync("[recruitment].[web_insert_profile]", parameters);
+            ProfileModel result =
+                await _sharedRepository.QuerySingleAsync<ProfileModel>("[recruitment].[web_insert_profile]", parameters)
+                ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
 
             await HandleChangedAsync(model.OrganizationId);
 
-            return Convert.ToInt32(result);
+            return result.Id;
         }
         catch (Exception ex)
         {
@@ -254,8 +255,6 @@ public class ProfileService(
         {
             ValidateModel(model);
 
-            string? skillsJson = SerializeSkillsToJson(model.Skills);
-
             List<KeyValuePair<string, object?>> parameters = [
                 new("@p_profile_id",          id),
                 new("@p_organization_id",     model.OrganizationId),
@@ -263,7 +262,7 @@ public class ProfileService(
                 new("@p_seniority_level_id",  model.SeniorityLevelId),
                 new("@p_profile_name",        model.ProfileName),
                 new("@p_profile_description", model.ProfileDescription),
-                new("@p_skills",              skillsJson),
+                new("@p_skills",              JsonConvert.SerializeObject(model.Skills, _jsonSettings)),
                 new("@p_updated_by",          _httpContextService.GetUserId())
             ];
 

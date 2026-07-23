@@ -49,15 +49,5 @@
         /// Gets or sets the collection of skills associated with the profile.
         /// </summary>
         public IEnumerable<ProfileSkillViewModel> Skills { get; set; } = [];
-
-        /// <summary>
-        /// Gets or sets the creation timestamp.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets id creation.
-        /// </summary>
-        public int CreatedBy { get; set; }
     }
 }

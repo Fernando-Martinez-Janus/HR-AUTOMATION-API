@@ -1,78 +1,35 @@
-﻿namespace HR_AUTOMATION.Domain.Models
+﻿using HR_AUTOMATION.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HR_AUTOMATION.Domain.Models
 {
     /// <summary>
     /// Represents the domain model for a profile entity.
     /// </summary>
-    public class ProfileModel
+    public class ProfileModel : Profile
     {
-        /// <summary>
-        /// Gets or sets the profile unique identifier.
-        /// </summary>
-        public int ProfileId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the organization identifier.
-        /// </summary>
-        public int OrganizationId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the area level identifier.
-        /// </summary>
-        public int AreaLevelId { get; set; }
-
         /// <summary>
         /// Gets or sets the area level name (if retrieved via join).
         /// </summary>
+        [Column("profile_name")]
         public string? AreaLevelName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the seniority level identifier.
-        /// </summary>
-        public int SeniorityLevelId { get; set; }
 
         /// <summary>
         /// Gets or sets the seniority level name (if retrieved via join).
         /// </summary>
+        [Column("seniority_level_name")]
         public string? SeniorityLevelName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the profile name.
-        /// </summary>
-        public string ProfileName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the profile description.
-        /// </summary>
-        public string? ProfileDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the JSON string or formatted list of associated skills.
         /// </summary>
+        [Column("skills")]
         public IEnumerable<ProfileSkillModel> Skills { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the total count of records (used for pagination in search stored procedures).
         /// </summary>
+        [Column("total_count")]
         public int TotalCount { get; set; }
-
-        /// <summary>
-        /// Gets or sets the creation timestamp.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user identifier who created the record.
-        /// </summary>
-        public int CreatedBy { get; set; }
-
-        /// <summary>
-        /// Gets or sets the last update timestamp.
-        /// </summary>
-        public DateTime? UpdatedAt { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user identifier who last updated the record.
-        /// </summary>
-        public int? UpdatedBy { get; set; }
     }
 }

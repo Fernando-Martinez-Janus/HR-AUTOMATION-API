@@ -28,12 +28,12 @@ public class ProfileInputModel
     /// <summary>
     /// Gets or sets the profile description.
     /// </summary>
-    public string? ProfileDescription { get; set; }
+    public string ProfileDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the list of skills to associate with this profile.
     /// </summary>
-    public List<ProfileSkillInputModel>? Skills { get; set; }
+    public IEnumerable<ProfileSkillInputModel> Skills { get; set; } = [];
 
     /// <summary>
     /// Cleans and normalizes the input values by trimming string properties.
@@ -41,6 +41,6 @@ public class ProfileInputModel
     public void Normalize()
     {
         ProfileName = ProfileName.Trim();
-        ProfileDescription = ProfileDescription?.Trim();
+        ProfileDescription = ProfileDescription.Trim();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HR_AUTOMATION.Application.InputModels;
 using HR_AUTOMATION.Application.ViewModels;
+using Shared.Kernel.ViewModels;
 
 namespace HR_AUTOMATION.Application.IServices;
 
@@ -14,11 +15,13 @@ public interface IProfileService
     /// <param name="model">The profile information.</param>
     /// <returns>The identifier of the newly created profile.</returns>
     Task<int> CreateAsync(ProfileInputModel model);
+
     /// <summary>
-    /// Retrieves all profiles for the current organization.
+    /// Retrieves profiles matching the specified search criteria.
     /// </summary>
-    /// <returns>A list of profiles.</returns>
-    Task<IEnumerable<ProfileViewModel>> GetAllAsync(int? organizationId);
+    /// <param name="model">The search criteria.</param>
+    /// <returns>A collection of matching profiles.</returns>
+    Task<PaginationResponse<ProfileViewModel>> SearchAsync(ProfileSearchInputModel model);
 
     /// <summary>
     /// Retrieves a profile by its identifier.

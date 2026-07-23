@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Globalization;
@@ -135,25 +138,97 @@ namespace Shared.Kernel.Utils.Helpers
         public Type TargetType { get; } = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
     }
 
+    /// <summary>
+    /// Configures Newtonsoft.Json to use the database column name declared through
+    /// <see cref="ColumnAttribute"/> when deserializing JSON into a model.
+    ///
+    /// When a property does not have a Column attribute, its name is converted to
+    /// snake_case. For example, SkillLevelId is matched with skill_level_id.
+    /// </summary>
+    internal sealed class ColumnAttributeContractResolver : DefaultContractResolver
+    {
+        public ColumnAttributeContractResolver()
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy
+            {
+                // Apply snake_case to dictionary keys as well.
+                ProcessDictionaryKeys = true,
+
+                // Preserve explicitly configured names such as [JsonProperty].
+                OverrideSpecifiedNames = false
+            };
+        }
+
+        protected override JsonProperty CreateProperty(
+            MemberInfo member,
+            MemberSerialization memberSerialization)
+        {
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+            // Reuse the same [Column("...")] attribute employed by DbReaderMapper,
+            // avoiding the need to duplicate the name with [JsonProperty].
+            ColumnAttribute? columnAttribute =
+                member.GetCustomAttribute<ColumnAttribute>();
+
+            if (!string.IsNullOrWhiteSpace(columnAttribute?.Name))
+            {
+                property.PropertyName = columnAttribute.Name;
+            }
+
+            return property;
+        }
+    }
+
     // Converts a boxed value coming from the reader into the property's target type.
     // DbDataReader.GetValue already returns native CLR types, so most values only
     // need a cheap type check; the explicit cases below cover the types that
     // Convert.ChangeType cannot handle on its own.
     internal static class ValueConverter
     {
+        // These settings are reused for every JSON value read from the database.
+        // Newtonsoft creates the actual object graph recursively, including nested
+        // objects, collections, dictionaries and their child elements.
+        private static readonly JsonSerializerSettings JsonSettings = new()
+        {
+            ContractResolver = new ColumnAttributeContractResolver(),
+
+            // Ignore JSON fields that do not exist in the destination model.
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+
+            // Keep Newtonsoft's normal behavior for null properties.
+            NullValueHandling = NullValueHandling.Include
+        };
+
         public static object Convert(object value, Type targetType)
         {
+            ArgumentNullException.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(targetType);
+
+            // Keep this method safe if it is called directly with Nullable<T>.
+            // PropertyBinding already unwraps nullable value types, but this avoids
+            // depending exclusively on that implementation detail.
+            targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
             // Fast path: the value is already the type we need (the common case).
+            //
+            // This also prevents a string property containing text such as "{}"
+            // or "[]" from being unnecessarily deserialized.
             if (targetType.IsInstanceOfType(value))
             {
                 return value;
             }
 
+            // SQL queries that use FOR JSON, JSON_ARRAYAGG or equivalent functions
+            // normally return the JSON document as a string. Other integrations may
+            // already expose the value as JObject, JArray or another JToken.
+            if (TryDeserializeJson(value, targetType, out object? jsonResult))
+            {
+                return jsonResult!;
+            }
+
             if (targetType.IsEnum)
             {
-                return value is string name
-                    ? Enum.Parse(targetType, name, ignoreCase: true)
-                    : Enum.ToObject(targetType, value);
+                return value is string name ? Enum.Parse(targetType, name, ignoreCase: true) : Enum.ToObject(targetType, value);
             }
 
             if (targetType == typeof(Guid))
@@ -186,6 +261,74 @@ namespace Shared.Kernel.Utils.Helpers
             // Everything else (numeric types, bool, string, char, DateTime, ...) is
             // handled uniformly and culture-safely in a single line.
             return System.Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Attempts to deserialize values that contain a JSON object or JSON array.
+        ///
+        /// Newtonsoft.Json handles the conversion recursively, so this supports
+        /// IEnumerable&lt;T&gt;, List&lt;T&gt;, nested models, dictionaries and other
+        /// compatible object graphs without manually traversing every property.
+        /// </summary>
+        private static bool TryDeserializeJson(object value, Type targetType, out object? result)
+        {
+            result = null;
+
+            try
+            {
+                switch (value)
+                {
+                    // Handles JObject, JArray, JValue and other Newtonsoft tokens.
+                    case JToken token:
+                        result = token.ToObject(
+                            targetType,
+                            JsonSerializer.Create(JsonSettings))
+                            ?? throw new InvalidCastException(
+                                $"The JSON value was deserialized as null for target type '{targetType.FullName}'."
+                            );
+                        return true;
+
+                    // Database providers usually return JSON columns as strings.
+                    // Only strings beginning with '{' or '[' are considered here,
+                    // preventing normal scalar strings from entering Newtonsoft.
+                    case string json when LooksLikeJson(json):
+                        result = JsonConvert.DeserializeObject(json, targetType, JsonSettings)
+                            ?? throw new InvalidCastException(
+                                $"The JSON value was deserialized as null for target type '{targetType.FullName}'."
+                            );
+                        return true;
+
+                    // The value is not recognized as a JSON document.
+                    default:
+                        return false;
+                }
+            }
+            catch (JsonException exception)
+            {
+                throw new InvalidCastException($"Could not deserialize the JSON value into '{targetType.FullName}'.", exception);
+            }
+        }
+
+        /// <summary>
+        /// Performs a cheap check to determine whether a string appears to contain
+        /// a JSON object or JSON array. Newtonsoft performs the full validation later.
+        /// </summary>
+        private static bool LooksLikeJson(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            int index = 0;
+
+            // Skip leading spaces, tabs and line breaks without allocating a new string.
+            while (index < value.Length && char.IsWhiteSpace(value[index]))
+            {
+                index++;
+            }
+
+            return index < value.Length && (value[index] == '{' || value[index] == '[');
         }
     }
 }
