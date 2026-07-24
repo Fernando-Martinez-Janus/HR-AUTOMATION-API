@@ -144,6 +144,7 @@ namespace HR_AUTOMATION.Application.Services
 
                 IEnumerable<Vacancy> result = await _sharedRepository.QueryAsync<Vacancy>("[recruitment].[web_get_vacancies]", parameters);
 
+
                 IEnumerable<VacancyViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<VacancyViewModel>>(result);
 
                 PaginationResponse<VacancyViewModel> paginationResult = new(result.FirstOrDefault()?.TotalRecords ?? 0, mappedResult);
@@ -383,5 +384,7 @@ namespace HR_AUTOMATION.Application.Services
                 throw;
             }
         }
+
+
     }
 }
