@@ -54,5 +54,7 @@ public class ProfileInputModel
     {
         ProfileName = ProfileName.Trim();
         ProfileDescription = ProfileDescription.Trim();
+        IconName = IconName?.Trim();
+        Color = Color?.Trim().ToLower();
     }
 }
