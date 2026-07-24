@@ -57,6 +57,18 @@
         [EnumInfo(400, "Position count must be greater than 0")]
         VacancyPositionCountInvalid,
 
+        // --- Profile Exceptions ---
+        [EnumInfo(400, "Profile area level is required")]
+        ProfileAreaLevelRequired,
+        [EnumInfo(400, "Profile seniority level is required")]
+        ProfileSeniorityLevelRequired,
+        [EnumInfo(400, "Profile name is required")]
+        ProfileNameRequired,
+        [EnumInfo(400, "Profile name must not exceed 150 characters")]
+        ProfileNameLengthInvalid,
+        [EnumInfo(400, "Profile description must not exceed 1000 characters")]
+        ProfileDescriptionLengthInvalid,
+
         #endregion
 
         #region 404 Not Found
@@ -88,6 +100,10 @@
         OrganizationNotFound,
         [EnumInfo(404, "Vacancy Not Found")]
         VacancyNotFound,
+
+        // Si más adelante necesitas buscar un Profile por Id y no existe:
+        [EnumInfo(404, "Profile Not Found")]
+        ProfileNotFound,
         #endregion
 
         #region 429 - Too Many Requests
