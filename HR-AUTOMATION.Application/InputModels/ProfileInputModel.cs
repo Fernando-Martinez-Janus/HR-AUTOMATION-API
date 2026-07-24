@@ -31,6 +31,16 @@ public class ProfileInputModel
     public string ProfileDescription { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the profile icon name.
+    /// </summary>
+    public string? IconName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the profile color.
+    /// </summary>
+    public string? Color { get; set; }
+
+    /// <summary>
     /// Gets or sets the list of skills to associate with this profile.
     /// </summary>
     public IEnumerable<ProfileSkillInputModel> Skills { get; set; } = [];
@@ -42,5 +52,7 @@ public class ProfileInputModel
     {
         ProfileName = ProfileName.Trim();
         ProfileDescription = ProfileDescription.Trim();
+        IconName = IconName?.Trim();
+        Color = Color?.Trim().ToLower();
     }
 }
