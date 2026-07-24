@@ -49,5 +49,7 @@ namespace HR_AUTOMATION.Application.IServices
         /// </summary>
         /// <param name="id">The identifier of the vacancy to delete.</param>
         Task DeleteAsync(int id);
+
+        Task UpdateVacancyStatus(int vacancyId, int statudId);
     }
 }
