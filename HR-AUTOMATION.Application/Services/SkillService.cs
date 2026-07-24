@@ -267,13 +267,13 @@ namespace HR_AUTOMATION.Application.Services
             {
                 ValidateModel(model);
 
-                List<KeyValuePair<string, object?>> parameters = [
-                    new("@p_id", id),
-                    new("@p_organization_id", model.OrganizationId),
+                List<KeyValuePair<string, object?>> parameters = new()
+                {
+                    new("@p_skill_id", id),
                     new("@p_skill_category_id", model.SkillCategoryId),
                     new("@p_name", model.SkillName),
                     new("@p_updated_by", _httpContextService.GetUserId()),
-                ];
+                };
 
                 await _sharedRepository.ExecuteAsync("[config].[web_update_skill]", parameters);
 
