@@ -68,5 +68,26 @@ namespace HR_AUTOMATION_API.Controllers
 
             return StatusCode(response.Code, response);
         }
+
+        /// <summary>
+        /// Creates a new search request and sends the filters to the scraper.
+        /// </summary>
+        /// <param name="model">The search filters and source configuration.</param>
+        /// <returns>The identifier of the newly created search request.</returns>
+        [HttpPost("send")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status201Created)]
+        public async Task<IActionResult> SendToScraper([FromBody] ActiveSearchInputModel model)
+        {
+            int result = await _service.SendToScraperAsync(model);
+
+            Response<int> response = new()
+            {
+                Code = StatusCodes.Status201Created,
+                DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
     }
 }

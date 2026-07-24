@@ -7,5 +7,6 @@ namespace HR_AUTOMATION.Application.IServices
     {
         Task<IEnumerable<SearchRequestViewModel>> SearchAsync(SearchRequestSearchInputModel model);
         Task<int> CreateAsync(SearchRequestInputModel model);
+        Task<int> SendToScraperAsync(ActiveSearchInputModel model);
     }
 }

@@ -12,6 +12,7 @@ using HR_AUTOMATION.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Shared.Kernel.InputModels;
 using Shared.Kernel.IRepositories;
 using Shared.Kernel.IServices;
 using Shared.Kernel.Responses;
@@ -27,7 +28,8 @@ namespace HR_AUTOMATION.Application.Services
         ICacheService cacheService,
         IConfiguration configuration,
         IHttpContextService httpContextService,
-        IHubContext<NotificationHub> notificationHub
+        IHubContext<NotificationHub> notificationHub,
+        IHttpService httpService
     ) : ISearchRequestService
     {
         private readonly ILogger<SearchRequestService> _logger = logger;
@@ -35,6 +37,7 @@ namespace HR_AUTOMATION.Application.Services
         private readonly ICacheService _cacheService = cacheService;
         private readonly IHttpContextService _httpContextService = httpContextService;
         private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
+        private readonly IHttpService _httpService = httpService;
 
         private readonly TimeSpan _cacheDefaultExpiration =
             TimeSpan.FromMilliseconds(configuration.GetValue<long>(AppConstants.RedisDefaultExpiration));
@@ -149,6 +152,61 @@ namespace HR_AUTOMATION.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(CreateAsync));
+                throw;
+            }
+        }
+
+        public async Task<int> SendToScraperAsync(ActiveSearchInputModel model)
+        {
+            try
+            {
+                int? organizationId = _httpContextService.GetOrganizationId();
+                int? userId = _httpContextService.GetUserId();
+
+                model.VacancyId = model.VacancyId;
+                model.MinExperience = model.MinExperience;
+                model.MaxExperience = model.MaxExperience;
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_vacancy_id", model.VacancyId),
+                    new("@p_minimum_experience", model.MinExperience),
+                    new("@p_maximum_experience", model.MaxExperience),
+                    new("@p_scolarity_id", model.Education),
+                    new("@p_profile_json", model.CvUpdated),
+                    new("@p_excluded_companies", model.KeywordsExclude),
+                    new("@p_excluded_schools", null),
+                    new("@p_created_by", userId),
+                ];
+
+                SearchRequestModel result =
+                    await _sharedRepository.QuerySingleAsync<SearchRequestModel>("[recruitment].[web_insert_search_request]", parameters)
+                    ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+
+                await _httpService.SendRequestAsync(new HttpRequest
+                {
+                    Url = configuration.GetValue<string>("Scraper:Url")!,
+                    Method = HttpMethod.Post,
+                    Body = new
+                    {
+                        searchRequestId = result.Id,
+                        vacancyId = model.VacancyId,
+                        minExperience = model.MinExperience,
+                        maxExperience = model.MaxExperience,
+                        education = model.Education,
+                        cvUpdated = model.CvUpdated,
+                        keywordsExclude = model.KeywordsExclude,
+                        sources = model.Sources
+                    },
+                    Timeout = 30000
+                });
+
+                await HandleChangedAsync(organizationId);
+
+                return result.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(SendToScraperAsync));
                 throw;
             }
         }
