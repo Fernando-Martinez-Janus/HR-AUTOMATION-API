@@ -17,5 +17,6 @@
         public const string QuestionCategoryChanged = "questionCategoryChanged";
         public const string OrganizationChanged = "organizationChanged";
         public const string VacancyChanged = "vacancyChanged";
+        public const string SearchRequestChanged = "searchRequestChanged";
     }
 }
