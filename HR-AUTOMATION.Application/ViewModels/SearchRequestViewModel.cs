@@ -11,9 +11,8 @@ namespace HR_AUTOMATION.Application.ViewModels
         public int? MaximumExperience { get; set; }
         public int? ScolarityId { get; set; }
         public string? ScolarityName { get; set; }
-        public string? ProfileJson { get; set; }
-        public string? ExcludedCompanies { get; set; }
-        public string? ExcludedSchools { get; set; }
+        public string? Excluded { get; set; }
+        public string? Included { get; set; }
         public string? SearchStatus { get; set; }
         public int TotalRecords { get; set; }
     }

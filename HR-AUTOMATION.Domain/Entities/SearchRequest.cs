@@ -19,14 +19,17 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("scolarity_id")]
         public int? ScolarityId { get; set; }
 
-        [Column("profile_json")]
-        public string? ProfileJson { get; set; }
+        [Column("skills_profile")]
+        public string? SkillsProfile { get; set; }
 
-        [Column("excluded_companies")]
-        public string? ExcludedCompanies { get; set; }
+        [Column("excluded")]
+        public string? Excluded { get; set; }
 
-        [Column("excluded_schools")]
-        public string? ExcludedSchools { get; set; }
+        [Column("included")]
+        public string? Included { get; set; }
+
+        [Column("sources")]
+        public string? Sources { get; set; }
 
         [Column("search_status")]
         public string SearchStatus { get; set; } = null!;
