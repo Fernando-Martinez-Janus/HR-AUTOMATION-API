@@ -52,6 +52,7 @@ builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+builder.Services.AddScoped<ISearchResultsService, SearchResultsService>();
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>

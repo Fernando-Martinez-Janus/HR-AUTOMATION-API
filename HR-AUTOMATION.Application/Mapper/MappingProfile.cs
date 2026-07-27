@@ -165,6 +165,21 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.ExcludedSchools, model => model.MapFrom(m => m.ExcludedSchools))
                 .ForMember(view => view.SearchStatus, model => model.MapFrom(m => m.SearchStatus))
                 .ForMember(view => view.TotalRecords, model => model.MapFrom(m => m.TotalRecords));
+
+            CreateMap<SearchResultModel, SearchResultsViewModel>(MemberList.None)
+                .ForMember(view => view.SearchResultId, model => model.MapFrom(m => m.Id))
+                .ForMember(view => view.SearchRequestId, model => model.MapFrom(m => m.SearchRequestId))
+                .ForMember(view => view.CandidateTitle, model => model.MapFrom(m => m.CandidateTitle))
+                .ForMember(view => view.IaScore, model => model.MapFrom(m => m.IaScore))
+                .ForMember(view => view.IaShortComment, model => model.MapFrom(m => m.IaShortComment))
+                .ForMember(view => view.IaExtendedComment, model => model.MapFrom(m => m.IaExtendedComment))
+                .ForMember(view => view.ReferenceLink, model => model.MapFrom(m => m.ReferenceLink))
+                .ForMember(view => view.OriginalResumeLink, model => model.MapFrom(m => m.OriginalResumeLink))
+                .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled))
+                .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt))
+                .ForMember(view => view.CreatedBy, model => model.MapFrom(m => m.CreatedBy))
+                .ForMember(view => view.UpdatedAt, model => model.MapFrom(m => m.UpdatedAt))
+                .ForMember(view => view.UpdatedBy, model => model.MapFrom(m => m.UpdatedBy));
         }
     }
 }
