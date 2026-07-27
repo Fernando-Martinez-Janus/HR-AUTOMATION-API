@@ -105,7 +105,7 @@ public class SearchResultsService(
 
             // 2. Ejecutar el Stored Procedure usando el tipo de retorno adecuado
             IEnumerable<SearchResultModel> result = await _sharedRepository.QueryAsync<SearchResultModel>(
-                "[recruitment].[web_insert_search_result_test]",
+                "[recruitment].[web_insert_search_result]",
                 parameters
             );
 
