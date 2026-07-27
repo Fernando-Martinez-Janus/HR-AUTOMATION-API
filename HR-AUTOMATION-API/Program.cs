@@ -51,6 +51,7 @@ builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IScraperService, ScraperService>();
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>
