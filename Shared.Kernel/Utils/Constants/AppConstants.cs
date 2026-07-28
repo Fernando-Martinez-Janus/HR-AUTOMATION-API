@@ -24,6 +24,15 @@
         public const string SqlServerConnectionStringKey = "ConnectionConfigurations:SqlServerConnection:ConnectionString";
         public const string SqlServerTimeoutKey = "ConnectionConfigurations:SqlServerConnection:Timeout";
 
+        public const string JwtKeyKey = "Jwt:Key";
+        public const string JwtIssuerKey = "Jwt:Issuer";
+        public const string JwtAudienceKey = "Jwt:Audience";
+        public const string JwtExpirationMinutesKey = "Jwt:ExpirationMinutes";
+
+        public const string GoogleClientIdKey = "Google:ClientId";
+        public const string GoogleIssuer = "https://accounts.google.com";
+        public const string GoogleIssuerAlternate = "accounts.google.com";
+
         public const int DefaultPageNumber = 1;
         public const int DefaultPageSize = 10;
     }
