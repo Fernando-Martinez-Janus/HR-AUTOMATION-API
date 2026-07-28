@@ -132,26 +132,29 @@ namespace HR_AUTOMATION.Application.Services
                 ValidateModel(model);
 
                 string? skillsProfile = null;
-                if (model.ProfileId.HasValue)
+
+                Vacancy? vacancy = await _sharedRepository.QuerySingleAsync<Vacancy>(
+                    "[recruitment].[web_get_vacancy_by_id]",
+                    [new("@p_vacancy_id", model.VacancyId)]
+                );
+
+                if (vacancy != null)
                 {
                     IEnumerable<ProfileSkillResultModel> profileSkills = await _sharedRepository.QueryAsync<ProfileSkillResultModel>(
                         "[recruitment].[web_get_profile_skills]",
-                        [new("@p_profile_id", model.ProfileId)]
+                        [new("@p_profile_id", vacancy.ProfileId)]
                     );
 
                     if (profileSkills?.Any() == true)
                     {
-                        skillsProfile = JsonSerializer.Serialize(new
-                        {
-                            skills = profileSkills.Select(s => new
+                        skillsProfile = JsonSerializer.Serialize(
+                            profileSkills.Select(s => new
                             {
                                 skillId = s.SkillId,
                                 skillCategoryId = s.SkillCategoryId,
                                 skillLevelId = s.SkillLevelId
-                            }),
-                            seniorityLevelId = model.SeniorityLevelId,
-                            areaLevelId = model.AreaLevelId
-                        });
+                            })
+                        );
                     }
                 }
 

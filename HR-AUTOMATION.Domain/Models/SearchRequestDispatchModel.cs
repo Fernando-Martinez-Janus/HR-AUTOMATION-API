@@ -50,6 +50,24 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("area_level_name")]
         public string? AreaLevelName { get; set; }
 
+        [Column("work_modality")]
+        public string? WorkModality { get; set; }
+
+        [Column("employment_type")]
+        public string? EmploymentType { get; set; }
+
+        [Column("salary_range_min")]
+        public decimal SalaryRangeMin { get; set; }
+
+        [Column("salary_range_max")]
+        public decimal SalaryRangeMax { get; set; }
+
+        [Column("max_profile_age_days")]
+        public int MaxProfileAgeDays { get; set; }
+
+        [Column("request_cooldown_ms")]
+        public int RequestCooldownMs { get; set; }
+
         [Column("previous_candidates")]
         public string? PreviousCandidates { get; set; }
     }
