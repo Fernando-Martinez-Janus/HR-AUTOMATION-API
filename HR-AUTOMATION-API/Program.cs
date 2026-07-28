@@ -39,6 +39,7 @@ builder.Services.AddScoped<ICacheService, RedisService>();
 builder.Services.AddScoped<ISharedRepository, SqlServerRepository>();
 builder.Services.AddScoped<IHttpService, HttpService>();
 builder.Services.AddScoped<IHttpContextService, HttpContextService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -58,7 +59,9 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

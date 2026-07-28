@@ -1,7 +1,7 @@
-namespace HR_AUTOMATION.Application.InputModels
+﻿namespace HR_AUTOMATION.Application.InputModels
 {
     /// <summary>
-    /// Represents the request payload for authenticating a user with an email and password.
+    /// Represents the input data required for a login/authentication request.
     /// </summary>
     public class LoginInputModel
     {

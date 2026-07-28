@@ -12,6 +12,11 @@ namespace HR_AUTOMATION.Application.ViewModels
         public string AccessToken { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the opaque refresh token used to obtain a new access token once it expires.
+        /// </summary>
+        public string RefreshToken { get; set; } = null!;
+
+        /// <summary>
         /// Gets or sets the number of seconds until the access token expires.
         /// </summary>
         public int ExpiresIn { get; set; }

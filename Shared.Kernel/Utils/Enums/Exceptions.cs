@@ -76,6 +76,8 @@
         EmailRequired,
         [EnumInfo(400, "Password is required")]
         PasswordRequired,
+        [EnumInfo(400, "Refresh token is required")]
+        RefreshTokenRequired,
 
         #endregion
 

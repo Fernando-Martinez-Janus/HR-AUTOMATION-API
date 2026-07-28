@@ -6,6 +6,7 @@ using HR_AUTOMATION.Domain.Models;
 using HR_AUTOMATION.Infrastructure.Authentication;
 using Microsoft.Extensions.Logging;
 using Shared.Kernel.IRepositories;
+using Shared.Kernel.IServices;
 using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
@@ -13,21 +14,25 @@ using Shared.Kernel.Utils.Enums;
 namespace HR_AUTOMATION.Application.Services
 {
     /// <summary>
-    /// Authenticates users and issues the application's own JWT, regardless of the
-    /// identity source (Google Sign-In or email/password). Both login flows validate
-    /// identity in their own way and then share the exact same JWT generation and
-    /// response-building logic.
+    /// Authenticates users and issues the application's own JWT plus a persisted refresh token,
+    /// regardless of the identity source (Google Sign-In or email/password). Both login flows
+    /// validate identity in their own way and then share the exact same JWT generation, refresh
+    /// token issuance, and response-building logic.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
     /// <param name="googleTokenValidator">Validates the incoming Google ID token.</param>
     /// <param name="jwtTokenService">Generates the application's own JWT access tokens.</param>
     /// <param name="passwordHasherService">Verifies email/password credentials against the stored hash.</param>
+    /// <param name="refreshTokenService">Generates and persists opaque refresh tokens.</param>
+    /// <param name="httpContextService">Provides access to the current request's IP address and user agent.</param>
     /// <param name="sharedRepository">The shared repository instance.</param>
     public class AuthenticationService(
         ILogger<AuthenticationService> logger,
         IGoogleTokenValidator googleTokenValidator,
         IJwtTokenService jwtTokenService,
         IPasswordHasherService passwordHasherService,
+        IRefreshTokenService refreshTokenService,
+        IHttpContextService httpContextService,
         ISharedRepository sharedRepository
     ) : IAuthenticationService
     {
@@ -50,6 +55,16 @@ namespace HR_AUTOMATION.Application.Services
         /// Verifies email/password credentials against the stored hash.
         /// </summary>
         private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
+
+        /// <summary>
+        /// Generates and persists opaque refresh tokens.
+        /// </summary>
+        private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+
+        /// <summary>
+        /// Provides access to the current request's IP address and user agent.
+        /// </summary>
+        private readonly IHttpContextService _httpContextService = httpContextService;
 
         /// <summary>
         /// Provides access to shared data operations.
@@ -102,7 +117,7 @@ namespace HR_AUTOMATION.Application.Services
 
                 Dictionary<string, bool> permissions = BuildPermissions(rows);
 
-                return BuildAuthenticatedResponse(firstRow, permissions);
+                return await BuildAuthenticatedResponseAsync(firstRow, permissions, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -162,12 +177,105 @@ namespace HR_AUTOMATION.Application.Services
 
                 Dictionary<string, bool> permissions = BuildPermissions(rows);
 
-                return BuildAuthenticatedResponse(firstRow, permissions);
+                return await BuildAuthenticatedResponseAsync(firstRow, permissions, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(LoginWithEmailAsync));
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Validates a refresh token, rotates it, and issues a new application JWT access token
+        /// for the user it belongs to.
+        /// </summary>
+        /// <param name="model">The refresh token request.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>The application access token and authenticated user information.</returns>
+        /// <exception cref="ResponseExceptionFactory">
+        /// Thrown when the refresh token is missing, unknown, revoked, expired, or the user is inactive.
+        /// </exception>
+        public async Task<AuthenticationResponseViewModel> RefreshAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                model.Normalize();
+
+                if (string.IsNullOrWhiteSpace(model.RefreshToken))
+                {
+                    throw new ResponseExceptionFactory(Exceptions.RefreshTokenRequired);
+                }
+
+                // ValidateAsync already collapses "not found", "revoked", and "expired" into a
+                // single null result, so the response never reveals which of the three applied.
+                RefreshToken? existingToken = await _refreshTokenService.ValidateAsync(model.RefreshToken, cancellationToken);
+
+                if (existingToken is null)
+                {
+                    _logger.LogInformation("RefreshAsync: invalid, expired, or revoked refresh token.");
+                    throw new ResponseExceptionFactory(Exceptions.InvalidCredentials);
+                }
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_user_id", existingToken.UserId)
+                ];
+
+                IEnumerable<UserPermissionRow> rows = await _sharedRepository.QueryAsync<UserPermissionRow>("[auth].[web_get_user_by_id]", parameters, cancellationToken);
+
+                UserPermissionRow? firstRow = rows.FirstOrDefault();
+
+                if (firstRow is null)
+                {
+                    _logger.LogInformation("RefreshAsync: user {UserId} not found.", existingToken.UserId);
+                    throw new ResponseExceptionFactory(Exceptions.InvalidCredentials);
+                }
+
+                if (!firstRow.IsActive)
+                {
+                    _logger.LogInformation("RefreshAsync: user {UserId} is inactive.", existingToken.UserId);
+                    throw new ResponseExceptionFactory(Exceptions.InvalidCredentials);
+                }
+
+                Dictionary<string, bool> permissions = BuildPermissions(rows);
+
+                AuthenticationResponseViewModel response = await BuildAuthenticatedResponseAsync(firstRow, permissions, cancellationToken);
+
+                // Rotation: the old token is revoked and points at the new one via replaced_by_token.
+                await _refreshTokenService.RevokeAsync(model.RefreshToken, response.RefreshToken, cancellationToken);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(RefreshAsync));
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Revokes a refresh token. Always succeeds, even if the token does not exist or was
+        /// already revoked, so logout remains idempotent from the client's perspective.
+        /// </summary>
+        /// <param name="model">The refresh token to revoke.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        public async Task LogoutAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                model.Normalize();
+
+                if (string.IsNullOrWhiteSpace(model.RefreshToken))
+                {
+                    return;
+                }
+
+                await _refreshTokenService.RevokeAsync(model.RefreshToken, replacedByToken: null, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Logout must always succeed from the caller's perspective; log and swallow.
+                _logger.LogError(ex, nameof(LogoutAsync));
             }
         }
 
@@ -193,17 +301,28 @@ namespace HR_AUTOMATION.Application.Services
         }
 
         /// <summary>
-        /// Generates the JWT and builds the authentication response shared by every login method.
+        /// Generates the JWT and refresh token, persists the refresh token, and builds the
+        /// authentication response shared by every login method.
         /// </summary>
         /// <param name="user">The authenticated user.</param>
         /// <param name="permissions">The user's permissions, keyed by permission name.</param>
-        private AuthenticationResponseViewModel BuildAuthenticatedResponse(User user, Dictionary<string, bool> permissions)
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        private async Task<AuthenticationResponseViewModel> BuildAuthenticatedResponseAsync(
+            User user,
+            Dictionary<string, bool> permissions,
+            CancellationToken cancellationToken)
         {
             (string accessToken, int expiresIn) = _jwtTokenService.GenerateToken(user);
+
+            string? ipAddress = _httpContextService.GetIpAddress();
+            string? userAgent = _httpContextService.GetUserAgent();
+
+            string refreshToken = await _refreshTokenService.GenerateAsync(user.Id, ipAddress, userAgent, cancellationToken);
 
             return new AuthenticationResponseViewModel
             {
                 AccessToken = accessToken,
+                RefreshToken = refreshToken,
                 ExpiresIn = expiresIn,
                 TokenType = AppConstants.Bearer,
                 User = new AuthenticatedUserViewModel

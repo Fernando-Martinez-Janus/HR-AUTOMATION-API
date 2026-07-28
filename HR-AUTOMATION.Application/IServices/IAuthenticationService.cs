@@ -26,5 +26,22 @@ namespace HR_AUTOMATION.Application.IServices
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>The application access token and authenticated user information.</returns>
         Task<AuthenticationResponseViewModel> LoginWithEmailAsync(LoginInputModel model, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Validates a refresh token, rotates it, and issues a new application JWT access token
+        /// for the user it belongs to.
+        /// </summary>
+        /// <param name="model">The refresh token request.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>The application access token and authenticated user information.</returns>
+        Task<AuthenticationResponseViewModel> RefreshAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Revokes a refresh token. Always succeeds, even if the token does not exist or was
+        /// already revoked.
+        /// </summary>
+        /// <param name="model">The refresh token to revoke.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        Task LogoutAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default);
     }
 }

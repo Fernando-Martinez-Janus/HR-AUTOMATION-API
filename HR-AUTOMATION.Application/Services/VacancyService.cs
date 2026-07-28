@@ -129,7 +129,7 @@ namespace HR_AUTOMATION.Application.Services
 
                 if (cacheResult != null)
                 {
-                    return cacheResult;
+                    //return cacheResult;
                 }
 
                 List<KeyValuePair<string, object?>> parameters = [
@@ -176,7 +176,7 @@ namespace HR_AUTOMATION.Application.Services
 
                 if (cacheResult != null)
                 {
-                    return cacheResult;
+                    //return cacheResult;
                 }
 
                 List<KeyValuePair<string, object?>> parameters = [
@@ -385,6 +385,17 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
+        public async Task UpdateVacancyStatus(int vacancyId, int statudId)
+        {
+            List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_vacancy_id", vacancyId),
+                    new("@p_vacancy_status_id", statudId),
+                    new("@p_updated_by", _httpContextService.GetUserId())
+                ];
 
+            await _sharedRepository.ExecuteAsync("[recruitment].[update_vacancy_status]", parameters);
+
+            await HandleChangedAsync(_httpContextService.GetOrganizationId(), vacancyId);
+        }
     }
 }

@@ -11,7 +11,8 @@ using Shared.Kernel.Utils.Constants;
 namespace HR_AUTOMATION_API.Controllers
 {
     /// <summary>
-    /// Provides endpoints for authenticating users.
+    /// Exposes authentication-related HTTP endpoints such as Google Sign-In, email/password
+    /// login, refresh token exchange, and logout.
     /// </summary>
     /// <param name="service">Instance of authentication service.</param>
     [ApiController]
@@ -31,7 +32,7 @@ namespace HR_AUTOMATION_API.Controllers
         /// </summary>
         /// <param name="model">The Google Sign-In request.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-        /// <returns>The application access token and authenticated user information.</returns>
+        /// <returns>The application access token, refresh token, and authenticated user information.</returns>
         /// <exception cref="ResponseExceptionFactory">
         /// Thrown when the Google token is missing or invalid, or the user does not exist or is inactive.
         /// </exception>
@@ -58,7 +59,7 @@ namespace HR_AUTOMATION_API.Controllers
         /// </summary>
         /// <param name="model">The email/password login request.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-        /// <returns>The application access token and authenticated user information.</returns>
+        /// <returns>The application access token, refresh token, and authenticated user information.</returns>
         /// <exception cref="ResponseExceptionFactory">
         /// Thrown when the email/password is missing or invalid, or the user is inactive.
         /// </exception>
@@ -75,6 +76,55 @@ namespace HR_AUTOMATION_API.Controllers
             {
                 Code = StatusCodes.Status200OK,
                 DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
+
+        /// <summary>
+        /// Exchanges a refresh token for a new application JWT access token, rotating the refresh
+        /// token in the process.
+        /// </summary>
+        /// <param name="model">The refresh token request.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A new application access token, refresh token, and authenticated user information.</returns>
+        /// <exception cref="ResponseExceptionFactory">
+        /// Thrown when the refresh token is missing, unknown, revoked, expired, or the user is inactive.
+        /// </exception>
+        [HttpPost("refresh")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response<AuthenticationResponseViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenInputModel model, CancellationToken cancellationToken)
+        {
+            AuthenticationResponseViewModel result = await _service.RefreshAsync(model, cancellationToken);
+
+            Response<AuthenticationResponseViewModel> response = new()
+            {
+                Code = StatusCodes.Status200OK,
+                DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
+
+        /// <summary>
+        /// Revokes a refresh token. Always returns success, even if the token does not exist or
+        /// was already revoked.
+        /// </summary>
+        /// <param name="model">The refresh token to revoke.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        [HttpPost("logout")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenInputModel model, CancellationToken cancellationToken)
+        {
+            await _service.LogoutAsync(model, cancellationToken);
+
+            Response response = new()
+            {
+                Code = StatusCodes.Status200OK
             };
 
             return StatusCode(response.Code, response);
