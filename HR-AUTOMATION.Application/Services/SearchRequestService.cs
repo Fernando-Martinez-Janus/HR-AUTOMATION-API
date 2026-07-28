@@ -19,6 +19,7 @@ using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using Shared.Kernel.Utils.Helpers;
+using System.Text.Json;
 
 namespace HR_AUTOMATION.Application.Services
 {
@@ -130,14 +131,41 @@ namespace HR_AUTOMATION.Application.Services
             {
                 ValidateModel(model);
 
+                string? skillsProfile = null;
+
+                Vacancy? vacancy = await _sharedRepository.QuerySingleAsync<Vacancy>(
+                    "[recruitment].[web_get_vacancy_by_id]",
+                    [new("@p_vacancy_id", model.VacancyId)]
+                );
+
+                if (vacancy != null)
+                {
+                    IEnumerable<ProfileSkillResultModel> profileSkills = await _sharedRepository.QueryAsync<ProfileSkillResultModel>(
+                        "[recruitment].[web_get_profile_skills]",
+                        [new("@p_profile_id", vacancy.ProfileId)]
+                    );
+
+                    if (profileSkills?.Any() == true)
+                    {
+                        skillsProfile = JsonSerializer.Serialize(
+                            profileSkills.Select(s => new
+                            {
+                                skillId = s.SkillId,
+                                skillCategoryId = s.SkillCategoryId,
+                                skillLevelId = s.SkillLevelId
+                            })
+                        );
+                    }
+                }
+
                 List<KeyValuePair<string, object?>> parameters = [
                     new("@p_vacancy_id", model.VacancyId),
                     new("@p_minimum_experience", model.MinimumExperience),
                     new("@p_maximum_experience", model.MaximumExperience),
                     new("@p_scolarity_id", model.ScolarityId),
-                    new("@p_profile_json", model.ProfileJson),
-                    new("@p_excluded_companies", model.ExcludedCompanies),
-                    new("@p_excluded_schools", model.ExcludedSchools),
+                    new("@p_skills_profile", skillsProfile),
+                    new("@p_excluded", model.Excluded),
+                    new("@p_included", model.Included),
                     new("@p_created_by", _httpContextService.GetUserId()),
                 ];
 
@@ -207,6 +235,57 @@ namespace HR_AUTOMATION.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(SendToScraperAsync));
+                throw;
+            }
+        }
+
+        public async Task<SearchRequestDispatchViewModel> GetDispatchAsync(int searchRequestId)
+        {
+            try
+            {
+                int? createdBy = _httpContextService.GetUserId();
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_created_by", createdBy),
+                    new("@p_vacancy_id", null),
+                    new("@p_search_request_id", searchRequestId)
+                ];
+
+                SearchRequestDispatchModel result =
+                    await _sharedRepository.QuerySingleAsync<SearchRequestDispatchModel>("[recruitment].[web_get_search_request_dispatch]", parameters)
+                    ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+
+                SearchRequestDispatchViewModel viewModel = Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result);
+
+                if (!string.IsNullOrWhiteSpace(result.PreviousCandidates))
+                {
+                    viewModel.PreviousCandidates = JsonSerializer.Deserialize<IEnumerable<PreviousCandidateViewModel>>(
+                        result.PreviousCandidates,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                    );
+                }
+
+                if (!string.IsNullOrWhiteSpace(result.SkillsProfile))
+                {
+                    viewModel.SkillsProfile = JsonSerializer.Deserialize<IEnumerable<SkillProfileItem>>(
+                        result.SkillsProfile,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                    );
+                }
+
+                if (!string.IsNullOrWhiteSpace(result.Sources))
+                {
+                    viewModel.Sources = JsonSerializer.Deserialize<IEnumerable<string>>(
+                        result.Sources,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                    );
+                }
+
+                return viewModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(GetDispatchAsync));
                 throw;
             }
         }
