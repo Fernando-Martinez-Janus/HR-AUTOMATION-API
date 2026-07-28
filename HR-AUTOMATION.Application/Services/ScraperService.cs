@@ -307,6 +307,8 @@ public class ScraperService(
         decimal? maxSalary = searchCriteria.MaxSalary ?? vacancy.MaxSalary;
         string educationLevel = searchCriteria.EducationLevel ?? vacancy.EducationLevel;
         string employmentType = searchCriteria.EmploymentType ?? "Any";
+        string includedKeywords = searchCriteria.IncludedKeywords ?? "None";
+        string excludedKeywords = searchCriteria.ExcludedKeywords ?? "None";
 
         string prompt = $@"
         You are a fast recruiter checking candidates against job requirements.
@@ -321,6 +323,8 @@ public class ScraperService(
         - Experience: {vacancy.MinExperience}-{vacancy.MaxExperience} years
         - Education: {educationLevel}
         - Key skills: {vacancy.Keywords}
+        - Must include: {includedKeywords}
+        - Must NOT include: {excludedKeywords}
         - Salary range: {minSalary} - {maxSalary}
 
         [CANDIDATE PROFILE]
@@ -334,7 +338,9 @@ public class ScraperService(
         5. Is experience between {vacancy.MinExperience} and {vacancy.MaxExperience} years? _
         6. Does education meet '{educationLevel}'? _
         7. Does the candidate have the required key skills? _
-        8. Is the expected salary within {minSalary} - {maxSalary}? _
+        8. Does the profile show '{includedKeywords}'? (skip if 'None') _
+        9. Does the profile avoid '{excludedKeywords}'? (skip if 'None') _
+        10. Is the expected salary within {minSalary} - {maxSalary}? _
 
         If ALL are 'YES', answer 'SI'. If ANY is 'NO', answer 'NO'.
         ANSWER (only 'SI' or 'NO'):";

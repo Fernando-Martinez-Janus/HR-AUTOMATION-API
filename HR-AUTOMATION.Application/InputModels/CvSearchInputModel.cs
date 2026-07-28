@@ -52,6 +52,16 @@ public class CvSearchInputModel
     public int? MaxProfileAgeDays { get; set; }
 
     /// <summary>
+    /// Gets or sets keywords the candidate's profile must show (e.g. required technologies or companies).
+    /// </summary>
+    public string? IncludedKeywords { get; set; }
+
+    /// <summary>
+    /// Gets or sets keywords that disqualify a candidate when present in their profile (e.g. excluded companies or schools).
+    /// </summary>
+    public string? ExcludedKeywords { get; set; }
+
+    /// <summary>
     /// Gets or sets the candidates already evaluated in a previous run of this search request, so
     /// they can be skipped instead of being downloaded and validated again.
     /// </summary>
@@ -66,5 +76,7 @@ public class CvSearchInputModel
         Location = Location?.Trim();
         EmploymentType = EmploymentType?.Trim();
         EducationLevel = EducationLevel?.Trim();
+        IncludedKeywords = IncludedKeywords?.Trim();
+        ExcludedKeywords = ExcludedKeywords?.Trim();
     }
 }

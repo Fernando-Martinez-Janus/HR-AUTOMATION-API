@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-HR_AUTOMATION_WEB_AGENT-0cec61cb-938d-4d2d-8bf3-42a7b37f6b6b</UserSecretsId>
+        <RootNamespace>HR_AUTOMATION_WEB_AGENT</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.8"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\HR-AUTOMATION.Application\HR-AUTOMATION.Application.csproj" />
+    </ItemGroup>
+</Project>
