@@ -24,6 +24,16 @@
         public const string SqlServerConnectionStringKey = "ConnectionConfigurations:SqlServerConnection:ConnectionString";
         public const string SqlServerTimeoutKey = "ConnectionConfigurations:SqlServerConnection:Timeout";
 
+        public const string JwtSecretKey = "JwtConfigurations:Secret";
+        public const string JwtIssuerKey = "JwtConfigurations:Issuer";
+        public const string JwtDefaultAudienceKey = "JwtConfigurations:DefaultAudience";
+        public const string JwtAllowedAudiencesKey = "JwtConfigurations:AllowedAudiences";
+        public const string JwtExpiresInKey = "JwtConfigurations:ExpiresIn";
+        public const string JwtClockSkewKey = "JwtConfigurations:ClockSkew";
+        public const string JwtNeverExpiresKey = "JwtConfigurations:NeverExpires";
+
+        public const string RefreshTokenByteSizeKey = "RefreshTokenConfigurations:SecureTokenByteSize";
+
         public const int DefaultPageNumber = 1;
         public const int DefaultPageSize = 10;
     }

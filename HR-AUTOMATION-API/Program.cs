@@ -35,6 +35,7 @@ builder.Services.AddScoped<ICacheService, RedisService>();
 builder.Services.AddScoped<ISharedRepository, SqlServerRepository>();
 builder.Services.AddScoped<IHttpService, HttpService>();
 builder.Services.AddScoped<IHttpContextService, HttpContextService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 
 builder.Services.AddApiVersioning(options =>
