@@ -8,5 +8,6 @@ namespace HR_AUTOMATION.Application.ViewModels
         public string? SkillCategoryName { get; set; }
         public int SkillLevelId { get; set; }
         public string? SkillLevelName { get; set; }
+        public bool IsRequired { get; set; }
     }
 }

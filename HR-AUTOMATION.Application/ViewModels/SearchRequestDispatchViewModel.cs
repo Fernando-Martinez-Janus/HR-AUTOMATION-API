@@ -18,6 +18,12 @@ namespace HR_AUTOMATION.Application.ViewModels
         public string? SeniorityLevelName { get; set; }
         public int? AreaLevelId { get; set; }
         public string? AreaLevelName { get; set; }
+        public string? WorkModality { get; set; }
+        public string? EmploymentType { get; set; }
+        public decimal SalaryRangeMin { get; set; }
+        public decimal SalaryRangeMax { get; set; }
+        public int MaxProfileAgeDays { get; set; }
+        public int RequestCooldownMs { get; set; }
         public int? MinimumExperience { get; set; }
         public int? MaximumExperience { get; set; }
         public int? ScolarityId { get; set; }
