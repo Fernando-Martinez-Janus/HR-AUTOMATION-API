@@ -46,6 +46,18 @@ public class CvSearchInputModel
     public int CvsPerPage { get; set; } = 20;
 
     /// <summary>
+    /// Gets or sets the maximum number of days since the candidate's profile/CV was last updated.
+    /// Profiles updated longer ago than this are discarded.
+    /// </summary>
+    public int? MaxProfileAgeDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets the candidates already evaluated in a previous run of this search request, so
+    /// they can be skipped instead of being downloaded and validated again.
+    /// </summary>
+    public IEnumerable<PreviousCandidateInputModel> PreviousCandidates { get; set; } = [];
+
+    /// <summary>
     /// Cleans and normalizes the input values by trimming string properties.
     /// </summary>
     public void Normalize()

@@ -11,11 +11,6 @@ public class ScrapeVacancyInputModel
     public string JobTitle { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the number of open positions.
-    /// </summary>
-    public string PositionCount { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the work modality (e.g. remote, on-site, hybrid).
     /// </summary>
     public string WorkModality { get; set; } = string.Empty;
@@ -61,11 +56,6 @@ public class ScrapeVacancyInputModel
     public string Keywords { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the candidate's current job title filter.
-    /// </summary>
-    public string CurrentJobTitle { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the minimum salary range.
     /// </summary>
     public decimal? MinSalary { get; set; }
@@ -81,7 +71,6 @@ public class ScrapeVacancyInputModel
     public void Normalize()
     {
         JobTitle = JobTitle.Trim();
-        PositionCount = PositionCount.Trim();
         WorkModality = WorkModality.Trim();
         EmploymentType = EmploymentType.Trim();
         Location = Location.Trim();
@@ -91,6 +80,5 @@ public class ScrapeVacancyInputModel
         MaxExperience = MaxExperience.Trim();
         EducationLevel = EducationLevel.Trim();
         Keywords = Keywords.Trim();
-        CurrentJobTitle = CurrentJobTitle.Trim();
     }
 }

@@ -153,7 +153,12 @@ public class ScraperService(
         int page = 1;
         bool hasNext = true;
 
-        HashSet<string> processedLinks = [];
+        HashSet<string> processedLinks = request.SearchCriteria.PreviousCandidates
+            .Select(candidate => candidate.ReferenceLink)
+            .Where(referenceLink => !string.IsNullOrEmpty(referenceLink))
+            .ToHashSet()!;
+
+        _logger.LogInformation("Excluding {PreviousCandidatesCount} previously evaluated candidates", processedLinks.Count);
 
         while (hasNext && accessed < request.SearchCriteria.MaxCvs)
         {
@@ -205,9 +210,9 @@ public class ScraperService(
                 string dateText = await dateParagraph.InnerTextAsync();
                 _logger.LogInformation("Date paragraph text captured: '{DateText}'", dateText);
 
-                if (!await IsWithinLastMonthAsync(dateText))
+                if (!await IsWithinMaxProfileAgeAsync(dateText, request.SearchCriteria.MaxProfileAgeDays))
                 {
-                    _logger.LogInformation("Discarded: date '{DateText}' is older than 1 month", dateText);
+                    _logger.LogInformation("Discarded: date '{DateText}' is older than the allowed profile age", dateText);
                     continue;
                 }
 
@@ -346,20 +351,32 @@ public class ScraperService(
     }
 
     /// <summary>
+    /// Default maximum profile/CV age, in days, used when the search request doesn't specify one.
+    /// </summary>
+    private const int DefaultMaxProfileAgeDays = 29;
+
+    /// <summary>
     /// Asks the local Ollama model whether the given relative date phrase (e.g. "hace 3 días", "3 days ago")
-    /// falls within the last month. The phrase can be in any language, since it is read directly from the
-    /// job portal's UI and the portal's language depends on the browser locale of the machine running the scrape.
+    /// falls within the allowed profile age. The phrase can be in any language, since it is read directly
+    /// from the job portal's UI and the portal's language depends on the browser locale of the machine
+    /// running the scrape.
     /// </summary>
     /// <param name="text">The relative date text shown on the job portal.</param>
-    /// <returns><see langword="true"/> if the date is within the last month, or if the validation call fails; otherwise, <see langword="false"/>.</returns>
-    private async Task<bool> IsWithinLastMonthAsync(string text)
+    /// <param name="maxProfileAgeDays">
+    /// The maximum number of days since the profile was last updated. Falls back to
+    /// <see cref="DefaultMaxProfileAgeDays"/> when not specified.
+    /// </param>
+    /// <returns><see langword="true"/> if the date is within the allowed age, or if the validation call fails; otherwise, <see langword="false"/>.</returns>
+    private async Task<bool> IsWithinMaxProfileAgeAsync(string text, int? maxProfileAgeDays)
     {
+        int maxAgeDays = maxProfileAgeDays ?? DefaultMaxProfileAgeDays;
+
         string prompt = $@"
         You are analyzing a relative date phrase shown on a job portal, describing how long ago a
         candidate profile was last updated. The phrase can be written in any language.
 
-        Determine whether it describes a moment within the last month (less than approximately 29 days ago).
-        Answer ONLY 'SI' if it is within the last month, or 'NO' if it is older.
+        Determine whether it describes a moment within the last {maxAgeDays} days.
+        Answer ONLY 'SI' if it is within that period, or 'NO' if it is older.
 
         Phrase: '{text}'
         ANSWER (only 'SI' or 'NO'):";
