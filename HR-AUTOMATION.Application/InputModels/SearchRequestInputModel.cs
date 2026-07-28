@@ -7,7 +7,6 @@ namespace HR_AUTOMATION.Application.InputModels
         public int? MinimumExperience { get; set; }
         public int? MaximumExperience { get; set; }
         public int? ScolarityId { get; set; }
-        public int? ProfileId { get; set; }
         public int? SeniorityLevelId { get; set; }
         public int? AreaLevelId { get; set; }
         public string? Excluded { get; set; }
