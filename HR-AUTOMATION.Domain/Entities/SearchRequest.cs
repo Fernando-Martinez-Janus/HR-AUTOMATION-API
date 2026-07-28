@@ -34,6 +34,9 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("search_status")]
         public string SearchStatus { get; set; } = null!;
 
+        [Column("cv_max_age")]
+        public int? MaxProfileAgeDays { get; set; }
+
         [Column("is_enabled")]
         public bool IsEnabled { get; set; }
 
