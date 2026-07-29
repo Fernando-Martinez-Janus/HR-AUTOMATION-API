@@ -70,18 +70,17 @@ namespace HR_AUTOMATION_API.Controllers
         }
 
         /// <summary>
-        /// Retrieves the dispatch information for a specific search request.
+        /// Retrieves all dispatch records ordered by criticality and deadline.
         /// </summary>
-        /// <param name="searchRequestId">The identifier of the search request.</param>
-        /// <returns>The dispatch details including vacancy info, filters and previous candidates.</returns>
-        [HttpGet("{searchRequestId:int}/dispatch")]
+        /// <returns>A collection of dispatch records with vacancy info, filters and previous candidates.</returns>
+        [HttpGet("dispatch")]
         [MapToApiVersion("1")]
-        [ProducesResponseType(typeof(Response<SearchRequestDispatchViewModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDispatch(int searchRequestId)
+        [ProducesResponseType(typeof(Response<IEnumerable<SearchRequestDispatchViewModel>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDispatch()
         {
-            SearchRequestDispatchViewModel result = await _service.GetDispatchAsync(searchRequestId);
+            IEnumerable<SearchRequestDispatchViewModel> result = await _service.GetDispatchAsync();
 
-            Response<SearchRequestDispatchViewModel> response = new()
+            Response<IEnumerable<SearchRequestDispatchViewModel>> response = new()
             {
                 Code = StatusCodes.Status200OK,
                 DataResponse = result

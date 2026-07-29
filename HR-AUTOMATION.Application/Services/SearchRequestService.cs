@@ -166,6 +166,7 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_skills_profile", skillsProfile),
                     new("@p_excluded", model.Excluded),
                     new("@p_included", model.Included),
+                    new("@p_cv_max_age", model.MaxProfileAgeDays),
                     new("@p_created_by", _httpContextService.GetUserId()),
                 ];
 
@@ -239,7 +240,7 @@ namespace HR_AUTOMATION.Application.Services
             }
         }
 
-        public async Task<SearchRequestDispatchViewModel> GetDispatchAsync(int searchRequestId)
+        public async Task<IEnumerable<SearchRequestDispatchViewModel>> GetDispatchAsync()
         {
             try
             {
@@ -248,40 +249,45 @@ namespace HR_AUTOMATION.Application.Services
                 List<KeyValuePair<string, object?>> parameters = [
                     new("@p_created_by", createdBy),
                     new("@p_vacancy_id", null),
-                    new("@p_search_request_id", searchRequestId)
+                    new("@p_search_request_id", null)
                 ];
 
-                SearchRequestDispatchModel result =
-                    await _sharedRepository.QuerySingleAsync<SearchRequestDispatchModel>("[recruitment].[web_get_search_request_dispatch]", parameters)
-                    ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+                IEnumerable<SearchRequestDispatchModel> results = await _sharedRepository.QueryAsync<SearchRequestDispatchModel>(
+                    "[recruitment].[web_get_search_request_dispatch]", parameters
+                );
 
-                SearchRequestDispatchViewModel viewModel = Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result);
-
-                if (!string.IsNullOrWhiteSpace(result.PreviousCandidates))
+                var viewModels = results.Select(result =>
                 {
-                    viewModel.PreviousCandidates = JsonSerializer.Deserialize<IEnumerable<PreviousCandidateViewModel>>(
-                        result.PreviousCandidates,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                    );
-                }
+                    SearchRequestDispatchViewModel viewModel = Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result);
 
-                if (!string.IsNullOrWhiteSpace(result.SkillsProfile))
-                {
-                    viewModel.SkillsProfile = JsonSerializer.Deserialize<IEnumerable<SkillProfileItem>>(
-                        result.SkillsProfile,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                    );
-                }
+                    if (!string.IsNullOrWhiteSpace(result.PreviousCandidates))
+                    {
+                        viewModel.PreviousCandidates = JsonSerializer.Deserialize<IEnumerable<PreviousCandidateViewModel>>(
+                            result.PreviousCandidates,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+                    }
 
-                if (!string.IsNullOrWhiteSpace(result.Sources))
-                {
-                    viewModel.Sources = JsonSerializer.Deserialize<IEnumerable<string>>(
-                        result.Sources,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                    );
-                }
+                    if (!string.IsNullOrWhiteSpace(result.SkillsProfile))
+                    {
+                        viewModel.SkillsProfile = JsonSerializer.Deserialize<IEnumerable<SkillProfileItem>>(
+                            result.SkillsProfile,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+                    }
 
-                return viewModel;
+                    if (!string.IsNullOrWhiteSpace(result.Sources))
+                    {
+                        viewModel.Sources = JsonSerializer.Deserialize<IEnumerable<string>>(
+                            result.Sources,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+                    }
+
+                    return viewModel;
+                });
+
+                return viewModels;
             }
             catch (Exception ex)
             {
