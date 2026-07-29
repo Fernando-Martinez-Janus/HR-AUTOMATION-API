@@ -198,7 +198,7 @@ namespace HR_AUTOMATION_API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Obtiene los resultados de sourcing para una vacante específica.
         /// </summary>
         /// <param name="vacancyId"></param>
         /// <param name="model"></param>
@@ -212,44 +212,110 @@ namespace HR_AUTOMATION_API.Controllers
             ActiveSearchViewModel result = new()
             {
                 UnSeenCount = 0,
-                Result = new(3,
+                Result = new(5,
                     [
                         new()
                         {
                             SearchRequestId = 1,
+                            CandidateName = "Juan Pérez",
                             CandidateTitle = "Desarrollador Full Stack (.NET Core / Angular)",
+                            Experience = "5 años",
+                            CurrentCompany = "Seguros Alfa",
+                            Location = "Ciudad de México, México",
+                            Email = "juan.perez@example.com",
+                            Phone = "+52 55 1234 5678",
+                            Source = "OCC",
                             AiScore = 85,
                             AiRecommended = true,
                             AiShortComment = "Desarrollador Full Stack con experiencia en .NET, Angular, React, Vue, C#, APIs REST y bases de datos, actualmente trabajando en soluciones para el sector seguros. Ha participado en desarrollo frontend, servicios web, optimización de procesos y pruebas manuales con Postman. Cuenta con licenciatura en Informática Administrativa e inglés básico.",
-                            AiExtendedComment = "",
+                            AiExtendedComment = string.Empty,
                             ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12203967?o=4",
-                            OriginalResumeLink = "",
+                            OriginalResumeLink = string.Empty,
+                            Relocation = true,
                             CreatedAt = DateTime.UtcNow,
                             Seen = true
                         },
                         new()
                         {
                             SearchRequestId = 2,
+                            CandidateName = "María Rodríguez",
                             CandidateTitle = "Desarrollador Senior .NET Core / C#",
+                            Experience = "10+ años",
+                            CurrentCompany = "Tech Solutions",
+                            Location = "Guadalajara, Jalisco",
+                            Email = "maria.rodriguez@example.com",
+                            Phone = "+52 33 9876 5432",
+                            Source = "OCC",
                             AiScore = 98,
                             AiRecommended = true,
                             AiShortComment = "Desarrollador Senior .NET Core con más de 10 años de experiencia especializada en C#, .NET Core (5, 6 y 8), microservicios y APIs REST. Dominio avanzado de Entity Framework, SQL/PostgreSQL, seguridad (JWT/LDAP) y pruebas unitarias con xUnit y Moq. Cuenta con ingeniería concluida y sólida trayectoria en arquitectura y diseño de software.",
-                            AiExtendedComment = "",
+                            AiExtendedComment = string.Empty,
                             ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/8389271?o=4",
-                            OriginalResumeLink = "",
+                            OriginalResumeLink = string.Empty,
+                            Relocation = false,
                             CreatedAt = DateTime.UtcNow,
                             Seen = true
                         },
                         new()
                         {
                             SearchRequestId = 3,
+                            CandidateName = "Carlos Gómez",
                             CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                            Experience = "4 años",
+                            CurrentCompany = "Consultoría Global",
+                            Location = "Monterrey, Nuevo León",
+                            Email = "carlos.gomez@example.com",
+                            Phone = "+52 81 1122 3344",
+                            Source = "OCC",
                             AiScore = 98,
                             AiRecommended = true,
                             AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
-                            AiExtendedComment = "",
+                            AiExtendedComment = string.Empty,
                             ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
-                            OriginalResumeLink = "",
+                            OriginalResumeLink = string.Empty,
+                            Relocation = false,
+                            CreatedAt = DateTime.UtcNow,
+                            Seen = true
+                        },
+                        new()
+                        {
+                            SearchRequestId = 4,
+                            CandidateName = "Luis Fernández",
+                            CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                            Experience = "2 años",
+                            CurrentCompany = "Software Factory",
+                            Location = "Querétaro, Qro.",
+                            Email = "luis.fernandez@example.com",
+                            Phone = "+52 44 5566 7788",
+                            Source = "LinkedIn",
+                            AiScore = 10,
+                            AiRecommended = false,
+                            AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
+                            AiExtendedComment = string.Empty,
+                            ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
+                            OriginalResumeLink = string.Empty,
+                            Relocation = false,
+                            CreatedAt = DateTime.UtcNow,
+                            Seen = true
+                        },
+                        new()
+                        {
+                            SearchRequestId = 5,
+                            CandidateName = "Ana Martínez",
+                            CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                            Experience = "3 años",
+                            CurrentCompany = "Innovación Digital",
+                            Location = "Puebla, Pue.",
+                            Email = "ana.martinez@example.com",
+                            Phone = "+52 22 9988 7766",
+                            Source = "OCC",
+                            AiScore = 56,
+                            AiRecommended = false,
+                            AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
+                            AiExtendedComment = string.Empty,
+                            ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
+                            OriginalResumeLink = string.Empty,
+                            Relocation = true,
                             CreatedAt = DateTime.UtcNow,
                             Seen = true
                         }
@@ -282,42 +348,188 @@ namespace HR_AUTOMATION_API.Controllers
                 [1] = new()
                 {
                     SearchRequestId = 1,
+                    CandidateName = "Juan Pérez",
                     CandidateTitle = "Desarrollador Full Stack (.NET Core / Angular)",
+                    Experience = "5 años",
+                    CurrentCompany = "Seguros Alfa",
+                    Location = "Ciudad de México, México",
+                    Email = "juan.perez@example.com",
+                    Phone = "+52 55 1234 5678",
+                    Source = "OCC",
                     AiScore = 85,
                     AiRecommended = true,
                     AiShortComment = "Desarrollador Full Stack con experiencia en .NET, Angular, React, Vue, C#, APIs REST y bases de datos, actualmente trabajando en soluciones para el sector seguros. Ha participado en desarrollo frontend, servicios web, optimización de procesos y pruebas manuales con Postman. Cuenta con licenciatura en Informática Administrativa e inglés básico.",
-                    AiExtendedComment = "Candidato con perfil de Desarrollador Full Stack (.NET Core / Angular) ubicado en Monterrey, Nuevo León. Actualmente se desempeña como desarrollador de software en Raspberry Seguros, donde ha trabajado en soluciones personalizadas para seguros, mejora de procesos, reducción de errores de validación, optimización de aplicaciones de gestión de pólizas y diseño de interfaces para cotizadores.\nPreviamente trabajó como Desarrollador Jr en Connectit, participando en la implementación de interfaces, consumo y desarrollo de servicios web, APIs REST, modificaciones en bases de datos y pruebas manuales con Postman. Su experiencia técnica incluye tecnologías como HTML, CSS, JavaScript, Vue, React, Angular, C#, .NET, Python Flask y MySQL.\nSu objetivo profesional está orientado a integrarse a equipos colaborativos donde pueda aportar valor técnico, resolver problemas complejos y contribuir a productos eficientes, escalables y de calidad. Cuenta con estudios titulados en Licenciatura en Informática Administrativa por la Universidad Ciudadana de Nuevo León e idiomas: español nativo e inglés básico.",
+                    AiExtendedComment = @"RESUMEN DE EVALUACIÓN TÉCNICA
+- Experiencia Principal: 4 años en desarrollo backend con .NET Core (2.1 a 6.0), C# y diseño de arquitectura orientada a microservicios y APIs RESTful.
+- Frontend: Manejo intermedio de Angular y Blazor WebAssembly para herramientas internas de gestión.
+- Bases de Datos: Sólidos conocimientos en SQL Server (procedimientos almacenados, optimización de consultas) y Entity Framework Core.
+- Integraciones: Experiencia práctica integrando servicios de terceros y sistemas ERP legacy (SAP RFC/BAPIs).
+
+FORTALEZAS CLAVE
+1. Aplicación rigurosa de principios SOLID y patrones de diseño (Repository, CQRS básico).
+2. Implementación exitosa de SignalR para notificaciones e informes en tiempo real en su empleo actual.
+3. Disponibilidad inmediata para cambio de residencia y flexibilidad de horarios.
+
+PUNTOS A CONSIDERAR
+- El perfil no alcanza el puntaje deseado (AiScore: 56) debido a la falta de experiencia con proveedores de nube principales (AWS/Azure) requeridos para el rol Senior.
+- Nivel de inglés B1 (intermedio técnico); requiere apoyo en conversaciones fluidas con clientes internacionales.
+
+RECOMENDACIÓN
+Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Premise y migración de sistemas legacy. Se sugiere entrevista técnica si se busca un perfil con potencial de crecimiento a corto plazo.",
                     ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12203967?o=4",
-                    OriginalResumeLink = "",
+                    OriginalResumeLink = string.Empty,
+                    Relocation = true,
                     CreatedAt = DateTime.UtcNow,
                     Seen = true
                 },
                 [2] = new()
                 {
                     SearchRequestId = 2,
+                    CandidateName = "María Rodríguez",
                     CandidateTitle = "Desarrollador Senior .NET Core / C#",
+                    Experience = "10+ años",
+                    CurrentCompany = "Tech Solutions",
+                    Location = "Guadalajara, Jalisco",
+                    Email = "maria.rodriguez@example.com",
+                    Phone = "+52 33 9876 5432",
+                    Source = "OCC",
                     AiScore = 98,
                     AiRecommended = true,
                     AiShortComment = "Desarrollador Senior .NET Core con más de 10 años de experiencia especializada en C#, .NET Core (5, 6 y 8), microservicios y APIs REST. Dominio avanzado de Entity Framework, SQL/PostgreSQL, seguridad (JWT/LDAP) y pruebas unitarias con xUnit y Moq. Cuenta con ingeniería concluida y sólida trayectoria en arquitectura y diseño de software.",
-                    AiExtendedComment = "Desarrollador .NET Senior altamente experimentado que destaca por su profundo dominio del ecosistema Microsoft .NET (incluyendo .NET Core 5, 6 y 8). A lo largo de su trayectoria profesional ha diseñado y construido arquitecturas backend robustas, microservicios, API Gateways, integraciones de seguridad con JWT y LDAP, y middleware de protección de datos.\n\nPosee una sólida base en gestión de datos relacionales con PostgreSQL, SQL Server y Oracle, aplicando ORMs como Entity Framework y herramientas como AutoMapper. Adicionalmente, cuenta con experiencia práctica en pruebas unitarias con xUnit y Moq, integración con SonarQube, así como soporte a plataformas web MVC y herramientas de análisis.\n\nEs Ingeniero en Telecomunicaciones y Electrónica por el Tecnológico de Estudios Superiores de Ecatepec. Su amplio bagaje técnico, experiencia en sistemas críticos y dominio especializado en .NET lo convierten en un perfil excepcionalmente calificado para la vacante.",
+                    AiExtendedComment = @"RESUMEN DE EVALUACIÓN TÉCNICA
+- Experiencia Principal: 4 años en desarrollo backend con .NET Core (2.1 a 6.0), C# y diseño de arquitectura orientada a microservicios y APIs RESTful.
+- Frontend: Manejo intermedio de Angular y Blazor WebAssembly para herramientas internas de gestión.
+- Bases de Datos: Sólidos conocimientos en SQL Server (procedimientos almacenados, optimización de consultas) y Entity Framework Core.
+- Integraciones: Experiencia práctica integrando servicios de terceros y sistemas ERP legacy (SAP RFC/BAPIs).
+
+FORTALEZAS CLAVE
+1. Aplicación rigurosa de principios SOLID y patrones de diseño (Repository, CQRS básico).
+2. Implementación exitosa de SignalR para notificaciones e informes en tiempo real en su empleo actual.
+3. Disponibilidad inmediata para cambio de residencia y flexibilidad de horarios.
+
+PUNTOS A CONSIDERAR
+- El perfil no alcanza el puntaje deseado (AiScore: 56) debido a la falta de experiencia con proveedores de nube principales (AWS/Azure) requeridos para el rol Senior.
+- Nivel de inglés B1 (intermedio técnico); requiere apoyo en conversaciones fluidas con clientes internacionales.
+
+RECOMENDACIÓN
+Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Premise y migración de sistemas legacy. Se sugiere entrevista técnica si se busca un perfil con potencial de crecimiento a corto plazo.",
                     ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/8389271?o=4",
-                    OriginalResumeLink = "",
+                    OriginalResumeLink = string.Empty,
+                    Relocation = false,
                     CreatedAt = DateTime.UtcNow,
                     Seen = true
                 },
                 [3] = new()
                 {
                     SearchRequestId = 3,
+                    CandidateName = "Carlos Gómez",
                     CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                    Experience = "4 años",
+                    CurrentCompany = "Consultoría Global",
+                    Location = "Monterrey, Nuevo León",
+                    Email = "carlos.gomez@example.com",
+                    Phone = "+52 81 1122 3344",
+                    Source = "OCC",
                     AiScore = 98,
                     AiRecommended = true,
                     AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
-                    AiExtendedComment = "El candidato es un Desarrollador Full Stack enfocado en .NET Core con una trayectoria de 4 años en el desarrollo de software, automatización de procesos e integración de sistemas.\n\nEn su experiencia profesional reciente, ha destacado por optimizar código legacy mediante la aplicación de principios SOLID y modularización, reduciendo significativamente los tiempos de desarrollo y mantenimiento. Ha implementado reglas de negocio automatizadas, desarrollado dashboards para conciliación financiera con ERPs como SAP, y trabajado con tecnologías backend y de tiempo real como SQL Server y SignalR. Adicionalmente cuenta con experiencia en gestión de requerimientos técnicos con clientes directos.\n\nEstá titulado en Ingeniería en Informática por el Tecnológico de Estudios Superiores de Ecatepec y cuenta con nivel de inglés intermedio. Es un perfil muy completo que combina desarrollo limpio, integración de sistemas y capacidad de análisis funcional.",
+                    AiExtendedComment = @"RESUMEN DE EVALUACIÓN TÉCNICA
+- Experiencia Principal: 4 años en desarrollo backend con .NET Core (2.1 a 6.0), C# y diseño de arquitectura orientada a microservicios y APIs RESTful.
+- Frontend: Manejo intermedio de Angular y Blazor WebAssembly para herramientas internas de gestión.
+- Bases de Datos: Sólidos conocimientos en SQL Server (procedimientos almacenados, optimización de consultas) y Entity Framework Core.
+- Integraciones: Experiencia práctica integrando servicios de terceros y sistemas ERP legacy (SAP RFC/BAPIs).
+
+FORTALEZAS CLAVE
+1. Aplicación rigurosa de principios SOLID y patrones de diseño (Repository, CQRS básico).
+2. Implementación exitosa de SignalR para notificaciones e informes en tiempo real en su empleo actual.
+3. Disponibilidad inmediata para cambio de residencia y flexibilidad de horarios.
+
+PUNTOS A CONSIDERAR
+- El perfil no alcanza el puntaje deseado (AiScore: 56) debido a la falta de experiencia con proveedores de nube principales (AWS/Azure) requeridos para el rol Senior.
+- Nivel de inglés B1 (intermedio técnico); requiere apoyo en conversaciones fluidas con clientes internacionales.
+
+RECOMENDACIÓN
+Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Premise y migración de sistemas legacy. Se sugiere entrevista técnica si se busca un perfil con potencial de crecimiento a corto plazo.",
                     ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
-                    OriginalResumeLink = "",
+                    OriginalResumeLink = string.Empty,
+                    Relocation = false,
                     CreatedAt = DateTime.UtcNow,
                     Seen = true
-                }
+                },
+                [4] = new()
+                {
+                    SearchRequestId = 4,
+                    CandidateName = "Luis Fernández",
+                    CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                    Experience = "2 años",
+                    CurrentCompany = "Software Factory",
+                    Location = "Querétaro, Qro.",
+                    Email = "luis.fernandez@example.com",
+                    Phone = "+52 44 5566 7788",
+                    Source = "LinkedIn",
+                    AiScore = 10,
+                    AiRecommended = false,
+                    AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
+                    AiExtendedComment = @"RESUMEN DE EVALUACIÓN TÉCNICA
+- Experiencia Principal: 4 años en desarrollo backend con .NET Core (2.1 a 6.0), C# y diseño de arquitectura orientada a microservicios y APIs RESTful.
+- Frontend: Manejo intermedio de Angular y Blazor WebAssembly para herramientas internas de gestión.
+- Bases de Datos: Sólidos conocimientos en SQL Server (procedimientos almacenados, optimización de consultas) y Entity Framework Core.
+- Integraciones: Experiencia práctica integrando servicios de terceros y sistemas ERP legacy (SAP RFC/BAPIs).
+
+FORTALEZAS CLAVE
+1. Aplicación rigurosa de principios SOLID y patrones de diseño (Repository, CQRS básico).
+2. Implementación exitosa de SignalR para notificaciones e informes en tiempo real en su empleo actual.
+3. Disponibilidad inmediata para cambio de residencia y flexibilidad de horarios.
+
+PUNTOS A CONSIDERAR
+- El perfil no alcanza el puntaje deseado (AiScore: 56) debido a la falta de experiencia con proveedores de nube principales (AWS/Azure) requeridos para el rol Senior.
+- Nivel de inglés B1 (intermedio técnico); requiere apoyo en conversaciones fluidas con clientes internacionales.
+
+RECOMENDACIÓN
+Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Premise y migración de sistemas legacy. Se sugiere entrevista técnica si se busca un perfil con potencial de crecimiento a corto plazo.",
+                    ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
+                    OriginalResumeLink = string.Empty,
+                    Relocation = false,
+                    CreatedAt = DateTime.UtcNow,
+                    Seen = true
+                },
+                [5] = new()
+                {
+                    SearchRequestId = 5,
+                    CandidateName = "Ana Martínez",
+                    CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
+                    Experience = "3 años",
+                    CurrentCompany = "Innovación Digital",
+                    Location = "Puebla, Pue.",
+                    Email = "ana.martinez@example.com",
+                    Phone = "+52 22 9988 7766",
+                    Source = "OCC",
+                    AiScore = 56,
+                    AiRecommended = false,
+                    AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
+                    AiExtendedComment = @"RESUMEN DE EVALUACIÓN TÉCNICA
+- Experiencia Principal: 4 años en desarrollo backend con .NET Core (2.1 a 6.0), C# y diseño de arquitectura orientada a microservicios y APIs RESTful.
+- Frontend: Manejo intermedio de Angular y Blazor WebAssembly para herramientas internas de gestión.
+- Bases de Datos: Sólidos conocimientos en SQL Server (procedimientos almacenados, optimización de consultas) y Entity Framework Core.
+- Integraciones: Experiencia práctica integrando servicios de terceros y sistemas ERP legacy (SAP RFC/BAPIs).
+
+FORTALEZAS CLAVE
+1. Aplicación rigurosa de principios SOLID y patrones de diseño (Repository, CQRS básico).
+2. Implementación exitosa de SignalR para notificaciones e informes en tiempo real en su empleo actual.
+3. Disponibilidad inmediata para cambio de residencia y flexibilidad de horarios.
+
+PUNTOS A CONSIDERAR
+- El perfil no alcanza el puntaje deseado (AiScore: 56) debido a la falta de experiencia con proveedores de nube principales (AWS/Azure) requeridos para el rol Senior.
+- Nivel de inglés B1 (intermedio técnico); requiere apoyo en conversaciones fluidas con clientes internacionales.
+
+RECOMENDACIÓN
+Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Premise y migración de sistemas legacy. Se sugiere entrevista técnica si se busca un perfil con potencial de crecimiento a corto plazo.",
+                    ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
+                    OriginalResumeLink = string.Empty,
+                    Relocation = true,
+                    CreatedAt = DateTime.UtcNow,
+                    Seen = true
+                },
             };
 
             SearchResultViewModel result = dict.GetValueOrDefault(resultId) ?? dict[1];
@@ -367,7 +579,9 @@ namespace HR_AUTOMATION_API.Controllers
             {
                 [1] = "CV_12203967.pdf",
                 [2] = "CV_8389271.pdf",
-                [3] = "CV_12890399.pdf"
+                [3] = "CV_12890399.pdf",
+                [4] = "CV_8389271.pdf",
+                [5] = "CV_12890399.pdf"
             };
             string base64 = Files.GetValueOrDefault(resultId) ?? Files[1];
             byte[] bytes = Convert.FromBase64String(base64);
