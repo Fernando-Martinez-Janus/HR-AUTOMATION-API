@@ -1,9 +1,9 @@
 namespace HR_AUTOMATION.Application.ViewModels
 {
     /// <summary>
-    /// Represents the authenticated user information returned after a successful login.
+    /// Represents a user's profile information: identity, role, organization, and permissions.
     /// </summary>
-    public class AuthenticatedUserViewModel
+    public class UserProfileViewModel
     {
         /// <summary>
         /// Gets or sets the user identifier.
@@ -28,7 +28,7 @@ namespace HR_AUTOMATION.Application.ViewModels
         /// <summary>
         /// Gets or sets the name of the user's role.
         /// </summary>
-        public string Role { get; set; } = null!;
+        public string RoleName { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the identifier of the user's organization.

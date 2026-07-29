@@ -89,7 +89,7 @@
             </summary>
             <param name="model">The Google Sign-In request.</param>
             <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-            <returns>The application access token, refresh token, and authenticated user information.</returns>
+            <returns>The application access token and refresh token.</returns>
             <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
             Thrown when the Google token is missing or invalid, or the user does not exist or is inactive.
             </exception>
@@ -100,7 +100,7 @@
             </summary>
             <param name="model">The email/password login request.</param>
             <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-            <returns>The application access token, refresh token, and authenticated user information.</returns>
+            <returns>The application access token and refresh token.</returns>
             <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
             Thrown when the email/password is missing or invalid, or the user is inactive.
             </exception>
@@ -112,7 +112,7 @@
             </summary>
             <param name="model">The refresh token request.</param>
             <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-            <returns>A new application access token, refresh token, and authenticated user information.</returns>
+            <returns>A new application access token and refresh token.</returns>
             <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
             Thrown when the refresh token is missing, unknown, revoked, expired, or the user is inactive.
             </exception>
@@ -790,6 +790,40 @@
             Deletes an existing skill.
             </summary>
             <param name="id">The identifier of the skill to delete.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.UsersController">
+            <summary>
+            Provides endpoints for retrieving user profile information.
+            </summary>
+            <param name="service">Instance of user profile service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.#ctor(HR_AUTOMATION.Application.IServices.IUserProfileService)">
+            <summary>
+            Provides endpoints for retrieving user profile information.
+            </summary>
+            <param name="service">Instance of user profile service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.UsersController._service">
+            <summary>
+            Instance of user profile service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.GetAccount(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves the profile of the currently authenticated user. The user identifier is
+            obtained exclusively from the JWT claims of the request; it can never be supplied by
+            the client, so one user can never retrieve another user's data through this endpoint.
+            </summary>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The authenticated user's profile.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.GetById(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves another user's profile by identifier. Restricted to administrators.
+            </summary>
+            <param name="id">The identifier of the user to retrieve.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The requested user's profile.</returns>
         </member>
         <member name="T:HR_AUTOMATION_API.Controllers.VacancyController">
             <summary>
