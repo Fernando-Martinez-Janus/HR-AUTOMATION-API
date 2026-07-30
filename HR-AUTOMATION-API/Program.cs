@@ -1,10 +1,13 @@
 using Asp.Versioning;
 using HR_AUTOMATION.Application.IServices;
 using HR_AUTOMATION.Application.Services;
+using HR_AUTOMATION.Infrastructure.Authentication;
 using HR_AUTOMATION.Infrastructure.Constants;
 using HR_AUTOMATION.Infrastructure.Hubs;
 using HR_AUTOMATION.Infrastructure.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Serilog;
 using Shared.Kernel.IRepositories;
@@ -16,6 +19,7 @@ using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using StackExchange.Redis;
 using System.Reflection;
+using System.Text;
 using System.Threading.RateLimiting;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -35,6 +39,7 @@ builder.Services.AddScoped<ICacheService, RedisService>();
 builder.Services.AddScoped<ISharedRepository, SqlServerRepository>();
 builder.Services.AddScoped<IHttpService, HttpService>();
 builder.Services.AddScoped<IHttpContextService, HttpContextService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<ISkillCategoryService, SkillCategoryService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -51,9 +56,45 @@ builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// resultados (candidatos)
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
 builder.Services.AddScoped<ISearchResultsService, SearchResultsService>();
+
+
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        string key = builder.Configuration.GetValue<string>(AppConstants.JwtKeyKey)!;
+        string issuer = builder.Configuration.GetValue<string>(AppConstants.JwtIssuerKey)!;
+        string audience = builder.Configuration.GetValue<string>(AppConstants.JwtAudienceKey)!;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            // JwtTokenService issues the role claim under the literal type "role" rather than the
+            // long ClaimTypes.Role URI; without this, [Authorize(Roles = "...")] would never match.
+            RoleClaimType = "role"
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddApiVersioning(options =>
 {
