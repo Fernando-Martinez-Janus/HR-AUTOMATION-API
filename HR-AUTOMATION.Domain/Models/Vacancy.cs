@@ -82,6 +82,33 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("updated_by")]
         public int? UpdatedBy { get; set; }
 
+        [Column("minimum_experience")]
+        public int? MinimumExperience { get; set; }
+
+        [Column("maximum_experience")]
+        public int? MaximumExperience { get; set; }
+
+        [Column("scolarity_id")]
+        public int? ScolarityId { get; set; }
+
+        [Column("skills_profile")]
+        public string? SkillsProfile { get; set; }
+
+        [Column("excluded")]
+        public string? Excluded { get; set; }
+
+        [Column("included")]
+        public string? Included { get; set; }
+
+        [Column("sources")]
+        public string? Sources { get; set; }
+
+        [Column("cv_max_age")]
+        public int? CvMaxAge { get; set; }
+
+        [Column("request_cooldown_ms")]
+        public int RequestCooldownMs { get; set; }
+
         [Column("total_records")]
         public int TotalRecords { get; set; }
     }

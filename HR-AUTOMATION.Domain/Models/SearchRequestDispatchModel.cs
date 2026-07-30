@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using HR_AUTOMATION.Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HR_AUTOMATION.Domain.Models
 {
@@ -67,6 +67,36 @@ namespace HR_AUTOMATION.Domain.Models
 
         [Column("request_cooldown_ms")]
         public int RequestCooldownMs { get; set; }
+
+        [Column("minimum_experience")]
+        public int? MinimumExperience { get; set; }
+
+        [Column("maximum_experience")]
+        public int? MaximumExperience { get; set; }
+
+        [Column("scolarity_id")]
+        public int? ScolarityId { get; set; }
+
+        [Column("skills_profile")]
+        public string? SkillsProfile { get; set; }
+
+        [Column("excluded")]
+        public string? Excluded { get; set; }
+
+        [Column("included")]
+        public string? Included { get; set; }
+
+        [Column("sources")]
+        public string? Sources { get; set; }
+
+        [Column("search_status")]
+        public string? SearchStatus { get; set; }
+
+        [Column("total_records")]
+        public int TotalRecords { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
 
         [Column("previous_candidates")]
         public string? PreviousCandidates { get; set; }
