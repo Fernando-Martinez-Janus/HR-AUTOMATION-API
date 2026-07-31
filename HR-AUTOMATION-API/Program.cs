@@ -63,6 +63,7 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
 
 // resultados (candidatos)
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();

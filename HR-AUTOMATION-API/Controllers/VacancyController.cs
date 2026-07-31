@@ -593,5 +593,47 @@ Candidata sólida para roles Mid-Level o proyectos centrados en desarrollo On-Pr
 
             return File(bytes, "application/pdf", fileName.GetValueOrDefault(resultId) ?? fileName[1]);
         }
+
+        /// <summary>
+        /// Creates a search for a vacancy and sends the filters to the scraper.
+        /// </summary>
+        /// <param name="vacancyId">The vacancy identifier.</param>
+        /// <param name="model">The search filters and source configuration.</param>
+        /// <returns>The identifier of the created search record.</returns>
+        [HttpPost("{vacancyId:int}/search")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Search(int vacancyId, [FromBody] ActiveSearchInputModel model)
+        {
+            int result = await _vacancyService.SearchAsync(vacancyId, model);
+
+            Response<int> response = new()
+            {
+                Code = StatusCodes.Status201Created,
+                DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
+
+        /// <summary>
+        /// Retrieves the most critical vacancy for dispatch processing.
+        /// </summary>
+        /// <returns>A collection with the most critical dispatch record.</returns>
+        [HttpGet("dispatch")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response<IEnumerable<SearchRequestDispatchViewModel>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDispatch()
+        {
+            IEnumerable<SearchRequestDispatchViewModel> result = await _vacancyService.GetDispatchAsync();
+
+            Response<IEnumerable<SearchRequestDispatchViewModel>> response = new()
+            {
+                Code = StatusCodes.Status200OK,
+                DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
     }
 }

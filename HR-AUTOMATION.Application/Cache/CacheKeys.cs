@@ -31,6 +31,7 @@
         public const string OrganizationEntityKey = "organization";
         public const string VacancyKey = "vacancy";
         public const string SearchRequestKey = "searchrequest";
+        public const string ScolarityLevelKey = "scolaritylevel";
         public const string ProfileKey = "profile";
     }
 }

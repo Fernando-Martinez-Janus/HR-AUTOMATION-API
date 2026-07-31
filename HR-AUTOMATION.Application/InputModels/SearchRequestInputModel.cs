@@ -9,6 +9,7 @@ namespace HR_AUTOMATION.Application.InputModels
         public int? ScolarityId { get; set; }
         public int? SeniorityLevelId { get; set; }
         public int? AreaLevelId { get; set; }
+        public int? MaxProfileAgeDays { get; set; }
         public string? Excluded { get; set; }
         public string? Included { get; set; }
 
