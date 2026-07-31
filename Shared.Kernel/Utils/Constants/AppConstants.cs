@@ -26,7 +26,7 @@
 
 
         public const string JwtKeyKey = "Jwt:Key";
-        public const string JwtIssuerKey = "Jwt:Issuer";
+        public const string JwtIssuerKey = "Jwt:Issuerop";
         public const string JwtAudienceKey = "Jwt:Audience";
         public const string JwtExpirationMinutesKey = "Jwt:ExpirationMinutes";
 

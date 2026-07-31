@@ -2,7 +2,6 @@
 {
     public class ActiveSearchInputModel
     {
-        public int VacancyId { get; set; }
         public int? MinExperience { get; set; }
         public int? MaxExperience { get; set; }
         public int? Education { get; set; }
