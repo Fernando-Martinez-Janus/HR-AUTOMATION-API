@@ -35,6 +35,9 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("source")]
         public string? Source { get; set; }
 
+        [Column("preferences")]
+        public string? RawPreferences { get; set; }
+
         [Column("ia_score")]
         public int? IaScore { get; set; }
 

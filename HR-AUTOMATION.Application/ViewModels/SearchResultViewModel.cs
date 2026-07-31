@@ -11,6 +11,9 @@
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Source { get; set; }
+
+        public List<string> Preferences { get; set; } = new();
+
         public int AiScore { get; set; }
         public bool AiRecommended { get; set; }
         public string? AiShortComment { get; set; }
