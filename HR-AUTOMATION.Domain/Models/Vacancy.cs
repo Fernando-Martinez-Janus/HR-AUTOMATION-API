@@ -67,6 +67,9 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("status_name")]
         public string? StatusName { get; set; }
 
+        [Column("date_until")]
+        public DateTime? DateUntil { get; set; }
+
         [Column("is_enabled")]
         public bool IsEnabled { get; set; }
 
