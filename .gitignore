@@ -38,3 +38,4 @@
 /Shared.Kernel/bin/verify
 /HR-AUTOMATION.Domain/bin/verify
 /HR-AUTOMATION.Application/bin/verify
+*.md
