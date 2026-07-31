@@ -119,6 +119,15 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.EmploymentTypeId, model => model.MapFrom(m => m.EmploymentTypeId))
                 .ForMember(view => view.CurrencyId, model => model.MapFrom(m => m.CurrencyId))
                 .ForMember(view => view.PaymentPeriodId, model => model.MapFrom(m => m.PaymentPeriodId))
+                .ForMember(view => view.MinimumExperience, model => model.MapFrom(m => m.MinimumExperience))
+                .ForMember(view => view.MaximumExperience, model => model.MapFrom(m => m.MaximumExperience))
+                .ForMember(view => view.ScolarityId, model => model.MapFrom(m => m.ScolarityId))
+                .ForMember(view => view.SkillsProfile, model => model.MapFrom(m => m.SkillsProfile))
+                .ForMember(view => view.Excluded, model => model.MapFrom(m => m.Excluded))
+                .ForMember(view => view.Included, model => model.MapFrom(m => m.Included))
+                .ForMember(view => view.Sources, model => model.MapFrom(m => m.Sources))
+                .ForMember(view => view.CvMaxAge, model => model.MapFrom(m => m.CvMaxAge))
+                .ForMember(view => view.RequestCooldownMs, model => model.MapFrom(m => m.RequestCooldownMs))
                 .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
                 .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
 

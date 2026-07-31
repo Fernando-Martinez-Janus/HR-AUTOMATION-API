@@ -146,7 +146,7 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_search", model.SearchTerm)
                 ];
 
-                IEnumerable<SearchRequestDispatchModel> result = await _sharedRepository.QueryAsync<SearchRequestDispatchModel>("[recruitment].[web_get_vacancies]", parameters);
+                IEnumerable<Vacancy> result = await _sharedRepository.QueryAsync<Vacancy>("[recruitment].[web_get_vacancies]", parameters);
 
 
                 IEnumerable<VacancyViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<VacancyViewModel>>(result);
@@ -210,7 +210,7 @@ namespace HR_AUTOMATION.Application.Services
         /// <param name="model">The vacancy information.</param>
         /// <returns>The identifier of the newly created vacancy.</returns>
         /// <exception cref="ResponseExceptionFactory">Thrown when the vacancy cannot be created.</exception>
-        public async Task<int> CreateAsync(VacancyInputModel model)
+        public async Task<(int VacancyId, int SearchRequestId)> CreateAsync(VacancyInputModel model)
         {
             try
             {
@@ -235,14 +235,25 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_currency_id", model.CurrencyId),
                     new("@p_pay_frequency_id", model.PaymentPeriodId),
                     new("@p_notes", model.Notes),
+                    new("@p_minimum_experience", model.MinimumExperience),
+                    new("@p_maximum_experience", model.MaximumExperience),
+                    new("@p_scolarity_id", model.ScolarityId),
+                    new("@p_skills_profile", model.SkillsProfile),
+                    new("@p_excluded", model.Excluded),
+                    new("@p_included", model.Included),
+                    new("@p_sources", model.Sources),
+                    new("@p_cv_max_age", model.CvMaxAge),
+                    new("@p_request_cooldown_ms", model.RequestCooldownMs),
                     new("@p_created_by", _httpContextService.GetUserId())
                 ];
 
-                object? result = await _sharedRepository.QueryScalarAsync("[recruitment].[web_ins_vacancy]", parameters);
+                SearchRequestModel result =
+                    await _sharedRepository.QuerySingleAsync<SearchRequestModel>("[recruitment].[web_ins_vacancy]", parameters)
+                    ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
 
                 await HandleChangedAsync(model.OrganizationId);
 
-                return Convert.ToInt32(result);
+                return (result.VacancyId, result.Id);
             }
             catch (Exception ex)
             {
@@ -282,8 +293,18 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_currency_id", model.CurrencyId),
                     new("@p_pay_frequency_id", model.PaymentPeriodId),
                     new("@p_notes", model.Notes),
+                    new("@p_minimum_experience", model.MinimumExperience),
+                    new("@p_maximum_experience", model.MaximumExperience),
+                    new("@p_scolarity_id", model.ScolarityId),
+                    new("@p_skills_profile", model.SkillsProfile),
+                    new("@p_excluded", model.Excluded),
+                    new("@p_included", model.Included),
+                    new("@p_sources", model.Sources),
+                    new("@p_cv_max_age", model.CvMaxAge),
+                    new("@p_request_cooldown_ms", model.RequestCooldownMs),
                     new("@p_created_by", _httpContextService.GetUserId()),
                     new("@p_updated_by", _httpContextService.GetUserId())
+
                 ];
 
                 object? scalarResult = await _sharedRepository.QueryScalarAsync("[recruitment].[web_upsert_vacancy]", parameters);
@@ -342,6 +363,15 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_contract_type_id", model.EmploymentTypeId),
                     new("@p_currency_id", model.CurrencyId),
                     new("@p_pay_frequency_id", model.PaymentPeriodId),
+                    new("@p_minimum_experience", model.MinimumExperience),
+                    new("@p_maximum_experience", model.MaximumExperience),
+                    new("@p_scolarity_id", model.ScolarityId),
+                    new("@p_skills_profile", model.SkillsProfile),
+                    new("@p_excluded", model.Excluded),
+                    new("@p_included", model.Included),
+                    new("@p_sources", model.Sources),
+                    new("@p_cv_max_age", model.CvMaxAge),
+                    new("@p_request_cooldown_ms", model.RequestCooldownMs),
                     new("@p_notes", model.Notes),
                     new("@p_updated_by", _httpContextService.GetUserId())
                 ];
@@ -402,10 +432,10 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_scolarity_id", model.Education),
                     new("@p_skills_profile", model.CvUpdated),
                     new("@p_excluded", model.KeywordsExclude),
-                    new("@p_included", null),
+                    new("@p_included", model.Included),
                     new("@p_sources", model.Sources != null ? JsonSerializer.Serialize(model.Sources) : null),
-                    new("@p_cv_max_age", null),
-                    new("@p_request_cooldown_ms", null),
+                    new("@p_cv_max_age", model.CvMaxAge),
+                    new("@p_request_cooldown_ms", model.RequestCooldownMs),
                     new("@p_created_by", userId)
                 ];
 

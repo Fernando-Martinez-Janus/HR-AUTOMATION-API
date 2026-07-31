@@ -106,6 +106,51 @@ namespace HR_AUTOMATION.Application.ViewModels
         public int? PaymentPeriodId { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum experience filter.
+        /// </summary>
+        public int? MinimumExperience { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum experience filter.
+        /// </summary>
+        public int? MaximumExperience { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scolarity identifier.
+        /// </summary>
+        public int? ScolarityId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the skills profile JSON.
+        /// </summary>
+        public string? SkillsProfile { get; set; }
+
+        /// <summary>
+        /// Gets or sets the excluded keywords.
+        /// </summary>
+        public string? Excluded { get; set; }
+
+        /// <summary>
+        /// Gets or sets the included criteria.
+        /// </summary>
+        public string? Included { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sources JSON array.
+        /// </summary>
+        public string? Sources { get; set; }
+
+        /// <summary>
+        /// Gets or sets the max CV age in days.
+        /// </summary>
+        public int? CvMaxAge { get; set; }
+
+        /// <summary>
+        /// Gets or sets the request cooldown in milliseconds.
+        /// </summary>
+        public int RequestCooldownMs { get; set; }
+
+        /// <summary>
         /// Gets or sets additional notes.
         /// </summary>
         public string? Notes { get; set; }
