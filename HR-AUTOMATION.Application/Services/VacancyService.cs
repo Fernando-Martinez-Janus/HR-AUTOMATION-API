@@ -491,7 +491,17 @@ namespace HR_AUTOMATION.Application.Services
                     "[recruitment].[web_get_vacancy_dispatch]", parameters
                 );
 
-                return results.Select(result => Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result));
+                List<SearchRequestDispatchViewModel> mappedResults = results
+                    .Select(result => Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result))
+                    .ToList();
+
+                if (mappedResults.Count > 0)
+                {
+                    int? organizationId = _httpContextService.GetOrganizationId();
+                    await HandleChangedAsync(organizationId);
+                }
+
+                return mappedResults;
             }
             catch (Exception ex)
             {
