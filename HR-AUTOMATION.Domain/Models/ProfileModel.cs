@@ -1,35 +1,35 @@
 ﻿using HR_AUTOMATION.Domain.Entities;
+using HR_AUTOMATION.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HR_AUTOMATION.Domain.Models
+public class ProfileModel : Profile
 {
-    /// <summary>
-    /// Represents the domain model for a profile entity.
-    /// </summary>
-    public class ProfileModel : Profile
-    {
-        /// <summary>
-        /// Gets or sets the area level name (if retrieved via join).
-        /// </summary>
-        [Column("profile_name")]
-        public string? AreaLevelName { get; set; }
+    // Sobrescribe las de la clase base para que Dapper las vea aquí
+    [Column("area_level_id")]
+    public new int AreaLevelId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the seniority level name (if retrieved via join).
-        /// </summary>
-        [Column("seniority_level_name")]
-        public string? SeniorityLevelName { get; set; }
+    [Column("seniority_level_id")]
+    public new int SeniorityLevelId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the JSON string or formatted list of associated skills.
-        /// </summary>
-        [Column("skills")]
-        public IEnumerable<ProfileSkillModel> Skills { get; set; } = [];
+    [Column("scolarity_level_id")]
+    public new int? ScolarityLevelId { get; set; }
 
-        /// <summary>
-        /// Gets or sets the total count of records (used for pagination in search stored procedures).
-        /// </summary>
-        [Column("total_count")]
-        public int TotalCount { get; set; }
-    }
+    // Nombres de levels (ya los tienes, pero asegúrate de que coincidan)
+    [Column("area_level_name")]
+    public string? AreaLevelName { get; set; }
+
+    [Column("seniority_level_name")]
+    public string? SeniorityLevelName { get; set; }
+
+    [Column("scolarity_level_name")]
+    public string? ScolarityLevelName { get; set; }
+
+    [Column("profile_name")]
+    public new string? ProfileName { get; set; }
+
+    [Column("skills")]
+    public new IEnumerable<ProfileSkillModel> Skills { get; set; } = [];
+
+    [Column("total_count")]
+    public int TotalCount { get; set; }
 }

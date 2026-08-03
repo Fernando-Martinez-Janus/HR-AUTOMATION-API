@@ -64,6 +64,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+builder.Services.AddScoped<IScolarityLevelService, ScolarityLevelService>();
 
 // resultados (candidatos)
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();

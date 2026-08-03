@@ -119,7 +119,7 @@ public class ProfileService(
             model.Normalize();
             model.OrganizationId ??= organizationId;
 
-            string versionKey = SkillCacheKeys.Version(model.OrganizationId);
+            string versionKey = ProfileCacheKeys.Version(model.OrganizationId);
             string? version = await _cacheService.GetAsync<string>(versionKey);
 
             if (string.IsNullOrWhiteSpace(version))
@@ -139,11 +139,12 @@ public class ProfileService(
             }
 
             List<KeyValuePair<string, object?>> parameters = [
-                new("p_organization_id", model.OrganizationId),
+                new("@p_organization_id", model.OrganizationId),
                 new("@p_page_number", model.PageNumber),
                 new("@p_page_size", model.PageSize),
                 new("@p_area_level_id", model.AreaLevelId),
                 new("@p_seniority_level_id", model.SeniorityLevelId),
+                new("@p_scolarity_level_id", model.ScolarityLevelId),
                 new("@p_search_term", model.SearchTerm)
             ];
 
@@ -192,6 +193,8 @@ public class ProfileService(
                 await _sharedRepository.QuerySingleAsync<ProfileModel>("[recruitment].[web_get_profile_by_id]", parameters)
                 ?? throw new ResponseExceptionFactory(Exceptions.ProfileNotFound);
 
+
+
             ProfileViewModel mappedResult = Mapping.Mapper.Map<ProfileViewModel>(result);
 
             await _cacheService.SetAsync(idKey, mappedResult, _cacheLongExpiration);
@@ -223,6 +226,9 @@ public class ProfileService(
                 new("@p_organization_id",     model.OrganizationId),
                 new("@p_area_level_id",       model.AreaLevelId),
                 new("@p_seniority_level_id",  model.SeniorityLevelId),
+                new("@p_scolarity_level_id",  model.ScolarityLevelId),
+                new("@p_min_experience",      model.MinExperience),
+                new("@p_max_experience",      model.MaxExperience),
                 new("@p_profile_name",        model.ProfileName),
                 new("@p_profile_description", model.ProfileDescription),
                 new("@p_icon_name",           model.IconName),
@@ -265,6 +271,9 @@ public class ProfileService(
                 new("@p_organization_id",       model.OrganizationId),
                 new("@p_area_level_id",         model.AreaLevelId),
                 new("@p_seniority_level_id",    model.SeniorityLevelId),
+                new("@p_scolarity_level_id",    model.ScolarityLevelId),
+                new("@p_min_experience",        model.MinExperience),
+                new("@p_max_experience",        model.MaxExperience),
                 new("@p_profile_name",          model.ProfileName),
                 new("@p_profile_description",   model.ProfileDescription),
                 new("@p_icon_name",             model.IconName),
@@ -277,7 +286,7 @@ public class ProfileService(
                 await _sharedRepository.QuerySingleAsync<ProfileModel>("[recruitment].[web_update_profile]", parameters)
                 ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
 
-            await HandleChangedAsync(model.OrganizationId);
+            await HandleChangedAsync(model.OrganizationId, result.Id);
 
             return result.Id;
         }

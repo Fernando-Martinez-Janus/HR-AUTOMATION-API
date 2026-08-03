@@ -35,6 +35,27 @@
         /// </summary>
         public string? SeniorityLevelName { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the scolarity level identifier.
+        /// </summary>
+        public int ScolarityLevelId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scolarity level name.
+        /// </summary>
+        public string? ScolarityLevelName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the min experience.
+        /// </summary>
+        public int? MinExperience { get; set; }
+
+        /// <summary>
+        /// Gets or sets the max experience.
+        /// </summary>
+        public int? MaxExperience { get; set; }
+
         /// <summary>
         /// Gets or sets the profile name.
         /// </summary>

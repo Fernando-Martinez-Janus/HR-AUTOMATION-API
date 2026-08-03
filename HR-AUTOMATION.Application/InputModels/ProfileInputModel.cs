@@ -23,6 +23,21 @@ public class ProfileInputModel
     public int? SeniorityLevelId { get; set; }
 
     /// <summary>
+    /// Gets or sets the scolarity level identifier used to filter the results.
+    /// </summary>
+    public int? ScolarityLevelId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the min experience.
+    /// </summary>
+    public int? MinExperience { get; set; }
+
+    /// <summary>
+    /// Gets or sets the max experience.
+    /// </summary>
+    public int? MaxExperience { get; set; }
+
+    /// <summary>
     /// Gets or sets the profile name.
     /// </summary>
     public string ProfileName { get; set; } = string.Empty;
