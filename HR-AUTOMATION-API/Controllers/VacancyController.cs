@@ -78,18 +78,18 @@ namespace HR_AUTOMATION_API.Controllers
         /// Creates a new vacancy.
         /// </summary>
         /// <param name="model">The vacancy information.</param>
-        /// <returns>The identifier of the newly created vacancy.</returns>
+        /// <returns>The identifiers of the newly created vacancy and search request.</returns>
         [HttpPost]
         [MapToApiVersion("1")]
         [ProducesResponseType(typeof(Response), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create([FromBody] VacancyInputModel model)
         {
-            int result = await _vacancyService.CreateAsync(model);
+            var (vacancyId, searchRequestId) = await _vacancyService.CreateAsync(model);
 
-            Response<int> response = new()
+            Response<object> response = new()
             {
                 Code = StatusCodes.Status201Created,
-                DataResponse = result
+                DataResponse = new { vacancyId, searchRequestId }
             };
 
             return StatusCode(response.Code, response);

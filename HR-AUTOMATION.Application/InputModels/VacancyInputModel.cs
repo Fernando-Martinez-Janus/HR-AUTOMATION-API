@@ -1,5 +1,3 @@
-using Shared.Kernel.Utils.Constants;
-
 namespace HR_AUTOMATION.Application.InputModels
 {
     /// <summary>
@@ -103,6 +101,16 @@ namespace HR_AUTOMATION.Application.InputModels
         /// Gets or sets additional notes.
         /// </summary>
         public string? Notes { get; set; }
+
+        public int? MinimumExperience { get; set; }
+        public int? MaximumExperience { get; set; }
+        public int? ScolarityId { get; set; }
+        public string? SkillsProfile { get; set; }
+        public string? Excluded { get; set; }
+        public string? Included { get; set; }
+        public string? Sources { get; set; }
+        public int? CvMaxAge { get; set; }
+        public int? RequestCooldownMs { get; set; }
 
         /// <summary>
         /// Cleans and normalizes the input values by trimming string properties.
