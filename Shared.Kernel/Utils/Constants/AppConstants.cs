@@ -26,7 +26,7 @@
 
 
         public const string JwtKeyKey = "Jwt:Key";
-        public const string JwtIssuerKey = "Jwt:Issuerop";
+        //public const string JwtIssuerKey = "Jwt:Issuerop";
         public const string JwtAudienceKey = "Jwt:Audience";
         public const string JwtExpirationMinutesKey = "Jwt:ExpirationMinutes";
 
@@ -36,7 +36,7 @@
 
         ///// Fer
         public const string JwtSecretKey = "JwtConfigurations:Secret";
-        //public const string JwtIssuerKey = "JwtConfigurations:Issuer";
+        public const string JwtIssuerKey = "JwtConfigurations:Issuer";
         public const string JwtDefaultAudienceKey = "JwtConfigurations:DefaultAudience";
         public const string JwtAllowedAudiencesKey = "JwtConfigurations:AllowedAudiences";
         public const string JwtExpiresInKey = "JwtConfigurations:ExpiresIn";

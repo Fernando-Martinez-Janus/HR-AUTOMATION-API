@@ -56,6 +56,7 @@ builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IScraperService, ScraperService>();
 builder.Services.AddScoped<IScolarityLevelService, ScolarityLevelService>();
 builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -63,16 +64,16 @@ builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        string key = builder.Configuration.GetValue<string>(AppConstants.JwtKeyKey)!;
+        string key = builder.Configuration.GetValue<string>(AppConstants.JwtSecretKey)!;
         string issuer = builder.Configuration.GetValue<string>(AppConstants.JwtIssuerKey)!;
-        string audience = builder.Configuration.GetValue<string>(AppConstants.JwtAudienceKey)!;
+        string audience = builder.Configuration.GetValue<string>(AppConstants.JwtDefaultAudienceKey)!;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
