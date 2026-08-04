@@ -124,6 +124,12 @@
         [EnumInfo(404, "Vacancy Not Found")]
         VacancyNotFound,
 
+        [EnumInfo(404, "Search Request Not Found")]
+        SearchRequestRequired,
+
+        [EnumInfo(404, "Search JSON Not Found")]
+        jsonQueryRequired,
+
         // Si más adelante necesitas buscar un Profile por Id y no existe:
         [EnumInfo(404, "Profile Not Found")]
         ProfileNotFound,

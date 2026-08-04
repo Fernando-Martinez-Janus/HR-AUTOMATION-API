@@ -16,6 +16,15 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("seniority_level_id")]
         public int SeniorityLevelId { get; set; }
 
+        [Column("scolarity_level_id")]
+        public int? ScolarityLevelId { get; set; }
+
+        [Column("min_experience")]
+        public int? MinExperience { get; set; }
+
+        [Column("max_experience")]
+        public int? MaxExperience { get; set; }
+
         [Column("profile_name")]
         public string ProfileName { get; set; } = null!;
 

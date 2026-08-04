@@ -139,6 +139,10 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.AreaLevelName, model => model.MapFrom(m => m.AreaLevelName))
                 .ForMember(view => view.SeniorityLevelId, model => model.MapFrom(m => m.SeniorityLevelId))
                 .ForMember(view => view.SeniorityLevelName, model => model.MapFrom(m => m.SeniorityLevelName))
+                .ForMember(view => view.ScolarityLevelId, model => model.MapFrom(m => m.ScolarityLevelId))
+                .ForMember(view => view.ScolarityLevelName, model => model.MapFrom(m => m.ScolarityLevelName))
+                .ForMember(view => view.MinExperience, model => model.MapFrom(m => m.MinExperience))
+                .ForMember(view => view.MaxExperience, model => model.MapFrom(m => m.MaxExperience))
                 .ForMember(view => view.ProfileName, model => model.MapFrom(m => m.ProfileName))
                 .ForMember(view => view.ProfileDescription, model => model.MapFrom(m => m.ProfileDescription))
                 .ForMember(view => view.IconName, model => model.MapFrom(m => m.IconName))
@@ -215,6 +219,32 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.Included, model => model.MapFrom(m => m.Included))
                 .ForMember(view => view.SearchStatus, model => model.MapFrom(m => m.SearchStatus))
                 .ForMember(view => view.TotalRecords, model => model.MapFrom(m => m.TotalRecords));
+
+            CreateMap<SearchResultModel, SearchResultsViewModel>(MemberList.None)
+                .ForMember(view => view.SearchResultId, model => model.MapFrom(m => m.Id))
+                .ForMember(view => view.SearchRequestId, model => model.MapFrom(m => m.SearchRequestId))
+                .ForMember(view => view.CandidateName, model => model.MapFrom(m => m.CandidateName))
+                .ForMember(view => view.CandidateTitle, model => model.MapFrom(m => m.CandidateTitle))
+                .ForMember(view => view.Experience, model => model.MapFrom(m => m.Experience))
+                .ForMember(view => view.CurrentCompany, model => model.MapFrom(m => m.CurrentCompany))
+                .ForMember(view => view.Location, model => model.MapFrom(m => m.Location))
+                .ForMember(view => view.Email, model => model.MapFrom(m => m.Email))
+                .ForMember(view => view.Phone, model => model.MapFrom(m => m.Phone))
+                .ForMember(view => view.Source, model => model.MapFrom(m => m.Source))
+                // Mapeo explicito por diferencia de prefijo (Ai vs Ia) según la interfaz TypeScript
+                .ForMember(view => view.AiScore, model => model.MapFrom(m => m.IaScore))
+                .ForMember(view => view.AiRecommended, model => model.MapFrom(m => m.IaRecommended))
+                .ForMember(view => view.AiShortComment, model => model.MapFrom(m => m.IaShortComment))
+                .ForMember(view => view.AiExtendedComment, model => model.MapFrom(m => m.IaExtendedComment))
+                .ForMember(view => view.ReferenceLink, model => model.MapFrom(m => m.ReferenceLink))
+                .ForMember(view => view.OriginalResumeLink, model => model.MapFrom(m => m.OriginalResumeLink))
+                .ForMember(view => view.Relocation, model => model.MapFrom(m => m.Relocation))
+                .ForMember(view => view.Seen, model => model.MapFrom(m => m.Seen))
+                .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled))
+                .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt))
+                .ForMember(view => view.CreatedBy, model => model.MapFrom(m => m.CreatedBy))
+                .ForMember(view => view.UpdatedAt, model => model.MapFrom(m => m.UpdatedAt))
+                .ForMember(view => view.UpdatedBy, model => model.MapFrom(m => m.UpdatedBy));
         }
     }
 }

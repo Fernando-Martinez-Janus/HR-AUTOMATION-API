@@ -133,7 +133,7 @@ namespace HR_AUTOMATION.Application.Services
 
                 if (cacheResult != null)
                 {
-                    //return cacheResult;
+                    return cacheResult;
                 }
 
                 List<KeyValuePair<string, object?>> parameters = [
