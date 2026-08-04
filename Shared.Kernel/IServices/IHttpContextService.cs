@@ -28,5 +28,13 @@
         /// </summary>
         /// <returns>The user agent if available; otherwise, <c>null</c>.</returns>
         string? GetUserAgent();
+
+        /// <summary>
+        /// Gets the identifier of the currently authenticated user, read from the JWT "userId"
+        /// claim of the current request. Unlike <see cref="GetUserId"/>, this reflects the real
+        /// signed-in user and must be used wherever an endpoint needs to know who is calling it.
+        /// </summary>
+        /// <returns>The authenticated user's identifier if available; otherwise, <c>null</c>.</returns>
+        int? GetAuthenticatedUserId();
     }
 }

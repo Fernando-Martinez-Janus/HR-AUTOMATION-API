@@ -15,8 +15,8 @@ namespace HR_AUTOMATION.Application.IServices
         /// </summary>
         /// <param name="model">The Google Sign-In request.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-        /// <returns>The application access token and authenticated user information.</returns>
-        Task<AuthenticationResponseViewModel> LoginWithGoogleAsync(GoogleLoginInputModel model, CancellationToken cancellationToken = default);
+        /// <returns>The application access token and refresh token.</returns>
+        Task<AuthenticationTokensResponseViewModel> LoginWithGoogleAsync(GoogleLoginInputModel model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Validates the email and password against the application's database
@@ -24,8 +24,8 @@ namespace HR_AUTOMATION.Application.IServices
         /// </summary>
         /// <param name="model">The email/password login request.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-        /// <returns>The application access token and authenticated user information.</returns>
-        Task<AuthenticationResponseViewModel> LoginWithEmailAsync(LoginInputModel model, CancellationToken cancellationToken = default);
+        /// <returns>The application access token and refresh token.</returns>
+        Task<AuthenticationTokensResponseViewModel> LoginWithEmailAsync(LoginInputModel model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Validates a refresh token, rotates it, and issues a new application JWT access token
@@ -33,8 +33,8 @@ namespace HR_AUTOMATION.Application.IServices
         /// </summary>
         /// <param name="model">The refresh token request.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
-        /// <returns>The application access token and authenticated user information.</returns>
-        Task<AuthenticationResponseViewModel> RefreshAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default);
+        /// <returns>The application access token and refresh token.</returns>
+        Task<AuthenticationTokensResponseViewModel> RefreshAsync(RefreshTokenInputModel model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Revokes a refresh token. Always succeeds, even if the token does not exist or was
