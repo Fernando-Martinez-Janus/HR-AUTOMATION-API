@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using HR_AUTOMATION.Application.Constants;
 using HR_AUTOMATION.Application.InputModels;
 using HR_AUTOMATION.Application.IServices;
@@ -197,7 +198,7 @@ public class ScraperService(
                     .Locator("> div")
                     .Locator("> div").Nth(1)
                     .Locator("> div").First
-                    .Locator("p").First;
+                    .Locator("> p").First;
 
                 int dateCount = await dateParagraph.CountAsync();
 
@@ -229,7 +230,7 @@ public class ScraperService(
                     continue;
                 }
 
-                _logger.LogInformation("Match: '{DateText}' is under 1 month. Opening profile", dateText);
+                _logger.LogInformation("Match: '{DateText}' passed the profile age check. Opening profile", dateText);
 
                 IPage newTab = await mainPage.Context.NewPageAsync();
                 await newTab.GotoAsync(url);
@@ -357,11 +358,6 @@ public class ScraperService(
     }
 
     /// <summary>
-    /// Default maximum profile/CV age, in days, used when the search request doesn't specify one.
-    /// </summary>
-    private const int DefaultMaxProfileAgeDays = 29;
-
-    /// <summary>
     /// Asks the local Ollama model whether the given relative date phrase (e.g. "hace 3 días", "3 days ago")
     /// falls within the allowed profile age. The phrase can be in any language, since it is read directly
     /// from the job portal's UI and the portal's language depends on the browser locale of the machine
@@ -369,13 +365,16 @@ public class ScraperService(
     /// </summary>
     /// <param name="text">The relative date text shown on the job portal.</param>
     /// <param name="maxProfileAgeDays">
-    /// The maximum number of days since the profile was last updated. Falls back to
-    /// <see cref="DefaultMaxProfileAgeDays"/> when not specified.
+    /// The maximum number of days since the profile was last updated. When <see langword="null"/>,
+    /// the search request has no age requirement, so this check is skipped entirely.
     /// </param>
-    /// <returns><see langword="true"/> if the date is within the allowed age, or if the validation call fails; otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if the date is within the allowed age, if no age limit was set, or if the validation call fails; otherwise, <see langword="false"/>.</returns>
     private async Task<bool> IsWithinMaxProfileAgeAsync(string text, int? maxProfileAgeDays)
     {
-        int maxAgeDays = maxProfileAgeDays ?? DefaultMaxProfileAgeDays;
+        if (maxProfileAgeDays is not int maxAgeDays)
+        {
+            return true;
+        }
 
         string prompt = $@"
         You are analyzing a relative date phrase shown on a job portal, describing how long ago a
@@ -401,6 +400,10 @@ public class ScraperService(
     /// <summary>
     /// Sends a yes/no prompt to the local Ollama model and returns whether it answered "SI".
     /// </summary>
+    /// <remarks>
+    /// The model tends to reason through the checklist before giving its final answer, so instead of
+    /// requiring the raw response to be exactly "SI", this takes the last standalone "SI"/"NO" it wrote.
+    /// </remarks>
     private async Task<bool> AskOllamaAsync(string prompt)
     {
         HttpRequest ollamaRequest = new()
@@ -412,15 +415,18 @@ public class ScraperService(
                 model = _ollamaModel,
                 prompt,
                 stream = false,
-                options = new { temperature = 0.1, num_predict = 10 }
+                options = new { temperature = 0.1, num_predict = 200 }
             }
         };
 
         HttpResponse ollamaResponse = await _httpService.SendRequestAsync(ollamaRequest);
         JsonElement json = JsonSerializer.Deserialize<JsonElement>(ollamaResponse.Response);
-        string? answer = json.GetProperty("response").GetString()?.Trim().ToUpperInvariant();
+        string rawAnswer = json.GetProperty("response").GetString() ?? string.Empty;
 
-        _logger.LogInformation("Ollama response: {Answer}", answer);
+        _logger.LogInformation("Ollama response: {RawAnswer}", rawAnswer);
+
+        MatchCollection matches = Regex.Matches(rawAnswer.ToUpperInvariant(), @"\b(SI|NO)\b");
+        string? answer = matches.Count > 0 ? matches[^1].Value : null;
 
         return answer == "SI";
     }
