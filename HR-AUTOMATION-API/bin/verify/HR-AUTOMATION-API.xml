@@ -1,0 +1,996 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HR-AUTOMATION-API</name>
+    </assembly>
+    <members>
+        <member name="T:HR_AUTOMATION_API.Controllers.AreaLevelsController">
+            <summary>
+            Provides endpoints for managing area levels.
+            </summary>
+            <param name="service">Instance of Area Level service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.#ctor(HR_AUTOMATION.Application.IServices.IAreaLevelService)">
+            <summary>
+            Provides endpoints for managing area levels.
+            </summary>
+            <param name="service">Instance of Area Level service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.AreaLevelsController._service">
+            <summary>
+            Instance of Area Level service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Search(HR_AUTOMATION.Application.InputModels.AreaLevelSearchInputModel)">
+            <summary>
+            Retrieves area levels matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching area levels.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Get(System.Int32)">
+            <summary>
+            Retrieves an area level by its identifier.
+            </summary>
+            <param name="id">The identifier of the area level.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.AreaLevelViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified area level does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Create(HR_AUTOMATION.Application.InputModels.AreaLevelInputModel)">
+            <summary>
+            Creates a new area level.
+            </summary>
+            <param name="model">The area level information.</param>
+            <returns>The identifier of the newly created area level.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the area level cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.AreaLevelInputModel)">
+            <summary>
+            Updates an existing area level.
+            </summary>
+            <param name="id">The identifier of the area level to update.</param>
+            <param name="model">The updated area level information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing area level.
+            </summary>
+            <param name="id">The identifier of the area level to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AreaLevelsController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of an area level within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.AuthController">
+            <summary>
+            Exposes authentication-related HTTP endpoints such as Google Sign-In, email/password
+            login, refresh token exchange, and logout.
+            </summary>
+            <param name="service">Instance of authentication service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AuthController.#ctor(HR_AUTOMATION.Application.IServices.IAuthenticationService)">
+            <summary>
+            Exposes authentication-related HTTP endpoints such as Google Sign-In, email/password
+            login, refresh token exchange, and logout.
+            </summary>
+            <param name="service">Instance of authentication service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.AuthController._service">
+            <summary>
+            Instance of authentication service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AuthController.Google(HR_AUTOMATION.Application.InputModels.GoogleLoginInputModel,System.Threading.CancellationToken)">
+            <summary>
+            Authenticates a user using a Google ID token and issues the application's own JWT.
+            </summary>
+            <param name="model">The Google Sign-In request.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The application access token and refresh token.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
+            Thrown when the Google token is missing or invalid, or the user does not exist or is inactive.
+            </exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AuthController.Login(HR_AUTOMATION.Application.InputModels.LoginInputModel,System.Threading.CancellationToken)">
+            <summary>
+            Authenticates a user using an email and password and issues the application's own JWT.
+            </summary>
+            <param name="model">The email/password login request.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The application access token and refresh token.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
+            Thrown when the email/password is missing or invalid, or the user is inactive.
+            </exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AuthController.Refresh(HR_AUTOMATION.Application.InputModels.RefreshTokenInputModel,System.Threading.CancellationToken)">
+            <summary>
+            Exchanges a refresh token for a new application JWT access token, rotating the refresh
+            token in the process.
+            </summary>
+            <param name="model">The refresh token request.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>A new application access token and refresh token.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">
+            Thrown when the refresh token is missing, unknown, revoked, expired, or the user is inactive.
+            </exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.AuthController.Logout(HR_AUTOMATION.Application.InputModels.RefreshTokenInputModel,System.Threading.CancellationToken)">
+            <summary>
+            Revokes a refresh token. Always returns success, even if the token does not exist or
+            was already revoked.
+            </summary>
+            <param name="model">The refresh token to revoke.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.CriticalityLevelsController">
+            <summary>
+            Provides endpoints for managing criticality levels.
+            </summary>
+            <param name="service">Instance of Criticality Level service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.#ctor(HR_AUTOMATION.Application.IServices.ICriticalityLevelService)">
+            <summary>
+            Provides endpoints for managing criticality levels.
+            </summary>
+            <param name="service">Instance of Criticality Level service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.CriticalityLevelsController._service">
+            <summary>
+            Instance of Criticality Level service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Search(HR_AUTOMATION.Application.InputModels.CriticalityLevelSearchInputModel)">
+            <summary>
+            Retrieves criticality levels matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching criticality levels.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Get(System.Int32)">
+            <summary>
+            Retrieves a criticality level by its identifier.
+            </summary>
+            <param name="id">The identifier of the criticality level.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.CriticalityLevelViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified criticality level does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Create(HR_AUTOMATION.Application.InputModels.CriticalityLevelInputModel)">
+            <summary>
+            Creates a new criticality level.
+            </summary>
+            <param name="model">The criticality level information.</param>
+            <returns>The identifier of the newly created criticality level.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the criticality level cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.CriticalityLevelInputModel)">
+            <summary>
+            Updates an existing criticality level.
+            </summary>
+            <param name="id">The identifier of the criticality level to update.</param>
+            <param name="model">The updated criticality level information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing criticality level.
+            </summary>
+            <param name="id">The identifier of the criticality level to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CriticalityLevelsController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a criticality level within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.CurrenciesController">
+            <summary>
+            Provides endpoints for managing currencies.
+            </summary>
+            <param name="service">Instance of Currency service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.#ctor(HR_AUTOMATION.Application.IServices.ICurrencyService)">
+            <summary>
+            Provides endpoints for managing currencies.
+            </summary>
+            <param name="service">Instance of Currency service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.CurrenciesController._service">
+            <summary>
+            Instance of Currency service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Search(HR_AUTOMATION.Application.InputModels.CurrencySearchInputModel)">
+            <summary>
+            Retrieves currencies matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching currencies.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Get(System.Int32)">
+            <summary>
+            Retrieves a currency by its identifier.
+            </summary>
+            <param name="id">The identifier of the currency.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.CurrencyViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified currency does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Create(HR_AUTOMATION.Application.InputModels.CurrencyInputModel)">
+            <summary>
+            Creates a new currency.
+            </summary>
+            <param name="model">The currency information.</param>
+            <returns>The identifier of the newly created currency.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the currency cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.CurrencyInputModel)">
+            <summary>
+            Updates an existing currency.
+            </summary>
+            <param name="id">The identifier of the currency to update.</param>
+            <param name="model">The updated currency information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing currency.
+            </summary>
+            <param name="id">The identifier of the currency to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.CurrenciesController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a currency within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.EmploymentTypesController">
+            <summary>
+            Provides endpoints for managing employment types.
+            </summary>
+            <param name="service">Instance of Employment Type service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.#ctor(HR_AUTOMATION.Application.IServices.IEmploymentTypeService)">
+            <summary>
+            Provides endpoints for managing employment types.
+            </summary>
+            <param name="service">Instance of Employment Type service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.EmploymentTypesController._service">
+            <summary>
+            Instance of Employment Type service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Search(HR_AUTOMATION.Application.InputModels.EmploymentTypeSearchInputModel)">
+            <summary>
+            Retrieves employment types matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching employment types.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Get(System.Int32)">
+            <summary>
+            Retrieves an employment type by its identifier.
+            </summary>
+            <param name="id">The identifier of the employment type.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.EmploymentTypeViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified employment type does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Create(HR_AUTOMATION.Application.InputModels.EmploymentTypeInputModel)">
+            <summary>
+            Creates a new employment type.
+            </summary>
+            <param name="model">The employment type information.</param>
+            <returns>The identifier of the newly created employment type.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the employment type cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.EmploymentTypeInputModel)">
+            <summary>
+            Updates an existing employment type.
+            </summary>
+            <param name="id">The identifier of the employment type to update.</param>
+            <param name="model">The updated employment type information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing employment type.
+            </summary>
+            <param name="id">The identifier of the employment type to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.EmploymentTypesController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of an employment type within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.OrganizationsController">
+            <summary>
+            Provides endpoints for managing organizations.
+            </summary>
+            <param name="service">Instance of Organization service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.#ctor(HR_AUTOMATION.Application.IServices.IOrganizationService)">
+            <summary>
+            Provides endpoints for managing organizations.
+            </summary>
+            <param name="service">Instance of Organization service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.OrganizationsController._service">
+            <summary>
+            Instance of Organization service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.Search(HR_AUTOMATION.Application.InputModels.OrganizationSearchInputModel)">
+            <summary>
+            Retrieves organizations matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A paginated collection of matching organizations.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.Get(System.Int32)">
+            <summary>
+            Retrieves an organization by its identifier.
+            </summary>
+            <param name="id">The identifier of the organization.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.OrganizationViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified organization does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.Create(HR_AUTOMATION.Application.InputModels.OrganizationInputModel)">
+            <summary>
+            Creates a new organization.
+            </summary>
+            <param name="model">The organization information.</param>
+            <returns>The identifier of the newly created organization.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the organization cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.OrganizationInputModel)">
+            <summary>
+            Updates an existing organization.
+            </summary>
+            <param name="id">The identifier of the organization to update.</param>
+            <param name="model">The updated organization information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.OrganizationsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing organization.
+            </summary>
+            <param name="id">The identifier of the organization to delete.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.PaymentPeriodsController">
+            <summary>
+            Provides endpoints for managing payment periods.
+            </summary>
+            <param name="service">Instance of Payment Period service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.#ctor(HR_AUTOMATION.Application.IServices.IPaymentPeriodService)">
+            <summary>
+            Provides endpoints for managing payment periods.
+            </summary>
+            <param name="service">Instance of Payment Period service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.PaymentPeriodsController._service">
+            <summary>
+            Instance of Payment Period service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Search(HR_AUTOMATION.Application.InputModels.PaymentPeriodSearchInputModel)">
+            <summary>
+            Retrieves payment periods matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching payment periods.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Get(System.Int32)">
+            <summary>
+            Retrieves a payment period by its identifier.
+            </summary>
+            <param name="id">The identifier of the payment period.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.PaymentPeriodViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified payment period does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Create(HR_AUTOMATION.Application.InputModels.PaymentPeriodInputModel)">
+            <summary>
+            Creates a new payment period.
+            </summary>
+            <param name="model">The payment period information.</param>
+            <returns>The identifier of the newly created payment period.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the payment period cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.PaymentPeriodInputModel)">
+            <summary>
+            Updates an existing payment period.
+            </summary>
+            <param name="id">The identifier of the payment period to update.</param>
+            <param name="model">The updated payment period information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing payment period.
+            </summary>
+            <param name="id">The identifier of the payment period to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.PaymentPeriodsController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a payment period within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.ProfilesController">
+            <summary>
+            Manages profile operations.
+            </summary>
+            <param name="profileService">Instance of Profile service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.ProfilesController.#ctor(HR_AUTOMATION.Application.IServices.IProfileService)">
+            <summary>
+            Manages profile operations.
+            </summary>
+            <param name="profileService">Instance of Profile service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.ProfilesController.Create(HR_AUTOMATION.Application.InputModels.ProfileInputModel)">
+            <summary>
+            Creates a new profile with its associated skills.
+            </summary>
+            <param name="model">The profile information.</param>
+            <returns>The identifier of the newly created profile.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.ProfilesController.GetAll(HR_AUTOMATION.Application.InputModels.ProfileSearchInputModel)">
+            <summary>
+            Retrieves profiles matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching profiles.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.ProfilesController.Get(System.Int32)">
+            <summary>
+            Retrieves a profile by its identifier.
+            </summary>
+            <param name="id">The identifier of the profile.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.ProfileViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified profile does not exist.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.QuestionCategoriesController">
+            <summary>
+            Provides endpoints for managing question categories.
+            </summary>
+            <param name="service">Instance of Question Category service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.#ctor(HR_AUTOMATION.Application.IServices.IQuestionCategoryService)">
+            <summary>
+            Provides endpoints for managing question categories.
+            </summary>
+            <param name="service">Instance of Question Category service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.QuestionCategoriesController._service">
+            <summary>
+            Instance of Question Category service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.Search(HR_AUTOMATION.Application.InputModels.QuestionCategorySearchInputModel)">
+            <summary>
+            Retrieves question categories matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A paginated collection of matching question categories.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.Get(System.Int32)">
+            <summary>
+            Retrieves a question category by its identifier.
+            </summary>
+            <param name="id">The identifier of the question category.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.QuestionCategoryViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified question category does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.Create(HR_AUTOMATION.Application.InputModels.QuestionCategoryInputModel)">
+            <summary>
+            Creates a new question category.
+            </summary>
+            <param name="model">The question category information.</param>
+            <returns>The identifier of the newly created question category.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the question category cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.QuestionCategoryInputModel)">
+            <summary>
+            Updates an existing question category.
+            </summary>
+            <param name="id">The identifier of the question category to update.</param>
+            <param name="model">The updated question category information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.QuestionCategoriesController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing question category.
+            </summary>
+            <param name="id">The identifier of the question category to delete.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.RejectionReasonsController">
+            <summary>
+            Provides endpoints for managing rejection reasons.
+            </summary>
+            <param name="service">Instance of Rejection Reason service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.#ctor(HR_AUTOMATION.Application.IServices.IRejectionReasonService)">
+            <summary>
+            Provides endpoints for managing rejection reasons.
+            </summary>
+            <param name="service">Instance of Rejection Reason service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.RejectionReasonsController._service">
+            <summary>
+            Instance of Rejection Reason service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.Search(HR_AUTOMATION.Application.InputModels.RejectionReasonSearchInputModel)">
+            <summary>
+            Retrieves rejection reasons matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A paginated collection of matching rejection reasons.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.Get(System.Int32)">
+            <summary>
+            Retrieves a rejection reason by its identifier.
+            </summary>
+            <param name="id">The identifier of the rejection reason.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.RejectionReasonViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified rejection reason does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.Create(HR_AUTOMATION.Application.InputModels.RejectionReasonInputModel)">
+            <summary>
+            Creates a new rejection reason.
+            </summary>
+            <param name="model">The rejection reason information.</param>
+            <returns>The identifier of the newly created rejection reason.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the rejection reason cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.RejectionReasonInputModel)">
+            <summary>
+            Updates an existing rejection reason.
+            </summary>
+            <param name="id">The identifier of the rejection reason to update.</param>
+            <param name="model">The updated rejection reason information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.RejectionReasonsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing rejection reason.
+            </summary>
+            <param name="id">The identifier of the rejection reason to delete.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.SeniorityLevelsController">
+            <summary>
+            Provides endpoints for managing seniority levels.
+            </summary>
+            <param name="service">Instance of Seniority Level service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.#ctor(HR_AUTOMATION.Application.IServices.ISeniorityLevelService)">
+            <summary>
+            Provides endpoints for managing seniority levels.
+            </summary>
+            <param name="service">Instance of Seniority Level service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.SeniorityLevelsController._service">
+            <summary>
+            Instance of Seniority Level service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Search(HR_AUTOMATION.Application.InputModels.SeniorityLevelSearchInputModel)">
+            <summary>
+            Retrieves seniority levels matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching seniority levels.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Get(System.Int32)">
+            <summary>
+            Retrieves a seniority level by its identifier.
+            </summary>
+            <param name="id">The identifier of the seniority level.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.SeniorityLevelViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified seniority level does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Create(HR_AUTOMATION.Application.InputModels.SeniorityLevelInputModel)">
+            <summary>
+            Creates a new seniority level.
+            </summary>
+            <param name="model">The seniority level information.</param>
+            <returns>The identifier of the newly created seniority level.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the seniority level cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.SeniorityLevelInputModel)">
+            <summary>
+            Updates an existing seniority level.
+            </summary>
+            <param name="id">The identifier of the seniority level to update.</param>
+            <param name="model">The updated seniority level information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing seniority level.
+            </summary>
+            <param name="id">The identifier of the seniority level to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SeniorityLevelsController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a seniority level within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.SkillCategoriesController">
+            <summary>
+            Provides endpoints for managing skill categories.
+            </summary>
+            <param name="service">Instance of Skill Category service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.#ctor(HR_AUTOMATION.Application.IServices.ISkillCategoryService)">
+            <summary>
+            Provides endpoints for managing skill categories.
+            </summary>
+            <param name="service">Instance of Skill Category service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.SkillCategoriesController._service">
+            <summary>
+            Instance of Skill Category service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Search(HR_AUTOMATION.Application.InputModels.SkillCategorySearchInputModel)">
+            <summary>
+            Retrieves skill categories matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching skill categories.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Get(System.Int32)">
+            <summary>
+            Retrieves a skill category by its identifier.
+            </summary>
+            <param name="id">The identifier of the skill category.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.SkillCategoryViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified skill category does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Create(HR_AUTOMATION.Application.InputModels.SkillCategoryInputModel)">
+            <summary>
+            Creates a new skill category.
+            </summary>
+            <param name="model">The skill category information.</param>
+            <returns>The identifier of the newly created skill category.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the skill category cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.SkillCategoryInputModel)">
+            <summary>
+            Updates an existing skill category
+            </summary>
+            <param name="id">The identifier of the skill category to update.</param>
+            <param name="model">The updated skill category information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing skill category.
+            </summary>
+            <param name="id">The identifier of the skill category to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillCategoriesController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a skill category within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.SkillLevelsController">
+            <summary>
+            Provides endpoints for managing skill levels.
+            </summary>
+            <param name="service">Instance of Skill Level service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.#ctor(HR_AUTOMATION.Application.IServices.ISkillLevelService)">
+            <summary>
+            Provides endpoints for managing skill levels.
+            </summary>
+            <param name="service">Instance of Skill Level service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.SkillLevelsController._service">
+            <summary>
+            Instance of Skill Level service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Search(HR_AUTOMATION.Application.InputModels.SkillLevelSearchInputModel)">
+            <summary>
+            Retrieves skill levels matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching skill levels.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Get(System.Int32)">
+            <summary>
+            Retrieves a skill level by its identifier.
+            </summary>
+            <param name="id">The identifier of the skill level.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.SkillLevelViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified skill level does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Create(HR_AUTOMATION.Application.InputModels.SkillLevelInputModel)">
+            <summary>
+            Creates a new skill level.
+            </summary>
+            <param name="model">The skill level information.</param>
+            <returns>The identifier of the newly created skill level.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the skill level cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.SkillLevelInputModel)">
+            <summary>
+            Updates an existing skill level.
+            </summary>
+            <param name="id">The identifier of the skill level to update.</param>
+            <param name="model">The updated skill level information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing skill level.
+            </summary>
+            <param name="id">The identifier of the skill level to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillLevelsController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a skill level within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.SkillsController">
+            <summary>
+            Provides endpoints for managing skill categories.
+            </summary>
+            <param name="service">Instance of Skill service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.#ctor(HR_AUTOMATION.Application.IServices.ISkillService)">
+            <summary>
+            Provides endpoints for managing skill categories.
+            </summary>
+            <param name="service">Instance of Skill service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.SkillsController._service">
+            <summary>
+            Instance of Skill service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.Search(HR_AUTOMATION.Application.InputModels.SkillSearchInputModel)">
+            <summary>
+            Retrieves skills matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching skills.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.Get(System.Int32)">
+            <summary>
+            Retrieves a skill by its identifier.
+            </summary>
+            <param name="id">The identifier of the skill.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.SkillViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified skill does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.Create(HR_AUTOMATION.Application.InputModels.SkillInputModel)">
+            <summary>
+            Creates a new skill.
+            </summary>
+            <param name="model">The skill information.</param>
+            <returns>The identifier of the newly created skill.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the skill cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.SkillInputModel)">
+            <summary>
+            Updates an existing skill.
+            </summary>
+            <param name="id">The identifier of the skill to update.</param>
+            <param name="model">The updated skill information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.SkillsController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing skill.
+            </summary>
+            <param name="id">The identifier of the skill to delete.</param>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.UsersController">
+            <summary>
+            Provides endpoints for retrieving user profile information.
+            </summary>
+            <param name="service">Instance of user profile service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.#ctor(HR_AUTOMATION.Application.IServices.IUserProfileService)">
+            <summary>
+            Provides endpoints for retrieving user profile information.
+            </summary>
+            <param name="service">Instance of user profile service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.UsersController._service">
+            <summary>
+            Instance of user profile service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.GetAccount(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves the profile of the currently authenticated user. The user identifier is
+            obtained exclusively from the JWT claims of the request; it can never be supplied by
+            the client, so one user can never retrieve another user's data through this endpoint.
+            </summary>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The authenticated user's profile.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.UsersController.GetById(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves another user's profile by identifier. Restricted to administrators.
+            </summary>
+            <param name="id">The identifier of the user to retrieve.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+            <returns>The requested user's profile.</returns>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.VacancyController">
+            <summary>
+            Provides endpoints for managing vacancies.
+            </summary>
+            <param name="vacancyService">Instance of Vacancy service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.#ctor(HR_AUTOMATION.Application.IServices.IVacancyService)">
+            <summary>
+            Provides endpoints for managing vacancies.
+            </summary>
+            <param name="vacancyService">Instance of Vacancy service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Search(HR_AUTOMATION.Application.InputModels.VacancySearchInputModel)">
+            <summary>
+            Retrieves vacancies matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A paginated collection of matching vacancies.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Get(System.Int32)">
+            <summary>
+            Retrieves a vacancy by its identifier.
+            </summary>
+            <param name="id">The identifier of the vacancy.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.VacancyViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified vacancy does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Create(HR_AUTOMATION.Application.InputModels.VacancyInputModel)">
+            <summary>
+            Creates a new vacancy.
+            </summary>
+            <param name="model">The vacancy information.</param>
+            <returns>The identifier of the newly created vacancy.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Upsert(HR_AUTOMATION.Application.InputModels.VacancyInputModel)">
+            <summary>
+            Creates or updates a vacancy (draft). If the vacancy identifier is provided, the existing vacancy is updated; otherwise, a new one is created.
+            </summary>
+            <param name="model">The vacancy information.</param>
+            <returns>The updated <see cref="T:HR_AUTOMATION.Application.ViewModels.VacancyViewModel"/>.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.VacancyInputModel)">
+            <summary>
+            Updates an existing vacancy.
+            </summary>
+            <param name="id">The identifier of the vacancy to update.</param>
+            <param name="model">The updated vacancy information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing vacancy.
+            </summary>
+            <param name="id">The identifier of the vacancy to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.UpdateVacancyStatus(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="statusId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.CreateSourcingSearch(System.Int32,HR_AUTOMATION.Application.InputModels.ActiveSearchInputModel)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.GetSourcingResults(System.Int32,HR_AUTOMATION.Application.InputModels.SourcingResultSearchInputModel)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.GetResult(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="resultId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.SetResultAsViewed(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="resultId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.VacancyController.GetResultCv(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="vacancyId"></param>
+            <param name="resultId"></param>
+            <returns></returns>
+        </member>
+        <member name="T:HR_AUTOMATION_API.Controllers.WorkModalitiesController">
+            <summary>
+            Provides endpoints for managing work modalities.
+            </summary>
+            <param name="service">Instance of Work Modality service.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.#ctor(HR_AUTOMATION.Application.IServices.IWorkModalityService)">
+            <summary>
+            Provides endpoints for managing work modalities.
+            </summary>
+            <param name="service">Instance of Work Modality service.</param>
+        </member>
+        <member name="F:HR_AUTOMATION_API.Controllers.WorkModalitiesController._service">
+            <summary>
+            Instance of Work Modality service.
+            </summary>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Search(HR_AUTOMATION.Application.InputModels.WorkModalitySearchInputModel)">
+            <summary>
+            Retrieves work modalities matching the specified search criteria.
+            </summary>
+            <param name="model">The search criteria.</param>
+            <returns>A collection of matching work modalities.</returns>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Get(System.Int32)">
+            <summary>
+            Retrieves a work modality by its identifier.
+            </summary>
+            <param name="id">The identifier of the work modality.</param>
+            <returns>The requested <see cref="T:HR_AUTOMATION.Application.ViewModels.WorkModalityViewModel"/>.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the specified work modality does not exist.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Create(HR_AUTOMATION.Application.InputModels.WorkModalityInputModel)">
+            <summary>
+            Creates a new work modality.
+            </summary>
+            <param name="model">The work modality information.</param>
+            <returns>The identifier of the newly created work modality.</returns>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the work modality cannot be created.</exception>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Update(System.Int32,HR_AUTOMATION.Application.InputModels.WorkModalityInputModel)">
+            <summary>
+            Updates an existing work modality.
+            </summary>
+            <param name="id">The identifier of the work modality to update.</param>
+            <param name="model">The updated work modality information.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Delete(System.Int32)">
+            <summary>
+            Deletes an existing work modality.
+            </summary>
+            <param name="id">The identifier of the work modality to delete.</param>
+        </member>
+        <member name="M:HR_AUTOMATION_API.Controllers.WorkModalitiesController.Reorder(HR_AUTOMATION.Application.InputModels.ReorderInputModel)">
+            <summary>
+            Updates the sort order of a work modality within an organization.
+            </summary>
+            <param name="model">The reorder request information.</param>
+            <exception cref="T:Shared.Kernel.Responses.ResponseExceptionFactory">Thrown when the required organization information is missing or the operation fails.</exception>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -6,13 +6,21 @@
     public class LoginInputModel
     {
         /// <summary>
-        /// The email address of the user attempting to log in.
+        /// Gets or sets the user's email address.
         /// </summary>
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = null!;
 
         /// <summary>
-        /// The user's password for authentication.
+        /// Gets or sets the user's password, in plain text as submitted by the client.
         /// </summary>
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = null!;
+
+        /// <summary>
+        /// Normalizes the input model before processing.
+        /// </summary>
+        public void Normalize()
+        {
+            Email = Email?.Trim()!;
+        }
     }
 }

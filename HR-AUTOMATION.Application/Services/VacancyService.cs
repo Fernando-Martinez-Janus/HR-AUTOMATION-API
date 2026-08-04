@@ -12,6 +12,7 @@ using HR_AUTOMATION.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Shared.Kernel.InputModels;
 using Shared.Kernel.IRepositories;
 using Shared.Kernel.IServices;
 using Shared.Kernel.Responses;
@@ -19,6 +20,7 @@ using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using Shared.Kernel.Utils.Helpers;
 using Shared.Kernel.ViewModels;
+using System.Text.Json;
 
 namespace HR_AUTOMATION.Application.Services
 {
@@ -37,7 +39,8 @@ namespace HR_AUTOMATION.Application.Services
         ICacheService cacheService,
         IConfiguration configuration,
         IHttpContextService httpContextService,
-        IHubContext<NotificationHub> notificationHub
+        IHubContext<NotificationHub> notificationHub,
+        IHttpService httpService
     ) : IVacancyService
     {
         private readonly ILogger<VacancyService> _logger = logger;
@@ -45,6 +48,7 @@ namespace HR_AUTOMATION.Application.Services
         private readonly ICacheService _cacheService = cacheService;
         private readonly IHttpContextService _httpContextService = httpContextService;
         private readonly IHubContext<NotificationHub> _notificationHub = notificationHub;
+        private readonly IHttpService _httpService = httpService;
 
         private readonly TimeSpan _cacheDefaultExpiration =
             TimeSpan.FromMilliseconds(configuration.GetValue<long>(AppConstants.RedisDefaultExpiration));
@@ -142,7 +146,7 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_search", model.SearchTerm)
                 ];
 
-                IEnumerable<Vacancy> result = await _sharedRepository.QueryAsync<Vacancy>("[recruitment].[web_get_vacancies]", parameters);
+                IEnumerable<SearchRequestDispatchModel> result = await _sharedRepository.QueryAsync<SearchRequestDispatchModel>("[recruitment].[web_get_vacancies]", parameters);
 
 
                 IEnumerable<VacancyViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<VacancyViewModel>>(result);
@@ -381,6 +385,87 @@ namespace HR_AUTOMATION.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(DeleteAsync));
+                throw;
+            }
+        }
+
+        public async Task<int> SearchAsync(int vacancyId, ActiveSearchInputModel model)
+        {
+            try
+            {
+                int? userId = _httpContextService.GetUserId();
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_vacancy_id", vacancyId),
+                    new("@p_minimum_experience", model.MinExperience),
+                    new("@p_maximum_experience", model.MaxExperience),
+                    new("@p_scolarity_id", model.Education),
+                    new("@p_skills_profile", model.CvUpdated),
+                    new("@p_excluded", model.KeywordsExclude),
+                    new("@p_included", null),
+                    new("@p_sources", model.Sources != null ? JsonSerializer.Serialize(model.Sources) : null),
+                    new("@p_cv_max_age", null),
+                    new("@p_request_cooldown_ms", null),
+                    new("@p_created_by", userId)
+                ];
+
+                SearchRequestModel result =
+                    await _sharedRepository.QuerySingleAsync<SearchRequestModel>("[recruitment].[web_insert_vacancy_and_search]", parameters)
+                    ?? throw new ResponseExceptionFactory(Exceptions.InternalServerError);
+
+                try
+                {
+                    await _httpService.SendRequestAsync(new HttpRequest
+                    {
+                        Url = configuration.GetValue<string>("Scraper:Url")!,
+                        Method = HttpMethod.Post,
+                        Body = new
+                        {
+                            searchRequestId = result.Id,
+                            vacancyId = vacancyId,
+                            minExperience = model.MinExperience,
+                            maxExperience = model.MaxExperience,
+                            education = model.Education,
+                            cvUpdated = model.CvUpdated,
+                            keywordsExclude = model.KeywordsExclude,
+                            sources = model.Sources
+                        },
+                        Timeout = 30000
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Scraper no disponible para vacancy {VacancyId}", vacancyId);
+                }
+
+                return result.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(SearchAsync));
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<SearchRequestDispatchViewModel>> GetDispatchAsync()
+        {
+            try
+            {
+                int? createdBy = _httpContextService.GetUserId();
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_created_by", createdBy)
+                ];
+
+                IEnumerable<SearchRequestDispatchModel> results = await _sharedRepository.QueryAsync<SearchRequestDispatchModel>(
+                    "[recruitment].[web_get_vacancy_dispatch]", parameters
+                );
+
+                return results.Select(result => Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(GetDispatchAsync));
                 throw;
             }
         }

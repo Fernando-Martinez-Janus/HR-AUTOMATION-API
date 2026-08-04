@@ -136,6 +136,13 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.Color, model => model.MapFrom(m => m.Color))
                 .ForMember(view => view.Skills, model => model.MapFrom(m => m.Skills));
 
+            CreateMap<ScolarityLevelModel, ScolarityLevelViewModel>(MemberList.None)
+                .ForMember(view => view.ScolarityLevelId, model => model.MapFrom(m => m.Id))
+                .ForMember(view => view.OrganizationId, model => model.MapFrom(m => m.OrganizationId))
+                .ForMember(view => view.LevelName, model => model.MapFrom(m => m.LevelName))
+                .ForMember(view => view.LevelDescription, model => model.MapFrom(m => m.LevelDescription))
+                .ForMember(view => view.SortOrder, model => model.MapFrom(m => m.SortOrder));
+
             CreateMap<ProfileSkillModel, ProfileSkillViewModel>(MemberList.None)
                 .ForMember(view => view.ProfileSkillId, model => model.MapFrom(m => m.Id))
                 .ForMember(view => view.ProfileId, model => model.MapFrom(m => m.ProfileId))

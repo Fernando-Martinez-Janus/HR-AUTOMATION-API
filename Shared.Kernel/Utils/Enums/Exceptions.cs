@@ -69,6 +69,29 @@
         [EnumInfo(400, "Profile description must not exceed 1000 characters")]
         ProfileDescriptionLengthInvalid,
 
+        // --- Auth Exceptions ---
+        [EnumInfo(400, "Google ID token is required")]
+        GoogleIdTokenRequired,
+        [EnumInfo(400, "Email is required")]
+        EmailRequired,
+        [EnumInfo(400, "Password is required")]
+        PasswordRequired,
+        [EnumInfo(400, "Refresh token is required")]
+        RefreshTokenRequired,
+
+        #endregion
+
+        #region 401 - Unauthorized
+
+        [EnumInfo(401, "Invalid Google token")]
+        InvalidGoogleToken,
+        [EnumInfo(401, "User not found")]
+        UserNotFound,
+        [EnumInfo(401, "User is inactive")]
+        UserInactive,
+        [EnumInfo(401, "Invalid email or password")]
+        InvalidCredentials,
+
         #endregion
 
         #region 404 Not Found
