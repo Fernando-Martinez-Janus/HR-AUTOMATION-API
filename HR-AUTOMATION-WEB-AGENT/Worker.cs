@@ -84,25 +84,34 @@ public class Worker(
             };
 
             HttpResponse httpResponse = await _httpService.SendRequestAsync(dispatchRequest);
-            Response<SearchRequestDispatchViewModel>? response = JsonSerializer.Deserialize<Response<SearchRequestDispatchViewModel>>(
+            Response<List<SearchRequestDispatchViewModel>>? response = JsonSerializer.Deserialize<Response<List<SearchRequestDispatchViewModel>>>(
                 httpResponse.GetResponseAsString(),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
 
-            if (response?.DataResponse is null)
+            if (response?.DataResponse is null or { Count: 0 })
             {
                 _logger.LogInformation("No pending search requests");
                 return;
             }
 
-            SearchRequestDispatchViewModel dispatch = response.DataResponse;
-            Guid jobId = Guid.NewGuid();
+            foreach (SearchRequestDispatchViewModel dispatch in response.DataResponse)
+            {
+                Guid jobId = Guid.NewGuid();
 
-            _logger.LogInformation("Search request {SearchRequestId} received, starting scrape (job {JobId})", dispatch.SearchRequestId, jobId);
+                _logger.LogInformation("Search request {SearchRequestId} received, starting scrape (job {JobId})", dispatch.SearchRequestId, jobId);
 
-            ScrapeInputModel scrapeInput = BuildScrapeInputModel(dispatch);
+                try
+                {
+                    ScrapeInputModel scrapeInput = BuildScrapeInputModel(dispatch);
 
-            await _scraperService.ScrapeAsync(scrapeInput, jobId);
+                    await _scraperService.ScrapeAsync(scrapeInput, jobId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Scrape failed for search request {SearchRequestId} (job {JobId})", dispatch.SearchRequestId, jobId);
+                }
+            }
         }
         catch (Exception ex)
         {
