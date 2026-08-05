@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HR-AUTOMATION-WEB-AGENT")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f30dc7308cca30de614ea4cb96440522c5fc18bf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b22b49c172caa6c9d05f19ec73ac78178ce8835")]
 [assembly: System.Reflection.AssemblyProductAttribute("HR-AUTOMATION-WEB-AGENT")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HR-AUTOMATION-WEB-AGENT")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
