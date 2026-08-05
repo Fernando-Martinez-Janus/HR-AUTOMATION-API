@@ -27,8 +27,8 @@ namespace HR_AUTOMATION.Application.IServices
         /// Creates a new vacancy.
         /// </summary>
         /// <param name="model">The vacancy information.</param>
-        /// <returns>The identifier of the newly created vacancy.</returns>
-        Task<int> CreateAsync(VacancyInputModel model);
+        /// <returns>A tuple containing both the vacancy and search request identifiers.</returns>
+        Task<(int VacancyId, int SearchRequestId)> CreateAsync(VacancyInputModel model);
 
         /// <summary>
         /// Creates or updates a vacancy (draft). If the vacancy identifier is provided, the existing vacancy is updated; otherwise, a new one is created.

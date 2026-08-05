@@ -15,6 +15,7 @@
         public const string SkillCategoriesFilter = "skillcategories";
         public const string AreaLevelFilter = "arealevel";
         public const string SeniorityLevelFilter = "senioritylevel";
+        public const string ScolarityFilter = "scolarity";
 
         public const string SkillCategoryKey = "skillcategory";
         public const string SkillKey = "skill";

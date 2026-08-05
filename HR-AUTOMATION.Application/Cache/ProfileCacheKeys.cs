@@ -37,6 +37,7 @@ public static class ProfileCacheKeys
             $"{CacheKeys.SearchKey}:{searchHashed}:",
             $"{CacheKeys.AreaLevelFilter}:{model?.AreaLevelId}:",
             $"{CacheKeys.SeniorityLevelFilter}:{model?.SeniorityLevelId}:",
+            $"{CacheKeys.ScolarityFilter}:{model?.ScolarityLevelId}:",
             $"{CacheKeys.PageNumberKey}:{model?.PageNumber}:",
             $"{CacheKeys.PageSizeKey}:{model?.PageSize}"
         );
