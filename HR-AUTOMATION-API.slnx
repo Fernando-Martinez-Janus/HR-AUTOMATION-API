@@ -5,5 +5,6 @@
     <Project Path="HR-AUTOMATION.Infrastructure/HR-AUTOMATION.Infrastructure.csproj" />
   </Folder>
   <Project Path="HR-AUTOMATION-API/HR-AUTOMATION-API.csproj" />
+  <Project Path="HR-AUTOMATION-WEB-AGENT/HR-AUTOMATION-WEB-AGENT.csproj" />
   <Project Path="Shared.Kernel/Shared.Kernel.csproj" />
 </Solution>
