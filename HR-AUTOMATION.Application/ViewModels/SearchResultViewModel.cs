@@ -2,7 +2,9 @@
 {
     public class SearchResultViewModel
     {
+        public int SearchResultId { get; set; }
         public int SearchRequestId { get; set; }
+        public int VacancyId { get; set; }
         public string? CandidateName { get; set; }
         public string? CandidateTitle { get; set; }
         public string? Experience { get; set; }
@@ -22,6 +24,7 @@
         public string? OriginalResumeLink { get; set; }
         public bool Relocation { get; set; }
         public bool Seen { get; set; }
+        public int CandidateRank { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
