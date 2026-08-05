@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Debugging;
 using Shared.Kernel.IRepositories;
 using Shared.Kernel.IServices;
 using Shared.Kernel.Repositories;
@@ -21,6 +22,8 @@ using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
+
+SelfLog.Enable(Console.Error);
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
