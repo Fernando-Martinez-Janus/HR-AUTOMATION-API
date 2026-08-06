@@ -8,6 +8,7 @@ using HR_AUTOMATION.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Debugging;
@@ -153,6 +154,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition(AppConstants.Bearer.ToLower(), new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = AppConstants.Bearer.ToLower(),
+        BearerFormat = AppConstants.BearerFormat,
+        Description = AppConstants.BearerFormatDescription
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(AppConstants.Bearer.ToLower(), document)] = []
+    });
     string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

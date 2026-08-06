@@ -15,6 +15,9 @@
         /// </summary>
         public const string Basic = "Basic";
 
+        public const string BearerFormat = "JWT";
+        public const string BearerFormatDescription = "JWT Authorization header using the Bearer scheme.";
+
         public const string RedisConnectionStringKey = "Redis:ConnectionString";
 
         public const string RedisShortExpiration = "Redis:Expiration:Short";
