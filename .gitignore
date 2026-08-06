@@ -32,6 +32,12 @@
 /HR-AUTOMATION.Infrastructure/appsettings.json
 /HR-AUTOMATION-API/Properties/PublishProfiles
 /HR-AUTOMATION-API/appsettings.Development.json
+/HR-AUTOMATION-WEB-AGENT/bin
+/HR-AUTOMATION-WEB-AGENT/obj
+!/HR-AUTOMATION-WEB-AGENT/appsettings.json
+!/HR-AUTOMATION-WEB-AGENT/appsettings.Development.json
+!/HR-AUTOMATION-WEB-AGENT/Properties/launchSettings.json
+!/HR-AUTOMATION-API/appsettings.json
 /Database/Scripts
 /HR-AUTOMATION-API/bin/verify
 /HR-AUTOMATION.Infrastructure/bin/verify

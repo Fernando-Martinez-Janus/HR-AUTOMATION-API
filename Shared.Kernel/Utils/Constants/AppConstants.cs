@@ -25,16 +25,10 @@
         public const string SqlServerTimeoutKey = "ConnectionConfigurations:SqlServerConnection:Timeout";
 
 
-        public const string JwtKeyKey = "Jwt:Key";
-        //public const string JwtIssuerKey = "Jwt:Issuerop";
-        public const string JwtAudienceKey = "Jwt:Audience";
-        public const string JwtExpirationMinutesKey = "Jwt:ExpirationMinutes";
-
         public const string GoogleClientIdKey = "Google:ClientId";
         public const string GoogleIssuer = "https://accounts.google.com";
         public const string GoogleIssuerAlternate = "accounts.google.com";
 
-        ///// Fer
         public const string JwtSecretKey = "JwtConfigurations:Secret";
         public const string JwtIssuerKey = "JwtConfigurations:Issuer";
         public const string JwtDefaultAudienceKey = "JwtConfigurations:DefaultAudience";
@@ -44,7 +38,7 @@
         public const string JwtNeverExpiresKey = "JwtConfigurations:NeverExpires";
 
         public const string RefreshTokenByteSizeKey = "RefreshTokenConfigurations:SecureTokenByteSize";
-        public const string RefreshTokenExpirationDaysKey = "RefreshToken:ExpirationDays";
+        public const string RefreshTokenExpiresInKey = "RefreshTokenConfigurations:RefreshTokenExpiresIn";
 
         public const int DefaultPageNumber = 1;
         public const int DefaultPageSize = 10;
