@@ -1,4 +1,4 @@
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using HR_AUTOMATION.Application.InputModels;
 using HR_AUTOMATION.Application.IServices;
 using HR_AUTOMATION.Application.ViewModels;
@@ -15,14 +15,17 @@ namespace HR_AUTOMATION_API.Controllers
     /// Provides endpoints for managing vacancies.
     /// </summary>
     /// <param name="vacancyService">Instance of Vacancy service.</param>
+    /// <param name="searchResultsService">Instance of Search Results service.</param>
     [ApiController]
     [Produces(MediaTypes.Json)]
     [EnableRateLimiting(RateLimitConstants.DefaultPolicy)]
     [Tags("Vacancies")]
     [Route("api/v{version:apiVersion}/vacancies")]
-    public class VacancyController(IVacancyService vacancyService) : ControllerBase
+    public class VacancyController(IVacancyService vacancyService, ISearchResultsService searchResultsService) : ControllerBase
     {
         private readonly IVacancyService _vacancyService = vacancyService;
+
+        private readonly ISearchResultsService _searchResultsService = searchResultsService;
 
         private readonly Dictionary<int, string> Files = new()
         {
@@ -78,18 +81,18 @@ namespace HR_AUTOMATION_API.Controllers
         /// Creates a new vacancy.
         /// </summary>
         /// <param name="model">The vacancy information.</param>
-        /// <returns>The identifier of the newly created vacancy.</returns>
+        /// <returns>The identifiers of the newly created vacancy and search request.</returns>
         [HttpPost]
         [MapToApiVersion("1")]
         [ProducesResponseType(typeof(Response), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create([FromBody] VacancyInputModel model)
         {
-            int result = await _vacancyService.CreateAsync(model);
+            var (vacancyId, searchRequestId) = await _vacancyService.CreateAsync(model);
 
-            Response<int> response = new()
+            Response<object> response = new()
             {
                 Code = StatusCodes.Status201Created,
-                DataResponse = result
+                DataResponse = new { vacancyId, searchRequestId }
             };
 
             return StatusCode(response.Code, response);
@@ -198,7 +201,7 @@ namespace HR_AUTOMATION_API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Obtiene los resultados de sourcing para una vacante específica.
         /// </summary>
         /// <param name="vacancyId"></param>
         /// <param name="model"></param>
@@ -208,54 +211,7 @@ namespace HR_AUTOMATION_API.Controllers
         [ProducesResponseType(typeof(Response<ActiveSearchViewModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSourcingResults(int vacancyId, [FromQuery] SourcingResultSearchInputModel model)
         {
-            await Task.Delay(0);
-            ActiveSearchViewModel result = new()
-            {
-                UnSeenCount = 0,
-                Result = new(3,
-                    [
-                        new()
-                        {
-                            SearchRequestId = 1,
-                            CandidateTitle = "Desarrollador Full Stack (.NET Core / Angular)",
-                            AiScore = 85,
-                            AiRecommended = true,
-                            AiShortComment = "Desarrollador Full Stack con experiencia en .NET, Angular, React, Vue, C#, APIs REST y bases de datos, actualmente trabajando en soluciones para el sector seguros. Ha participado en desarrollo frontend, servicios web, optimización de procesos y pruebas manuales con Postman. Cuenta con licenciatura en Informática Administrativa e inglés básico.",
-                            AiExtendedComment = "",
-                            ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12203967?o=4",
-                            OriginalResumeLink = "",
-                            CreatedAt = DateTime.UtcNow,
-                            Seen = true
-                        },
-                        new()
-                        {
-                            SearchRequestId = 2,
-                            CandidateTitle = "Desarrollador Senior .NET Core / C#",
-                            AiScore = 98,
-                            AiRecommended = true,
-                            AiShortComment = "Desarrollador Senior .NET Core con más de 10 años de experiencia especializada en C#, .NET Core (5, 6 y 8), microservicios y APIs REST. Dominio avanzado de Entity Framework, SQL/PostgreSQL, seguridad (JWT/LDAP) y pruebas unitarias con xUnit y Moq. Cuenta con ingeniería concluida y sólida trayectoria en arquitectura y diseño de software.",
-                            AiExtendedComment = "",
-                            ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/8389271?o=4",
-                            OriginalResumeLink = "",
-                            CreatedAt = DateTime.UtcNow,
-                            Seen = true
-                        },
-                        new()
-                        {
-                            SearchRequestId = 3,
-                            CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
-                            AiScore = 98,
-                            AiRecommended = true,
-                            AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
-                            AiExtendedComment = "",
-                            ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
-                            OriginalResumeLink = "",
-                            CreatedAt = DateTime.UtcNow,
-                            Seen = true
-                        }
-                    ]
-                )
-            };
+            ActiveSearchViewModel result = await _searchResultsService.GetByVacancyAsync(vacancyId, model);
 
             Response<ActiveSearchViewModel> response = new()
             {
@@ -267,7 +223,27 @@ namespace HR_AUTOMATION_API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Obtiene los 3 mejores candidatos (por candidate_rank) entre todas las vacantes.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("top-candidates-results")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response<IEnumerable<SearchResultViewModel>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTopCandidatesResults()
+        {
+            IEnumerable<SearchResultViewModel> result = await _searchResultsService.GetTopCandidatesAsync(3);
+
+            Response<IEnumerable<SearchResultViewModel>> response = new()
+            {
+                Code = StatusCodes.Status200OK,
+                DataResponse = result
+            };
+
+            return StatusCode(response.Code, response);
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="vacancyId"></param>
         /// <param name="resultId"></param>
@@ -277,50 +253,7 @@ namespace HR_AUTOMATION_API.Controllers
         [ProducesResponseType(typeof(Response<SearchResultViewModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetResult(int vacancyId, int resultId)
         {
-            Dictionary<int, SearchResultViewModel> dict = new()
-            {
-                [1] = new()
-                {
-                    SearchRequestId = 1,
-                    CandidateTitle = "Desarrollador Full Stack (.NET Core / Angular)",
-                    AiScore = 85,
-                    AiRecommended = true,
-                    AiShortComment = "Desarrollador Full Stack con experiencia en .NET, Angular, React, Vue, C#, APIs REST y bases de datos, actualmente trabajando en soluciones para el sector seguros. Ha participado en desarrollo frontend, servicios web, optimización de procesos y pruebas manuales con Postman. Cuenta con licenciatura en Informática Administrativa e inglés básico.",
-                    AiExtendedComment = "Candidato con perfil de Desarrollador Full Stack (.NET Core / Angular) ubicado en Monterrey, Nuevo León. Actualmente se desempeña como desarrollador de software en Raspberry Seguros, donde ha trabajado en soluciones personalizadas para seguros, mejora de procesos, reducción de errores de validación, optimización de aplicaciones de gestión de pólizas y diseño de interfaces para cotizadores.\nPreviamente trabajó como Desarrollador Jr en Connectit, participando en la implementación de interfaces, consumo y desarrollo de servicios web, APIs REST, modificaciones en bases de datos y pruebas manuales con Postman. Su experiencia técnica incluye tecnologías como HTML, CSS, JavaScript, Vue, React, Angular, C#, .NET, Python Flask y MySQL.\nSu objetivo profesional está orientado a integrarse a equipos colaborativos donde pueda aportar valor técnico, resolver problemas complejos y contribuir a productos eficientes, escalables y de calidad. Cuenta con estudios titulados en Licenciatura en Informática Administrativa por la Universidad Ciudadana de Nuevo León e idiomas: español nativo e inglés básico.",
-                    ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12203967?o=4",
-                    OriginalResumeLink = "",
-                    CreatedAt = DateTime.UtcNow,
-                    Seen = true
-                },
-                [2] = new()
-                {
-                    SearchRequestId = 2,
-                    CandidateTitle = "Desarrollador Senior .NET Core / C#",
-                    AiScore = 98,
-                    AiRecommended = true,
-                    AiShortComment = "Desarrollador Senior .NET Core con más de 10 años de experiencia especializada en C#, .NET Core (5, 6 y 8), microservicios y APIs REST. Dominio avanzado de Entity Framework, SQL/PostgreSQL, seguridad (JWT/LDAP) y pruebas unitarias con xUnit y Moq. Cuenta con ingeniería concluida y sólida trayectoria en arquitectura y diseño de software.",
-                    AiExtendedComment = "Desarrollador .NET Senior altamente experimentado que destaca por su profundo dominio del ecosistema Microsoft .NET (incluyendo .NET Core 5, 6 y 8). A lo largo de su trayectoria profesional ha diseñado y construido arquitecturas backend robustas, microservicios, API Gateways, integraciones de seguridad con JWT y LDAP, y middleware de protección de datos.\n\nPosee una sólida base en gestión de datos relacionales con PostgreSQL, SQL Server y Oracle, aplicando ORMs como Entity Framework y herramientas como AutoMapper. Adicionalmente, cuenta con experiencia práctica en pruebas unitarias con xUnit y Moq, integración con SonarQube, así como soporte a plataformas web MVC y herramientas de análisis.\n\nEs Ingeniero en Telecomunicaciones y Electrónica por el Tecnológico de Estudios Superiores de Ecatepec. Su amplio bagaje técnico, experiencia en sistemas críticos y dominio especializado en .NET lo convierten en un perfil excepcionalmente calificado para la vacante.",
-                    ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/8389271?o=4",
-                    OriginalResumeLink = "",
-                    CreatedAt = DateTime.UtcNow,
-                    Seen = true
-                },
-                [3] = new()
-                {
-                    SearchRequestId = 3,
-                    CandidateTitle = "Desarrollador .NET Core / Consultor Tecnológico",
-                    AiScore = 98,
-                    AiRecommended = true,
-                    AiShortComment = "Desarrollador .NET Core Full Stack con 4 años de experiencia construyendo soluciones web, APIs REST, servicios y proyectos de automatización. Destaca por la refactorización de código legacy aplicando principios SOLID, integración con ERPs (SAP) y desarrollo en tiempo real con SignalR. Es Ingeniero en Informática con inglés intermedio.",
-                    AiExtendedComment = "El candidato es un Desarrollador Full Stack enfocado en .NET Core con una trayectoria de 4 años en el desarrollo de software, automatización de procesos e integración de sistemas.\n\nEn su experiencia profesional reciente, ha destacado por optimizar código legacy mediante la aplicación de principios SOLID y modularización, reduciendo significativamente los tiempos de desarrollo y mantenimiento. Ha implementado reglas de negocio automatizadas, desarrollado dashboards para conciliación financiera con ERPs como SAP, y trabajado con tecnologías backend y de tiempo real como SQL Server y SignalR. Adicionalmente cuenta con experiencia en gestión de requerimientos técnicos con clientes directos.\n\nEstá titulado en Ingeniería en Informática por el Tecnológico de Estudios Superiores de Ecatepec y cuenta con nivel de inglés intermedio. Es un perfil muy completo que combina desarrollo limpio, integración de sistemas y capacidad de análisis funcional.",
-                    ReferenceLink = "https://www.occ.com.mx/empresas/candidatos/cv/12890399?o=4&utm_source=pdf",
-                    OriginalResumeLink = "",
-                    CreatedAt = DateTime.UtcNow,
-                    Seen = true
-                }
-            };
-
-            SearchResultViewModel result = dict.GetValueOrDefault(resultId) ?? dict[1];
+            SearchResultViewModel result = await _searchResultsService.GetDetailByVacancyAsync(vacancyId, resultId);
 
             Response<SearchResultViewModel> response = new()
             {
@@ -367,7 +300,9 @@ namespace HR_AUTOMATION_API.Controllers
             {
                 [1] = "CV_12203967.pdf",
                 [2] = "CV_8389271.pdf",
-                [3] = "CV_12890399.pdf"
+                [3] = "CV_12890399.pdf",
+                [4] = "CV_8389271.pdf",
+                [5] = "CV_12890399.pdf"
             };
             string base64 = Files.GetValueOrDefault(resultId) ?? Files[1];
             byte[] bytes = Convert.FromBase64String(base64);

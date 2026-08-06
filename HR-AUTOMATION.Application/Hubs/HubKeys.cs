@@ -19,5 +19,6 @@
         public const string VacancyChanged = "vacancyChanged";
         public const string SearchRequestChanged = "searchRequestChanged";
         public const string ScolarityLevelChanged = "scolarityLevelChanged";
+        public const string SearchResultsChanged = "searchResultsChanged";
     }
 }

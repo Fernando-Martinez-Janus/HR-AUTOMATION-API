@@ -68,7 +68,13 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// resultados (candidatos)
+builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+builder.Services.AddScoped<ISearchResultsService, SearchResultsService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
