@@ -34,9 +34,9 @@ namespace HR_AUTOMATION.Application.Services
         private readonly ILogger<RefreshTokenService> _logger = logger;
 
         /// <summary>
-        /// The refresh token lifetime, in days.
+        /// The refresh token lifetime, in milliseconds.
         /// </summary>
-        private readonly int _expirationDays = configuration.GetValue<int>(AppConstants.RefreshTokenExpirationDaysKey);
+        private readonly double _expiresInMilliseconds = configuration.GetValue<double>(AppConstants.RefreshTokenExpiresInKey);
 
         /// <summary>
         /// Provides access to shared data operations.
@@ -59,7 +59,7 @@ namespace HR_AUTOMATION.Application.Services
                 byte[] randomBytes = RandomNumberGenerator.GetBytes(TokenByteSize);
                 string token = WebEncoders.Base64UrlEncode(randomBytes);
 
-                DateTime expiresAt = DateTime.UtcNow.AddDays(_expirationDays);
+                DateTime expiresAt = DateTime.UtcNow.AddMilliseconds(_expiresInMilliseconds);
 
                 List<KeyValuePair<string, object?>> parameters = [
                     new("@p_user_id", userId),

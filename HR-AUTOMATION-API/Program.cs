@@ -8,6 +8,7 @@ using HR_AUTOMATION.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Debugging;
@@ -68,7 +69,13 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// resultados (candidatos)
+builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
+builder.Services.AddScoped<ISearchResultsService, SearchResultsService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -147,6 +154,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition(AppConstants.Bearer.ToLower(), new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = AppConstants.Bearer.ToLower(),
+        BearerFormat = AppConstants.BearerFormat,
+        Description = AppConstants.BearerFormatDescription
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(AppConstants.Bearer.ToLower(), document)] = []
+    });
     string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

@@ -87,4 +87,45 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
 
         return StatusCode(response.Code, response);
     }
+
+
+    /// <summary>
+    /// Updates an existing profile.
+    /// </summary>
+    /// <param name="id">The identifier of the profile to update.</param>
+    /// <param name="model">The updated profile information.</param>
+    [HttpPut("{id:int}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Update(int id, [FromBody] ProfileInputModel model)
+    {
+        await _profileService.UpdateAsync(id, model);
+
+        Response response = new()
+        {
+            Code = StatusCodes.Status204NoContent
+        };
+
+        return StatusCode(response.Code, response);
+    }
+
+
+    /// <summary>
+    /// Deletes an existing profile.
+    /// </summary>
+    /// <param name="id">The identifier of the profile to delete.</param>
+    [HttpDelete("{id:int}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Response), StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _profileService.DeleteAsync(id);
+
+        Response response = new()
+        {
+            Code = StatusCodes.Status204NoContent
+        };
+
+        return StatusCode(response.Code, response);
+    }
 }

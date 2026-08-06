@@ -1,4 +1,4 @@
-﻿################################################################################
+﻿﻿################################################################################
 # Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -38,3 +38,10 @@
 !/HR-AUTOMATION-WEB-AGENT/appsettings.Development.json
 !/HR-AUTOMATION-WEB-AGENT/Properties/launchSettings.json
 !/HR-AUTOMATION-API/appsettings.json
+/Database/Scripts
+/HR-AUTOMATION-API/bin/verify
+/HR-AUTOMATION.Infrastructure/bin/verify
+/Shared.Kernel/bin/verify
+/HR-AUTOMATION.Domain/bin/verify
+/HR-AUTOMATION.Application/bin/verify
+*.md

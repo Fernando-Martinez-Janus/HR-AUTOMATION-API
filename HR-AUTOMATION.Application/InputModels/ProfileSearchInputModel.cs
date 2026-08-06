@@ -23,6 +23,11 @@ namespace HR_AUTOMATION.Application.InputModels
         public int? SeniorityLevelId { get; set; }
 
         /// <summary>
+        /// Gets or sets the scolarity level identifier used to filter the results.
+        /// </summary>
+        public int? ScolarityLevelId { get; set; }
+
+        /// <summary>
         /// Normalizes the filter values.
         /// </summary>
         /// <remarks>
