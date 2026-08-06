@@ -56,11 +56,14 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("original_resume_link")]
         public string? OriginalResumeLink { get; set; }
 
-        [Column("reubication_flag")]
+        [Column("relocation")]
         public bool Relocation { get; set; }
 
         [Column("seen")]
         public bool Seen { get; set; }
+
+        [Column("candidate_rank")]
+        public int CandidateRank { get; set; }
 
         [Column("is_enabled")]
         public bool IsEnabled { get; set; }

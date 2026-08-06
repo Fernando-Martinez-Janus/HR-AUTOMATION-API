@@ -133,6 +133,9 @@
         // Si más adelante necesitas buscar un Profile por Id y no existe:
         [EnumInfo(404, "Profile Not Found")]
         ProfileNotFound,
+
+        [EnumInfo(404, "Search Result Not Found")]
+        SearchResultNotFound,
         #endregion
 
         #region 429 - Too Many Requests
