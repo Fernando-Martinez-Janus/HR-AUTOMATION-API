@@ -18,7 +18,7 @@ namespace HR_AUTOMATION.Application.Services
         /// <summary>
         /// The symmetric key used to sign issued tokens.
         /// </summary>
-        private readonly string _key = configuration.GetValue<string>(AppConstants.JwtKeyKey)!;
+        private readonly string _key = configuration.GetValue<string>(AppConstants.JwtSecretKey)!;
 
         /// <summary>
         /// The issuer to embed in issued tokens.
@@ -28,12 +28,12 @@ namespace HR_AUTOMATION.Application.Services
         /// <summary>
         /// The audience to embed in issued tokens.
         /// </summary>
-        private readonly string _audience = configuration.GetValue<string>(AppConstants.JwtAudienceKey)!;
+        private readonly string _audience = configuration.GetValue<string>(AppConstants.JwtDefaultAudienceKey)!;
 
         /// <summary>
-        /// The token lifetime, in minutes.
+        /// The token lifetime, in milliseconds.
         /// </summary>
-        private readonly int _expirationMinutes = configuration.GetValue<int>(AppConstants.JwtExpirationMinutesKey);
+        private readonly double _expiresInMilliseconds = configuration.GetValue<double>(AppConstants.JwtExpiresInKey);
 
         /// <summary>
         /// Generates a signed JWT access token for the specified user.
@@ -46,7 +46,7 @@ namespace HR_AUTOMATION.Application.Services
             if (string.IsNullOrWhiteSpace(_key)) throw new InvalidOperationException("JWT key no configurada.");
 
             DateTime now = DateTime.UtcNow;
-            DateTime expires = now.AddMinutes(_expirationMinutes);
+            DateTime expires = now.AddMilliseconds(_expiresInMilliseconds);
 
             List<Claim> claims = new()
             {
@@ -73,7 +73,7 @@ namespace HR_AUTOMATION.Application.Services
                 signingCredentials: credentials);
 
             string accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-            int expiresIn = _expirationMinutes * 60;
+            int expiresIn = (int)(_expiresInMilliseconds / 1000);
 
             return (accessToken, expiresIn);
         }

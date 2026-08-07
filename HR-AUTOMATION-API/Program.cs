@@ -8,6 +8,7 @@ using HR_AUTOMATION.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Debugging;
@@ -98,6 +99,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             // long ClaimTypes.Role URI; without this, [Authorize(Roles = "...")] would never match.
             RoleClaimType = "role"
         };
+
+        // WebSocket handshakes cannot carry the Authorization header, so the SignalR client sends
+        // the token as the "access_token" query string. Pull it in for the notification hub path so
+        // Context.User is populated inside the hub.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                string? accessToken = context.Request.Query["access_token"];
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments(HubConstants.NotificationEndpoint))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -153,6 +173,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition(AppConstants.Bearer.ToLower(), new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = AppConstants.Bearer.ToLower(),
+        BearerFormat = AppConstants.BearerFormat,
+        Description = AppConstants.BearerFormatDescription
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(AppConstants.Bearer.ToLower(), document)] = []
+    });
     string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
