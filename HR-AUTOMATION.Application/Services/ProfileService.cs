@@ -220,6 +220,7 @@ public class ProfileService(
         {
             ValidateModel(model);
 
+
             IEnumerable<ProfileSkillModel> skills = Mapping.Mapper.Map<IEnumerable<ProfileSkillModel>>(model.Skills);
 
             List<KeyValuePair<string, object?>> parameters = [

@@ -2,8 +2,8 @@
 {
     public class ActiveSearchInputModel
     {
-        public int? MinExperience { get; set; }
-        public int? MaxExperience { get; set; }
+        public decimal? MinExperience { get; set; }
+        public decimal? MaxExperience { get; set; }
         public int? Education { get; set; }
         public string? CvUpdated { get; set; }
         public string? KeywordsExclude { get; set; }

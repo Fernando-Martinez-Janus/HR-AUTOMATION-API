@@ -20,10 +20,10 @@ namespace HR_AUTOMATION.Domain.Entities
         public int? ScolarityLevelId { get; set; }
 
         [Column("min_experience")]
-        public int? MinExperience { get; set; }
+        public decimal? MinExperience { get; set; }
 
         [Column("max_experience")]
-        public int? MaxExperience { get; set; }
+        public decimal? MaxExperience { get; set; }
 
         [Column("profile_name")]
         public string ProfileName { get; set; } = null!;

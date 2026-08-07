@@ -49,12 +49,12 @@
         /// <summary>
         /// Gets or sets the min experience.
         /// </summary>
-        public int? MinExperience { get; set; }
+        public decimal? MinExperience { get; set; }
 
         /// <summary>
         /// Gets or sets the max experience.
         /// </summary>
-        public int? MaxExperience { get; set; }
+        public decimal? MaxExperience { get; set; }
 
         /// <summary>
         /// Gets or sets the profile name.
