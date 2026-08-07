@@ -151,6 +151,11 @@ namespace HR_AUTOMATION.Application.ViewModels
         public int RequestCooldownMs { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum number of CVs.
+        /// </summary>
+        public int? MaxCvs { get; set; }
+
+        /// <summary>
         /// Gets or sets additional notes.
         /// </summary>
         public string? Notes { get; set; }

@@ -128,6 +128,7 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.Sources, model => model.MapFrom(m => m.Sources))
                 .ForMember(view => view.CvMaxAge, model => model.MapFrom(m => m.CvMaxAge))
                 .ForMember(view => view.RequestCooldownMs, model => model.MapFrom(m => m.RequestCooldownMs))
+                .ForMember(view => view.MaxCvs, model => model.MapFrom(m => m.MaxCvs))
                 .ForMember(view => view.Notes, model => model.MapFrom(m => m.Notes))
                 .ForMember(view => view.IsEnabled, model => model.MapFrom(m => m.IsEnabled));
 
@@ -203,7 +204,9 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.SearchStatus, model => model.MapFrom(m => m.SearchStatus))
                 .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt))
                 .ForMember(view => view.PreviousCandidates, opt => opt.Ignore())
-                .ForMember(view => view.SkillsProfile, opt => opt.Ignore());
+                .ForMember(view => view.SkillsProfile, opt => opt.Ignore())
+                .ForMember(view => view.MaxCvs, model => model.MapFrom(m => m.MaxCvs))
+                .ForMember(view => view.MinMatchScore, model => model.MapFrom(m => m.MinMatchScore));
 
             CreateMap<SearchRequestModel, SearchRequestViewModel>(MemberList.None)
                 .ForMember(view => view.SearchRequestId, model => model.MapFrom(m => m.Id))

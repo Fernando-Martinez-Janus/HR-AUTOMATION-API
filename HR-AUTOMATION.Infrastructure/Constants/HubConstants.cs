@@ -6,5 +6,6 @@
         public const string NotificationOrganizationQuery = "orgId";
         public const string NotificationAllOrganizationsQuery = "allOrgs";
         public const string NotificationAllOrganizationsGroup = "all";
+        public const string OrganizationIdClaim = "organizationId";
     }
 }
