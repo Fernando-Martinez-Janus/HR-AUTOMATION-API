@@ -11,5 +11,8 @@ namespace HR_AUTOMATION.Domain.Models
         // Solo agrega lo que NO está en la entidad base:
         [Column("total_records")]
         public int TotalRecords { get; set; }
+
+        [Column("unseen_count")]
+        public int UnseenCount { get; set; }
     }
 }

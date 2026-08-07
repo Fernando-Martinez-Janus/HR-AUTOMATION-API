@@ -258,6 +258,16 @@ namespace Shared.Kernel.Utils.Helpers
                 return new DateTimeOffset(System.Convert.ToDateTime(value, CultureInfo.InvariantCulture));
             }
 
+            if (targetType == typeof(bool) && value is string boolStr)
+            {
+                return boolStr.Trim().ToUpperInvariant() switch
+                {
+                    "SÍ" or "SI" or "YES" or "Y" or "TRUE" or "1" => true,
+                    "NO"       or "N"  or "FALSE"      or "0" => false,
+                    _ => bool.Parse(boolStr)   // preserves the original FormatException for truly invalid values
+                };
+            }
+
             // Everything else (numeric types, bool, string, char, DateTime, ...) is
             // handled uniformly and culture-safely in a single line.
             return System.Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);

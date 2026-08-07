@@ -10,13 +10,13 @@
         public const string RejectionReasonChanged = "rejectionReasonChanged";
         public const string CurrencyChanged = "currencyChanged";
         public const string PaymentPeriodChanged = "paymentPeriodChanged";
-        public const string ProfileChanged = "profileChanged";
+        public const string ProfileChanged = "Profiles";
         public const string EmploymentTypeChanged = "employmentTypeChanged";
         public const string WorkModalityChanged = "workModalityChanged";
         public const string SeniorityLevelChanged = "seniorityLevelChanged";
         public const string QuestionCategoryChanged = "questionCategoryChanged";
         public const string OrganizationChanged = "organizationChanged";
-        public const string VacancyChanged = "vacancyChanged";
+        public const string VacancyChanged = "Vacancies";
         public const string SearchRequestChanged = "searchRequestChanged";
         public const string ScolarityLevelChanged = "scolarityLevelChanged";
         public const string SearchResultsChanged = "searchResultsChanged";

@@ -8,8 +8,10 @@ using HR_AUTOMATION.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Debugging;
 using Shared.Kernel.IRepositories;
 using Shared.Kernel.IServices;
 using Shared.Kernel.Repositories;
@@ -21,6 +23,8 @@ using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
+
+SelfLog.Enable(Console.Error);
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -56,29 +60,30 @@ builder.Services.AddScoped<IQuestionCategoryService, QuestionCategoryService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IScraperService, ScraperService>();
+builder.Services.AddScoped<IScolarityLevelService, ScolarityLevelService>();
 builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
-builder.Services.AddScoped<IScolarityLevelService, ScolarityLevelService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // resultados (candidatos)
 builder.Services.AddScoped<ISearchRequestService, SearchRequestService>();
 builder.Services.AddScoped<ISearchResultsService, SearchResultsService>();
-
 
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        string key = builder.Configuration.GetValue<string>(AppConstants.JwtKeyKey)!;
+        string key = builder.Configuration.GetValue<string>(AppConstants.JwtSecretKey)!;
         string issuer = builder.Configuration.GetValue<string>(AppConstants.JwtIssuerKey)!;
-        string audience = builder.Configuration.GetValue<string>(AppConstants.JwtAudienceKey)!;
+        string audience = builder.Configuration.GetValue<string>(AppConstants.JwtDefaultAudienceKey)!;
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -93,6 +98,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             // JwtTokenService issues the role claim under the literal type "role" rather than the
             // long ClaimTypes.Role URI; without this, [Authorize(Roles = "...")] would never match.
             RoleClaimType = "role"
+        };
+
+        // WebSocket handshakes cannot carry the Authorization header, so the SignalR client sends
+        // the token as the "access_token" query string. Pull it in for the notification hub path so
+        // Context.User is populated inside the hub.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                string? accessToken = context.Request.Query["access_token"];
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments(HubConstants.NotificationEndpoint))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -149,6 +173,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition(AppConstants.Bearer.ToLower(), new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = AppConstants.Bearer.ToLower(),
+        BearerFormat = AppConstants.BearerFormat,
+        Description = AppConstants.BearerFormatDescription
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(AppConstants.Bearer.ToLower(), document)] = []
+    });
     string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

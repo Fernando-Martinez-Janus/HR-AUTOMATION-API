@@ -22,7 +22,7 @@ namespace HR_AUTOMATION.Application.ViewModels
         public string? EmploymentType { get; set; }
         public decimal SalaryRangeMin { get; set; }
         public decimal SalaryRangeMax { get; set; }
-        public int MaxProfileAgeDays { get; set; }
+        public int? MaxProfileAgeDays { get; set; }
         public int RequestCooldownMs { get; set; }
         public int? MinimumExperience { get; set; }
         public int? MaximumExperience { get; set; }

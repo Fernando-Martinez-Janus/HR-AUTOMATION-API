@@ -3,7 +3,9 @@ using HR_AUTOMATION.Application.Cache;
 using HR_AUTOMATION.Application.Hubs;
 using HR_AUTOMATION.Application.InputModels;
 using HR_AUTOMATION.Application.IServices;
+using HR_AUTOMATION.Application.Mapper;
 using HR_AUTOMATION.Application.Validators;
+using HR_AUTOMATION.Application.ViewModels;
 using HR_AUTOMATION.Domain.Models;
 using HR_AUTOMATION.Infrastructure.Constants;
 using HR_AUTOMATION.Infrastructure.Hubs;
@@ -16,6 +18,7 @@ using Shared.Kernel.Responses;
 using Shared.Kernel.Utils.Constants;
 using Shared.Kernel.Utils.Enums;
 using Shared.Kernel.Utils.Helpers;
+using Shared.Kernel.ViewModels;
 using System.Text.Json;
 
 namespace HR_AUTOMATION.Application.Services;
@@ -124,6 +127,80 @@ public class SearchResultsService(
         catch (Exception ex)
         {
             _logger.LogError(ex, nameof(CreateAsync));
+            throw;
+        }
+    }
+
+    public async Task<ActiveSearchViewModel> GetByVacancyAsync(int vacancyId, SourcingResultSearchInputModel model)
+    {
+        try
+        {
+            model.Normalize();
+
+            List<KeyValuePair<string, object?>> parameters = [
+                new("@p_vacancy_id", vacancyId),
+                new("@p_page_number", model.PageNumber),
+                new("@p_page_size", model.PageSize)
+            ];
+
+            IEnumerable<SearchResultModel> result = await _sharedRepository.QueryAsync<SearchResultModel>(
+                "[recruitment].[web_get_search_results_vacancy]", parameters
+            );
+
+            IEnumerable<SearchResultViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<SearchResultViewModel>>(result);
+
+            return new ActiveSearchViewModel
+            {
+                UnSeenCount = result.FirstOrDefault()?.UnseenCount ?? 0,
+                Result = new PaginationResponse<SearchResultViewModel>(result.FirstOrDefault()?.TotalRecords ?? 0, mappedResult)
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(GetByVacancyAsync));
+            throw;
+        }
+    }
+
+    public async Task<SearchResultViewModel> GetDetailByVacancyAsync(int vacancyId, int resultId)
+    {
+        try
+        {
+            List<KeyValuePair<string, object?>> parameters = [
+                new("@p_vacancy_id", vacancyId),
+                new("@p_search_result_id", resultId)
+            ];
+
+            SearchResultModel result =
+                await _sharedRepository.QuerySingleAsync<SearchResultModel>("[recruitment].[web_get_search_results_vacancy_detail]", parameters)
+                ?? throw new ResponseExceptionFactory(Exceptions.SearchResultNotFound);
+
+            return Mapping.Mapper.Map<SearchResultViewModel>(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(GetDetailByVacancyAsync));
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<SearchResultViewModel>> GetTopCandidatesAsync(int topCount = 3)
+    {
+        try
+        {
+            List<KeyValuePair<string, object?>> parameters = [
+                new("@p_top", topCount)
+            ];
+
+            IEnumerable<TopCandidateSearchResultModel> result = await _sharedRepository.QueryAsync<TopCandidateSearchResultModel>(
+                "[recruitment].[web_get_search_results_top_candidates]", parameters
+            );
+
+            return Mapping.Mapper.Map<IEnumerable<SearchResultViewModel>>(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, nameof(GetTopCandidatesAsync));
             throw;
         }
     }

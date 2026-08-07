@@ -63,7 +63,7 @@ namespace HR_AUTOMATION.Domain.Models
         public decimal SalaryRangeMax { get; set; }
 
         [Column("max_profile_age_days")]
-        public int MaxProfileAgeDays { get; set; }
+        public int? MaxProfileAgeDays { get; set; }
 
         [Column("request_cooldown_ms")]
         public int RequestCooldownMs { get; set; }
