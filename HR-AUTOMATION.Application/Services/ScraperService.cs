@@ -56,6 +56,11 @@ public class ScraperService(
     private readonly string _ollamaModel = configuration.GetValue<string>(ScraperConstants.OllamaModelKey)!;
 
     /// <summary>
+    /// The URL used to report found candidates back to the main API.
+    /// </summary>
+    private readonly string _saveResultUrl = configuration.GetValue<string>(ScraperConstants.SaveResultUrlKey)!;
+
+    /// <summary>
     /// The Playwright instance used to drive the browser. Lazily created on the first scrape.
     /// </summary>
     private IPlaywright? _playwright;
@@ -154,6 +159,8 @@ public class ScraperService(
         int page = 1;
         bool hasNext = true;
 
+        List<SearchResultCandidateInputModel> savedCandidates = [];
+
         HashSet<string> processedLinks = request.SearchCriteria.PreviousCandidates
             .Select(candidate => candidate.ReferenceLink)
             .Where(referenceLink => !string.IsNullOrEmpty(referenceLink))
@@ -194,11 +201,13 @@ public class ScraperService(
                 ILocator individualLink = allLinks.Nth(i);
                 _logger.LogInformation("[Global: {Processed} | Valid: {Accessed}] Processing link {Index} of page {Page}", processed, accessed, i + 1, page);
 
-                ILocator dateParagraph = individualLink
+                ILocator cardInfo = individualLink
                     .Locator("> div")
                     .Locator("> div").Nth(1)
-                    .Locator("> div").First
-                    .Locator("> p").First;
+                    .Locator("> div").First;
+
+                ILocator titleParagraph = cardInfo.Locator("p").First;
+                ILocator dateParagraph = cardInfo.Locator("> p").First;
 
                 int dateCount = await dateParagraph.CountAsync();
 
@@ -210,6 +219,10 @@ public class ScraperService(
 
                 string dateText = await dateParagraph.InnerTextAsync();
                 _logger.LogInformation("Date paragraph text captured: '{DateText}'", dateText);
+
+                string candidateTitle = await titleParagraph.CountAsync() > 0
+                    ? await titleParagraph.InnerTextAsync()
+                    : string.Empty;
 
                 if (!await IsWithinMaxProfileAgeAsync(dateText, request.SearchCriteria.MaxProfileAgeDays))
                 {
@@ -255,6 +268,13 @@ public class ScraperService(
                 await download.SaveAsAsync(targetPath);
                 _logger.LogInformation("CV saved to {TargetPath}", targetPath);
 
+                savedCandidates.Add(new SearchResultCandidateInputModel
+                {
+                    CandidateTitle = candidateTitle,
+                    ReferenceLink = url,
+                    OriginalResumeLink = download.Url
+                });
+
                 await Task.Delay(1000);
                 await newTab.CloseAsync();
             }
@@ -291,6 +311,48 @@ public class ScraperService(
         await Task.Delay(30000);
 
         _logger.LogInformation("Scraping job completed. Processed {Processed}, downloaded {Downloaded}", processed, accessed);
+
+        if (savedCandidates.Count > 0)
+        {
+            await SaveResultsAsync(request.SearchRequestId, savedCandidates);
+        }
+    }
+
+    /// <summary>
+    /// Reports the candidates found in this scrape run back to the main API so they're persisted
+    /// and excluded from future runs of the same search request via previous-candidate deduplication.
+    /// </summary>
+    private async Task SaveResultsAsync(int searchRequestId, List<SearchResultCandidateInputModel> candidates)
+    {
+        try
+        {
+            HttpRequest saveRequest = new()
+            {
+                Method = HttpMethod.Post,
+                Url = _saveResultUrl,
+                Body = new SearchResultsInputModel
+                {
+                    SearchRequestId = searchRequestId,
+                    Candidates = candidates
+                }
+            };
+
+            HttpResponse saveResponse = await _httpService.SendRequestAsync(saveRequest);
+
+            if ((int)saveResponse.Status is < 200 or >= 300)
+            {
+                _logger.LogError(
+                    "Failed to save {Count} search results for search request {SearchRequestId}. Status: {Status}. Body: {Body}",
+                    candidates.Count, searchRequestId, saveResponse.Status, saveResponse.GetResponseAsString());
+                return;
+            }
+
+            _logger.LogInformation("Saved {Count} search results for search request {SearchRequestId}", candidates.Count, searchRequestId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save search results for search request {SearchRequestId}", searchRequestId);
+        }
     }
 
     /// <summary>

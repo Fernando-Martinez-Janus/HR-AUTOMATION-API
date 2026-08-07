@@ -141,6 +141,7 @@ public class Worker(
 
         return new ScrapeInputModel
         {
+            SearchRequestId = dispatch.SearchRequestId,
             Credentials = new ScrapeCredentialsInputModel
             {
                 Email = _scraperEmail,
