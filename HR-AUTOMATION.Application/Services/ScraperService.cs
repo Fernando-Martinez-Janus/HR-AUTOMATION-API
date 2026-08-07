@@ -116,6 +116,29 @@ public class ScraperService(
     /// </summary>
     private async Task RunScrapeJobAsync(IBrowserContext context, ScrapeInputModel request)
     {
+        List<SearchResultCandidateInputModel> savedCandidates = [];
+
+        try
+        {
+            await RunPagesAsync(context, request, savedCandidates);
+        }
+        finally
+        {
+            // Saves whatever candidates were already found even if the loop below was interrupted
+            // by an exception (e.g. a timeout mid-scrape), so they aren't lost.
+            if (savedCandidates.Count > 0)
+            {
+                await SaveResultsAsync(request.SearchRequestId, savedCandidates);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Logs in to the job portal and paginates through the search results, downloading the CVs of
+    /// candidates that pass both the recency and the model validation checks.
+    /// </summary>
+    private async Task RunPagesAsync(IBrowserContext context, ScrapeInputModel request, List<SearchResultCandidateInputModel> savedCandidates)
+    {
         IPage mainPage = await context.NewPageAsync();
 
         await mainPage.GotoAsync(_loginUrl);
@@ -158,8 +181,6 @@ public class ScraperService(
         int accessed = 0;
         int page = 1;
         bool hasNext = true;
-
-        List<SearchResultCandidateInputModel> savedCandidates = [];
 
         HashSet<string> processedLinks = request.SearchCriteria.PreviousCandidates
             .Select(candidate => candidate.ReferenceLink)
@@ -259,6 +280,8 @@ public class ScraperService(
                     continue;
                 }
 
+                CandidateEvaluation evaluation = await GetCandidateEvaluationAsync(profileText, request.Vacancy, request.SearchCriteria);
+
                 accessed++;
 
                 Task<IDownload> downloadTask = newTab.WaitForDownloadAsync(new() { Timeout = 60000 });
@@ -272,7 +295,10 @@ public class ScraperService(
                 {
                     CandidateTitle = candidateTitle,
                     ReferenceLink = url,
-                    OriginalResumeLink = download.Url
+                    OriginalResumeLink = targetPath,
+                    AiScore = evaluation.Score,
+                    AiShortComment = evaluation.ShortComment,
+                    AiExtendedComment = evaluation.ExtendedComment
                 });
 
                 await Task.Delay(1000);
@@ -311,11 +337,6 @@ public class ScraperService(
         await Task.Delay(30000);
 
         _logger.LogInformation("Scraping job completed. Processed {Processed}, downloaded {Downloaded}", processed, accessed);
-
-        if (savedCandidates.Count > 0)
-        {
-            await SaveResultsAsync(request.SearchRequestId, savedCandidates);
-        }
     }
 
     /// <summary>
@@ -365,13 +386,7 @@ public class ScraperService(
     /// <returns><see langword="true"/> if the candidate matches the requirements, or if the validation call fails; otherwise, <see langword="false"/>.</returns>
     private async Task<bool> ValidateCandidateAsync(string profileText, ScrapeVacancyInputModel vacancy, CvSearchInputModel searchCriteria)
     {
-        string location = searchCriteria.Location ?? vacancy.Location;
-        decimal? minSalary = searchCriteria.MinSalary ?? vacancy.MinSalary;
-        decimal? maxSalary = searchCriteria.MaxSalary ?? vacancy.MaxSalary;
-        string educationLevel = searchCriteria.EducationLevel ?? vacancy.EducationLevel;
-        string employmentType = searchCriteria.EmploymentType ?? "Any";
-        string includedKeywords = searchCriteria.IncludedKeywords ?? "None";
-        string excludedKeywords = searchCriteria.ExcludedKeywords ?? "None";
+        string jobRequirements = BuildJobRequirementsBlock(vacancy, searchCriteria, out string employmentType, out string includedKeywords, out string excludedKeywords);
 
         string prompt = $@"
         You are a fast recruiter checking candidates against job requirements.
@@ -379,16 +394,7 @@ public class ScraperService(
         If the candidate's profile doesn't explicitly show the required info, answer 'NO'.
 
         [JOB REQUIREMENTS]
-        - Role: {vacancy.JobTitle}
-        - Work mode: {vacancy.WorkModality}
-        - Location: {location}
-        - Contract type: {employmentType}
-        - Experience: {vacancy.MinExperience}-{vacancy.MaxExperience} years
-        - Education: {educationLevel}
-        - Key skills: {vacancy.Keywords}
-        - Must include: {includedKeywords}
-        - Must NOT include: {excludedKeywords}
-        - Salary range: {minSalary} - {maxSalary}
+        {jobRequirements}
 
         [CANDIDATE PROFILE]
         {profileText}
@@ -396,14 +402,14 @@ public class ScraperService(
         [CHECKLIST]
         1. Does the role match or relate to '{vacancy.JobTitle}'? _
         2. Is the work mode '{vacancy.WorkModality}' compatible? _
-        3. Does the location '{location}' match? _
+        3. Does the location '{searchCriteria.Location ?? vacancy.Location}' match? _
         4. Is the contract type '{employmentType}' compatible? (skip if 'Any') _
         5. Is experience between {vacancy.MinExperience} and {vacancy.MaxExperience} years? _
-        6. Does education meet '{educationLevel}'? _
+        6. Does education meet '{searchCriteria.EducationLevel ?? vacancy.EducationLevel}'? _
         7. Does the candidate have the required key skills? _
         8. Does the profile show '{includedKeywords}'? (skip if 'None') _
         9. Does the profile avoid '{excludedKeywords}'? (skip if 'None') _
-        10. Is the expected salary within {minSalary} - {maxSalary}? _
+        10. Is the expected salary within {searchCriteria.MinSalary ?? vacancy.MinSalary} - {searchCriteria.MaxSalary ?? vacancy.MaxSalary}? _
 
         If ALL are 'YES', answer 'SI'. If ANY is 'NO', answer 'NO'.
         ANSWER (only 'SI' or 'NO'):";
@@ -417,6 +423,129 @@ public class ScraperService(
             _logger.LogError(ex, "Ollama validation failed. Proceeding with default download");
             return true;
         }
+    }
+
+    /// <summary>
+    /// Builds the "[JOB REQUIREMENTS]" block shared by the eligibility and evaluation prompts,
+    /// applying the same search-criteria-over-vacancy-defaults precedence used everywhere else.
+    /// </summary>
+    private static string BuildJobRequirementsBlock(
+        ScrapeVacancyInputModel vacancy,
+        CvSearchInputModel searchCriteria,
+        out string employmentType,
+        out string includedKeywords,
+        out string excludedKeywords)
+    {
+        string location = searchCriteria.Location ?? vacancy.Location;
+        decimal? minSalary = searchCriteria.MinSalary ?? vacancy.MinSalary;
+        decimal? maxSalary = searchCriteria.MaxSalary ?? vacancy.MaxSalary;
+        string educationLevel = searchCriteria.EducationLevel ?? vacancy.EducationLevel;
+        employmentType = searchCriteria.EmploymentType ?? "Any";
+        includedKeywords = searchCriteria.IncludedKeywords ?? "None";
+        excludedKeywords = searchCriteria.ExcludedKeywords ?? "None";
+
+        return $@"- Role: {vacancy.JobTitle}
+        - Work mode: {vacancy.WorkModality}
+        - Location: {location}
+        - Contract type: {employmentType}
+        - Experience: {vacancy.MinExperience}-{vacancy.MaxExperience} years
+        - Education: {educationLevel}
+        - Key skills: {vacancy.Keywords}
+        - Must include: {includedKeywords}
+        - Must NOT include: {excludedKeywords}
+        - Salary range: {minSalary} - {maxSalary}";
+    }
+
+    /// <summary>
+    /// Asks the local Ollama model to score an already-eligible candidate against the vacancy and
+    /// write a short and an extended comment, both in Spanish and the extended one in Markdown.
+    /// </summary>
+    /// <param name="profileText">The candidate's profile page text.</param>
+    /// <param name="vacancy">The vacancy requirements.</param>
+    /// <param name="searchCriteria">The search criteria used to override the vacancy defaults.</param>
+    /// <returns>The score and comments, or all-null fields if the model's response could not be parsed.</returns>
+    private async Task<CandidateEvaluation> GetCandidateEvaluationAsync(string profileText, ScrapeVacancyInputModel vacancy, CvSearchInputModel searchCriteria)
+    {
+        string jobRequirements = BuildJobRequirementsBlock(vacancy, searchCriteria, out _, out _, out _);
+
+        string prompt = $@"
+        You are a recruiter. This candidate already meets the job's minimum requirements. Score how
+        well they match and explain why, writing both comments in Spanish.
+
+        [JOB REQUIREMENTS]
+        {jobRequirements}
+
+        [CANDIDATE PROFILE]
+        {profileText}
+
+        Respond with ONLY a JSON object, no extra text before or after it, no markdown code fences,
+        in exactly this shape:
+        {{""score"": <integer from 0 to 100, how well the candidate matches the job>, ""shortComment"": ""<1-2 sentence summary, plain text>"", ""extendedComment"": ""<detailed evaluation formatted as Markdown>""}}";
+
+        try
+        {
+            HttpRequest ollamaRequest = new()
+            {
+                Method = HttpMethod.Post,
+                Url = $"{_ollamaBaseUrl}/api/generate",
+                Body = new
+                {
+                    model = _ollamaModel,
+                    prompt,
+                    stream = false,
+                    options = new { temperature = 0.2, num_predict = 500 }
+                }
+            };
+
+            HttpResponse ollamaResponse = await _httpService.SendRequestAsync(ollamaRequest);
+            JsonElement json = JsonSerializer.Deserialize<JsonElement>(ollamaResponse.Response);
+            string rawAnswer = json.GetProperty("response").GetString() ?? string.Empty;
+
+            _logger.LogInformation("Ollama evaluation response: {RawAnswer}", rawAnswer);
+
+            int jsonStart = rawAnswer.IndexOf('{');
+            int jsonEnd = rawAnswer.LastIndexOf('}');
+
+            if (jsonStart < 0 || jsonEnd <= jsonStart)
+            {
+                _logger.LogWarning("Ollama evaluation response did not contain a JSON object");
+                return new CandidateEvaluation(null, null, null);
+            }
+
+            OllamaEvaluationResponse? evaluation = JsonSerializer.Deserialize<OllamaEvaluationResponse>(
+                rawAnswer[jsonStart..(jsonEnd + 1)],
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (evaluation is null)
+            {
+                return new CandidateEvaluation(null, null, null);
+            }
+
+            return new CandidateEvaluation(evaluation.Score, Truncate(evaluation.ShortComment, 600), Truncate(evaluation.ExtendedComment, 1200));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ollama candidate evaluation failed");
+            return new CandidateEvaluation(null, null, null);
+        }
+    }
+
+    private static string? Truncate(string? value, int maxLength) =>
+        string.IsNullOrEmpty(value) || value.Length <= maxLength ? value : value[..maxLength];
+
+    /// <summary>
+    /// The score and comments produced by <see cref="GetCandidateEvaluationAsync"/>.
+    /// </summary>
+    private sealed record CandidateEvaluation(int? Score, string? ShortComment, string? ExtendedComment);
+
+    /// <summary>
+    /// Shape of the JSON object <see cref="GetCandidateEvaluationAsync"/> asks Ollama to respond with.
+    /// </summary>
+    private sealed class OllamaEvaluationResponse
+    {
+        public int? Score { get; set; }
+        public string? ShortComment { get; set; }
+        public string? ExtendedComment { get; set; }
     }
 
     /// <summary>
