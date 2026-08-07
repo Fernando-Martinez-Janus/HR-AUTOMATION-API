@@ -449,17 +449,18 @@ namespace HR_AUTOMATION.Application.Services
                     {
                         Url = configuration.GetValue<string>("Scraper:Url")!,
                         Method = HttpMethod.Post,
-                        Body = new
-                        {
-                            searchRequestId = result.Id,
-                            vacancyId = vacancyId,
-                            minExperience = model.MinExperience,
-                            maxExperience = model.MaxExperience,
-                            education = model.Education,
-                            cvUpdated = model.CvUpdated,
-                            keywordsExclude = model.KeywordsExclude,
-                            sources = model.Sources
-                        },
+                    Body = new
+                    {
+                        searchRequestId = result.Id,
+                        vacancyId = vacancyId,
+                        minExperience = model.MinExperience,
+                        maxExperience = model.MaxExperience,
+                        education = model.Education,
+                        cvUpdated = model.CvUpdated,
+                        keywordsExclude = model.KeywordsExclude,
+                        sources = model.Sources,
+                        maxCvs = model.MaxCvs ?? 20
+                    },
                         Timeout = 30000
                     });
                 }

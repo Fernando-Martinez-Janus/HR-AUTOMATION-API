@@ -111,6 +111,7 @@ namespace HR_AUTOMATION.Application.InputModels
         public string? Sources { get; set; }
         public int? CvMaxAge { get; set; }
         public int? RequestCooldownMs { get; set; }
+        public int? MaxCvs { get; set; }
 
         /// <summary>
         /// Cleans and normalizes the input values by trimming string properties.

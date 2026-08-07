@@ -112,6 +112,9 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("request_cooldown_ms")]
         public int RequestCooldownMs { get; set; }
 
+        [Column("max_cvs")]
+        public int? MaxCvs { get; set; }
+
         [Column("total_records")]
         public int TotalRecords { get; set; }
     }
