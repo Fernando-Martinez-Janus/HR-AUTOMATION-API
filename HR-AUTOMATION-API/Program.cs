@@ -99,6 +99,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             // long ClaimTypes.Role URI; without this, [Authorize(Roles = "...")] would never match.
             RoleClaimType = "role"
         };
+
+        // WebSocket handshakes cannot carry the Authorization header, so the SignalR client sends
+        // the token as the "access_token" query string. Pull it in for the notification hub path so
+        // Context.User is populated inside the hub.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                string? accessToken = context.Request.Query["access_token"];
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments(HubConstants.NotificationEndpoint))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();

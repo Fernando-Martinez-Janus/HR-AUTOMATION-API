@@ -11,10 +11,13 @@ namespace HR_AUTOMATION.Infrastructure.Hubs
         {
             HttpContext context = Context.GetHttpContext();
 
+            // Prefer the organizationId carried in the authenticated token claim; fall back to the
+            // "orgId" query string for clients that connect without a token.
+            string? orgClaim = Context.User?.FindFirst(HubConstants.OrganizationIdClaim)?.Value;
             StringValues? orgId = context?.Request.Query[HubConstants.NotificationOrganizationQuery];
             StringValues? allOrgs = context?.Request.Query[HubConstants.NotificationAllOrganizationsQuery];
 
-            if (int.TryParse(orgId, out int organizationId))
+            if (int.TryParse(orgClaim, out int organizationId) || int.TryParse(orgId, out organizationId))
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, organizationId.ToString());
             }
