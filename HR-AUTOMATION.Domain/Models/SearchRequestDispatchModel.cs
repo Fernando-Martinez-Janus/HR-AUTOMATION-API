@@ -103,5 +103,8 @@ namespace HR_AUTOMATION.Domain.Models
 
         [Column("max_cvs")]
         public int? MaxCvs { get; set; }
+
+        [Column("min_match_score")]
+        public int? MinMatchScore { get; set; }
     }
 }

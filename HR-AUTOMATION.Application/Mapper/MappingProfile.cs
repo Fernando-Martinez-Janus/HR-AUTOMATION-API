@@ -205,7 +205,8 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt))
                 .ForMember(view => view.PreviousCandidates, opt => opt.Ignore())
                 .ForMember(view => view.SkillsProfile, opt => opt.Ignore())
-                .ForMember(view => view.MaxCvs, model => model.MapFrom(m => m.MaxCvs));
+                .ForMember(view => view.MaxCvs, model => model.MapFrom(m => m.MaxCvs))
+                .ForMember(view => view.MinMatchScore, model => model.MapFrom(m => m.MinMatchScore));
 
             CreateMap<SearchRequestModel, SearchRequestViewModel>(MemberList.None)
                 .ForMember(view => view.SearchRequestId, model => model.MapFrom(m => m.Id))

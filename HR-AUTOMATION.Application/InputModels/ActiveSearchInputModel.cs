@@ -11,6 +11,7 @@
         public int? CvMaxAge { get; set; }
         public int? RequestCooldownMs { get; set; }
         public int? MaxCvs { get; set; }
+        public int? MinMatchScore { get; set; }
         public IEnumerable<int> Sources { get; set; } = [];
     }
 }

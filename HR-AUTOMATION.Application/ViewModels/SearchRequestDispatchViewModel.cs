@@ -36,5 +36,6 @@ namespace HR_AUTOMATION.Application.ViewModels
         public DateTime CreatedAt { get; set; }
         public IEnumerable<PreviousCandidateViewModel>? PreviousCandidates { get; set; }
         public int? MaxCvs { get; set; }
+        public int? MinMatchScore { get; set; }
     }
 }

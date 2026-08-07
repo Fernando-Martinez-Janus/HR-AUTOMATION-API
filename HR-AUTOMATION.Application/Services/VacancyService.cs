@@ -459,7 +459,8 @@ namespace HR_AUTOMATION.Application.Services
                         cvUpdated = model.CvUpdated,
                         keywordsExclude = model.KeywordsExclude,
                         sources = model.Sources,
-                        maxCvs = model.MaxCvs ?? 20
+                        maxCvs = model.MaxCvs ?? 20,
+                        minMatchScore = model.MinMatchScore ?? 60
                     },
                         Timeout = 30000
                     });
