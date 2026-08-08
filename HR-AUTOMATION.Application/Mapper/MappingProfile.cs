@@ -273,6 +273,8 @@ namespace HR_AUTOMATION.Application.Mapper
                 .ForMember(view => view.Relocation, model => model.MapFrom(m => m.Relocation))
                 .ForMember(view => view.Seen, model => model.MapFrom(m => m.Seen))
                 .ForMember(view => view.CandidateRank, model => model.MapFrom(m => m.CandidateRank))
+                .ForMember(view => view.HrRanking, model => model.MapFrom(m => m.HrRanking))
+                .ForMember(view => view.HrComments, model => model.MapFrom(m => m.HrComments))
                 .ForMember(view => view.CreatedAt, model => model.MapFrom(m => m.CreatedAt));
 
             CreateMap<TopCandidateSearchResultModel, SearchResultViewModel>(MemberList.None)

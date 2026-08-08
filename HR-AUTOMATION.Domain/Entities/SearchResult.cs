@@ -65,6 +65,12 @@ namespace HR_AUTOMATION.Domain.Entities
         [Column("candidate_rank")]
         public int CandidateRank { get; set; }
 
+        [Column("hr_ranking")]
+        public int? HrRanking { get; set; }
+
+        [Column("hr_comments")]
+        public string? HrComments { get; set; }
+
         [Column("is_enabled")]
         public bool IsEnabled { get; set; }
 
