@@ -500,7 +500,7 @@ public class ScraperService(
 
         Respond with ONLY a JSON object, no extra text before or after it, no markdown code fences,
         in exactly this shape:
-        {{""score"": <integer from 0 to 100, how well the candidate matches the job>, ""shortComment"": ""<1-2 sentence summary, plain text>"", ""extendedComment"": ""<detailed evaluation formatted as Markdown>""}}";
+        {{""score"": <integer from 0 to 100, how well the candidate matches the job>, ""shortComment"": ""<1-2 sentence summary, plain text, max 300 characters>"", ""extendedComment"": ""<evaluation formatted as Markdown, max 1000 characters - keep it brief, 2-3 short sections at most>""}}";
 
         try
         {
@@ -513,7 +513,7 @@ public class ScraperService(
                     model = _ollamaModel,
                     prompt,
                     stream = false,
-                    options = new { temperature = 0.2, num_predict = 500 }
+                    options = new { temperature = 0.2, num_predict = 1000 }
                 }
             };
 
