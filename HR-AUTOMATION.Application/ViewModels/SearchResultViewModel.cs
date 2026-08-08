@@ -14,7 +14,7 @@
         public string? Phone { get; set; }
         public string? Source { get; set; }
 
-        public List<string> Preferences { get; set; } = new();
+        public List<string> Preferences { get; set; } = [];
 
         public int AiScore { get; set; }
         public bool AiRecommended { get; set; }
@@ -26,5 +26,7 @@
         public bool Seen { get; set; }
         public int CandidateRank { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int? HrRanking { get; set; }
+        public string? HrComments { get; set; }
     }
 }
