@@ -351,5 +351,25 @@ namespace HR_AUTOMATION_API.Controllers
 
             return StatusCode(response.Code, response);
         }
+
+        /// <summary>
+        /// Rank a Search Result
+        /// </summary>
+        /// <param name="searchResultId">Search Result Id</param>
+        /// <param name="model">Raking information</param>
+        [HttpPatch("search-result/{searchResultId:int}/rank")]
+        [MapToApiVersion("1")]
+        [ProducesResponseType(typeof(Response<IEnumerable<SearchRequestDispatchViewModel>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RankSearchResult(int searchResultId, [FromBody] RankSearchResultInputModel model)
+        {
+            await _vacancyService.RankSearchResultAsync(searchResultId, model);
+
+            Response response = new()
+            {
+                Code = StatusCodes.Status204NoContent
+            };
+
+            return StatusCode(response.Code, response);
+        }
     }
 }

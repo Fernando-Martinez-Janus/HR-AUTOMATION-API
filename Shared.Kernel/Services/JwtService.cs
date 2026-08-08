@@ -79,11 +79,11 @@ namespace Shared.Kernel.Services
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
 
-                ValidateIssuer = true,
-                ValidIssuer = issuer,
+                //ValidateIssuer = true,
+                //ValidIssuer = issuer,
 
-                ValidateAudience = true,
-                ValidAudiences = allowedAudiences,
+                //ValidateAudience = true,
+                //ValidAudiences = allowedAudiences,
 
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMilliseconds(clockSkew)

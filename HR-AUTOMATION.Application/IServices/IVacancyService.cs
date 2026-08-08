@@ -53,5 +53,6 @@ namespace HR_AUTOMATION.Application.IServices
         Task UpdateVacancyStatus(int vacancyId, int statudId);
         Task<int> SearchAsync(int vacancyId, ActiveSearchInputModel model);
         Task<IEnumerable<SearchRequestDispatchViewModel>> GetDispatchAsync();
+        Task RankSearchResultAsync(int searchResultId, RankSearchResultInputModel model);
     }
 }
