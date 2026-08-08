@@ -1,11 +1,10 @@
 using HR_AUTOMATION.Application.IServices;
 using HR_AUTOMATION.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using Shared.Kernel.InputModels;
+using Shared.Kernel.IServices;
 using Shared.Kernel.Utils.Constants;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace HR_AUTOMATION.Application.Services
 {
@@ -13,8 +12,9 @@ namespace HR_AUTOMATION.Application.Services
     /// Generates the application's own JWT access tokens using HMAC SHA-256.
     /// </summary>
     /// <param name="configuration">The application configuration provider.</param>
-    public class JwtTokenService(IConfiguration configuration) : IJwtTokenService
+    public class JwtTokenService(IConfiguration configuration, IJwtService jwtService) : IJwtTokenService
     {
+        private readonly IJwtService _jwtService = jwtService;
         /// <summary>
         /// The symmetric key used to sign issued tokens.
         /// </summary>
@@ -48,31 +48,23 @@ namespace HR_AUTOMATION.Application.Services
             DateTime now = DateTime.UtcNow;
             DateTime expires = now.AddMilliseconds(_expiresInMilliseconds);
 
-            List<Claim> claims = new()
+            Dictionary<string, object> claims = new()
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Name, user.FullName ?? string.Empty),
-                new Claim("role", user.RoleName ?? string.Empty),
-                new Claim("roleId", user.RoleId.ToString()),
-                new Claim("organizationId", user.OrganizationId.ToString()),
-                new Claim("organizationName", user.OrganizationName ?? string.Empty),
-                new Claim("userId", user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+                [JwtRegisteredClaimNames.Sub] = user.Id.ToString(),
+                [JwtRegisteredClaimNames.Email] = user.Email ?? string.Empty,
+                [JwtRegisteredClaimNames.Name] = user.FullName ?? string.Empty,
+                ["role"] = user.RoleName ?? string.Empty,
+                ["roleId"] = user.RoleId.ToString(),
+                ["organizationId"] = user.OrganizationId.ToString(),
+                ["organizationName"] = user.OrganizationName ?? string.Empty,
+                ["userId"] = user.Id.ToString(),
+                [JwtRegisteredClaimNames.Iat] = new DateTimeOffset(now).ToUnixTimeSeconds().ToString()
             };
 
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_key));
-            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha256);
-
-            JwtSecurityToken token = new(
-                issuer: _issuer,
-                audience: _audience,
-                claims: claims,
-                notBefore: now,
-                expires: expires,
-                signingCredentials: credentials);
-
-            string accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+            string accessToken = _jwtService.GenerateToken(new GenerateTokenRequest()
+            {
+                Claims = claims
+            });
             int expiresIn = (int)(_expiresInMilliseconds / 1000);
 
             return (accessToken, expiresIn);

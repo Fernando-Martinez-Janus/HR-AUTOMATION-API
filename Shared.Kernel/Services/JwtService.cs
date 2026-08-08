@@ -68,7 +68,7 @@ namespace Shared.Kernel.Services
         {
             string secret = _configuration.GetValue<string>(AppConstants.JwtSecretKey)!;
             string issuer = _configuration.GetValue<string>(AppConstants.JwtIssuerKey)!;
-            string[] allowedAudiences = _configuration.GetValue<string[]>(AppConstants.JwtAllowedAudiencesKey)!;
+            string[] allowedAudiences = _configuration.GetSection(AppConstants.JwtAllowedAudiencesKey).Get<string[]>() ?? [];
             double clockSkew = _configuration.GetValue<double>(AppConstants.JwtClockSkewKey)!;
 
             JwtSecurityTokenHandler tokenHandler = new();
@@ -76,17 +76,17 @@ namespace Shared.Kernel.Services
 
             TokenValidationParameters parameters = new()
             {
-                //ValidateIssuerSigningKey = true,
-                //IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
 
-                //ValidateIssuer = true,
-                //ValidIssuer = issuer,
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
 
-                //ValidateAudience = true,
-                //ValidAudiences = allowedAudiences,
+                ValidateAudience = true,
+                ValidAudiences = allowedAudiences,
 
-                //ValidateLifetime = true,
-                //ClockSkew = TimeSpan.FromMilliseconds(clockSkew)
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMilliseconds(clockSkew)
             };
 
             try
