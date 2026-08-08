@@ -545,6 +545,22 @@ namespace HR_AUTOMATION.Application.Services
                 ];
 
                 await _sharedRepository.ExecuteAsync("[recruitment].[web_rank_search_result]", parameters);
+
+                List<string> notifyTo = [HubConstants.NotificationAllOrganizationsGroup];
+
+                int? organizationId = _httpContextService.GetOrganizationId();
+
+                if (organizationId.HasValue)
+                {
+                    notifyTo.Add(organizationId.Value.ToString());
+                    await _cacheService.SetAsync(SearchResultsCacheKeys.Version(organizationId.Value), CacheKeyHelper.GenerateVersion());
+                }
+
+                await _cacheService.SetAsync(SearchResultsCacheKeys.Version(), CacheKeyHelper.GenerateVersion());
+
+                object payload = new { SearchResultId = searchResultId };
+
+                await _notificationHub.Clients.Groups(notifyTo).SendAsync(HubKeys.SearchResultsChanged, payload);
             }
             catch (Exception ex)
             {
