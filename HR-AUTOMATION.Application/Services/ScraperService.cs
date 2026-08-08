@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using HR_AUTOMATION.Application.Constants;
@@ -116,28 +117,34 @@ public class ScraperService(
     /// </summary>
     private async Task RunScrapeJobAsync(IBrowserContext context, ScrapeInputModel request)
     {
-        List<SearchResultCandidateInputModel> savedCandidates = [];
+        bool completedCleanly = false;
+        bool anyCandidateFound = false;
 
         try
         {
-            await RunPagesAsync(context, request, savedCandidates);
+            anyCandidateFound = await RunPagesAsync(context, request);
+            completedCleanly = true;
         }
         finally
         {
-            // Saves whatever candidates were already found even if the loop below was interrupted
-            // by an exception (e.g. a timeout mid-scrape), so they aren't lost.
-            if (savedCandidates.Count > 0)
+            // Each candidate is already saved individually as soon as it's found (see RunPagesAsync),
+            // so nothing is lost if this run gets interrupted mid-way. This only needs to report a
+            // clean run that found nothing at all (empty list), so the API can tell "no matches" apart
+            // from "the scrape didn't finish" and mark the vacancy accordingly.
+            if (completedCleanly && !anyCandidateFound)
             {
-                await SaveResultsAsync(request.SearchRequestId, savedCandidates);
+                await SaveResultsAsync(request.SearchRequestId, []);
             }
         }
     }
 
     /// <summary>
     /// Logs in to the job portal and paginates through the search results, downloading the CVs of
-    /// candidates that pass both the recency and the model validation checks.
+    /// candidates that pass both the recency and the model validation checks. Each matching candidate
+    /// is reported back to the main API immediately, one at a time, as soon as it's downloaded.
     /// </summary>
-    private async Task RunPagesAsync(IBrowserContext context, ScrapeInputModel request, List<SearchResultCandidateInputModel> savedCandidates)
+    /// <returns><see langword="true"/> if at least one candidate was found and saved.</returns>
+    private async Task<bool> RunPagesAsync(IBrowserContext context, ScrapeInputModel request)
     {
         IPage mainPage = await context.NewPageAsync();
 
@@ -181,6 +188,7 @@ public class ScraperService(
         int accessed = 0;
         int page = 1;
         bool hasNext = true;
+        bool anyCandidateFound = false;
 
         HashSet<string> processedLinks = request.SearchCriteria.PreviousCandidates
             .Select(candidate => candidate.ReferenceLink)
@@ -282,16 +290,23 @@ public class ScraperService(
 
                 CandidateEvaluation evaluation = await GetCandidateEvaluationAsync(profileText, request.Vacancy, request.SearchCriteria);
 
+                if (evaluation.Score is int score && request.SearchCriteria.MinMatchScore is int minMatchScore && score < minMatchScore)
+                {
+                    _logger.LogInformation("Candidate scored {Score}, below the minimum match score of {MinMatchScore}. Skipping", score, minMatchScore);
+                    await newTab.CloseAsync();
+                    continue;
+                }
+
                 accessed++;
 
                 Task<IDownload> downloadTask = newTab.WaitForDownloadAsync(new() { Timeout = 60000 });
-                await newTab.Locator("use[*|href='#atomic__download']").ClickAsync();
+                await newTab.Locator("use[*|href='#atomic__download']").ClickAsync(new() { Timeout = 60000 });
                 IDownload download = await downloadTask;
                 string targetPath = Path.Combine(_downloadPath, download.SuggestedFilename);
                 await download.SaveAsAsync(targetPath);
                 _logger.LogInformation("CV saved to {TargetPath}", targetPath);
 
-                savedCandidates.Add(new SearchResultCandidateInputModel
+                SearchResultCandidateInputModel candidate = new()
                 {
                     CandidateTitle = candidateTitle,
                     ReferenceLink = url,
@@ -299,7 +314,10 @@ public class ScraperService(
                     AiScore = evaluation.Score,
                     AiShortComment = evaluation.ShortComment,
                     AiExtendedComment = evaluation.ExtendedComment
-                });
+                };
+
+                await SaveResultsAsync(request.SearchRequestId, [candidate]);
+                anyCandidateFound = true;
 
                 await Task.Delay(1000);
                 await newTab.CloseAsync();
@@ -337,6 +355,8 @@ public class ScraperService(
         await Task.Delay(30000);
 
         _logger.LogInformation("Scraping job completed. Processed {Processed}, downloaded {Downloaded}", processed, accessed);
+
+        return anyCandidateFound;
     }
 
     /// <summary>
@@ -512,8 +532,10 @@ public class ScraperService(
                 return new CandidateEvaluation(null, null, null);
             }
 
+            string jsonPayload = EscapeNewlinesInsideJsonStrings(rawAnswer[jsonStart..(jsonEnd + 1)]);
+
             OllamaEvaluationResponse? evaluation = JsonSerializer.Deserialize<OllamaEvaluationResponse>(
-                rawAnswer[jsonStart..(jsonEnd + 1)],
+                jsonPayload,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (evaluation is null)
@@ -532,6 +554,62 @@ public class ScraperService(
 
     private static string? Truncate(string? value, int maxLength) =>
         string.IsNullOrEmpty(value) || value.Length <= maxLength ? value : value[..maxLength];
+
+    /// <summary>
+    /// Escapes raw newline/carriage-return characters found inside JSON string values. Ollama
+    /// sometimes writes literal line breaks in free-form text fields (like a Markdown comment)
+    /// instead of the required "\n" escape sequence, which otherwise makes the whole response
+    /// fail to parse as JSON. Characters outside of strings are left untouched.
+    /// </summary>
+    private static string EscapeNewlinesInsideJsonStrings(string json)
+    {
+        StringBuilder result = new(json.Length);
+        bool insideString = false;
+        bool escapedNext = false;
+
+        foreach (char c in json)
+        {
+            if (insideString)
+            {
+                if (escapedNext)
+                {
+                    result.Append(c);
+                    escapedNext = false;
+                    continue;
+                }
+
+                switch (c)
+                {
+                    case '\\':
+                        result.Append(c);
+                        escapedNext = true;
+                        continue;
+                    case '"':
+                        insideString = false;
+                        result.Append(c);
+                        continue;
+                    case '\n':
+                        result.Append("\\n");
+                        continue;
+                    case '\r':
+                        result.Append("\\r");
+                        continue;
+                    default:
+                        result.Append(c);
+                        continue;
+                }
+            }
+
+            if (c == '"')
+            {
+                insideString = true;
+            }
+
+            result.Append(c);
+        }
+
+        return result.ToString();
+    }
 
     /// <summary>
     /// The score and comments produced by <see cref="GetCandidateEvaluationAsync"/>.
