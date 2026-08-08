@@ -76,8 +76,8 @@ namespace Shared.Kernel.Services
 
             TokenValidationParameters parameters = new()
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
+                //ValidateIssuerSigningKey = true,
+                //IssuerSigningKey = new SymmetricSecurityKey(key),
 
                 //ValidateIssuer = true,
                 //ValidIssuer = issuer,
@@ -85,8 +85,8 @@ namespace Shared.Kernel.Services
                 //ValidateAudience = true,
                 //ValidAudiences = allowedAudiences,
 
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMilliseconds(clockSkew)
+                //ValidateLifetime = true,
+                //ClockSkew = TimeSpan.FromMilliseconds(clockSkew)
             };
 
             try
