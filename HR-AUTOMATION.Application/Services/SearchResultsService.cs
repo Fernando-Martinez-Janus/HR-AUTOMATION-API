@@ -115,7 +115,10 @@ public class SearchResultsService(
             // 3. Mapear los resultados (usando el 'Id' heredado de SearchResult)
             List<int> insertedIds = result.Select(r => r.Id).ToList();
 
-            if (!insertedIds.Any())
+            // Un scraper puede reportar una corrida completa sin candidatos a propósito (para que
+            // el SP marque la vacante como "sin candidatos"), así que solo es un error real si
+            // se esperaban inserciones y no se generó ninguna.
+            if (model.Candidates is { Count: > 0 } && !insertedIds.Any())
             {
                 throw new ResponseExceptionFactory(Exceptions.InternalServerError);
             }

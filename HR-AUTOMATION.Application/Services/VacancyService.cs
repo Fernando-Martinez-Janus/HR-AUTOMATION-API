@@ -310,6 +310,7 @@ namespace HR_AUTOMATION.Application.Services
                     new("@p_sources", model.Sources),
                     new("@p_cv_max_age", model.CvMaxAge),
                     new("@p_request_cooldown_ms", model.RequestCooldownMs),
+                    new("@p_max_cvs", model.MaxCvs),
                     new("@p_created_by", _httpContextService.GetUserId()),
                     new("@p_updated_by", _httpContextService.GetUserId())
 

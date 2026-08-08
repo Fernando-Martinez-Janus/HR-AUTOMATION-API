@@ -24,4 +24,9 @@ public static class ScraperConstants
     /// Configuration key for the Ollama model used to validate candidates.
     /// </summary>
     public const string OllamaModelKey = "Scraper:Ollama:Model";
+
+    /// <summary>
+    /// Configuration key for the URL used to report found candidates back to the main API.
+    /// </summary>
+    public const string SaveResultUrlKey = "Scraper:SaveResultUrl";
 }
