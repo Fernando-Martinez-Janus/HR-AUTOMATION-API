@@ -83,7 +83,7 @@ namespace HR_AUTOMATION.Application.Services
         /// </summary>
         /// <param name="organizationId">The organization identifier to notify. If <see langword="null"/>, only the global notification is sent.</param>
         /// <param name="id">The vacancy Id to delete from cache (optional).</param>
-        private async Task HandleChangedAsync(int? organizationId = null, int? id = null)
+        private async Task HandleChangedAsync(int? organizationId = null, int? id = null, int? status = null)
         {
             if (id.HasValue)
             {
@@ -101,6 +101,15 @@ namespace HR_AUTOMATION.Application.Services
             }
 
             await _cacheService.SetAsync(VacancyCacheKeys.Version(), CacheKeyHelper.GenerateVersion());
+
+            if (id.HasValue && status.HasValue)
+            {
+                object payload = new { VacancyId = id.Value, VacancyStatusId = status.Value };
+
+                await _notificationHub.Clients.Groups(notifyTo).SendAsync(HubKeys.VacancyChanged, payload);
+                return;
+            }
+
             await _notificationHub.Clients.Groups(notifyTo).SendAsync(HubKeys.VacancyChanged);
         }
 
@@ -147,7 +156,6 @@ namespace HR_AUTOMATION.Application.Services
                 ];
 
                 IEnumerable<Vacancy> result = await _sharedRepository.QueryAsync<Vacancy>("[recruitment].[web_get_vacancies]", parameters);
-
 
                 IEnumerable<VacancyViewModel> mappedResult = Mapping.Mapper.Map<IEnumerable<VacancyViewModel>>(result);
 
@@ -449,19 +457,19 @@ namespace HR_AUTOMATION.Application.Services
                     {
                         Url = configuration.GetValue<string>("Scraper:Url")!,
                         Method = HttpMethod.Post,
-                    Body = new
-                    {
-                        searchRequestId = result.Id,
-                        vacancyId = vacancyId,
-                        minExperience = model.MinExperience,
-                        maxExperience = model.MaxExperience,
-                        education = model.Education,
-                        cvUpdated = model.CvUpdated,
-                        keywordsExclude = model.KeywordsExclude,
-                        sources = model.Sources,
-                        maxCvs = model.MaxCvs ?? 20,
-                        minMatchScore = model.MinMatchScore ?? 60
-                    },
+                        Body = new
+                        {
+                            searchRequestId = result.Id,
+                            vacancyId = vacancyId,
+                            minExperience = model.MinExperience,
+                            maxExperience = model.MaxExperience,
+                            education = model.Education,
+                            cvUpdated = model.CvUpdated,
+                            keywordsExclude = model.KeywordsExclude,
+                            sources = model.Sources,
+                            maxCvs = model.MaxCvs ?? 20,
+                            minMatchScore = model.MinMatchScore ?? 60
+                        },
                         Timeout = 30000
                     });
                 }
@@ -493,14 +501,12 @@ namespace HR_AUTOMATION.Application.Services
                     "[recruitment].[web_get_vacancy_dispatch]", parameters
                 );
 
-                List<SearchRequestDispatchViewModel> mappedResults = results
-                    .Select(result => Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result))
-                    .ToList();
+                List<SearchRequestDispatchViewModel> mappedResults = [.. results.Select(result => Mapping.Mapper.Map<SearchRequestDispatchViewModel>(result))];
 
                 if (mappedResults.Count > 0)
                 {
                     int? organizationId = _httpContextService.GetOrganizationId();
-                    await HandleChangedAsync(organizationId);
+                    await HandleChangedAsync(organizationId, results.FirstOrDefault()?.VacancyId);
                 }
 
                 return mappedResults;
@@ -523,6 +529,28 @@ namespace HR_AUTOMATION.Application.Services
             await _sharedRepository.ExecuteAsync("[recruitment].[update_vacancy_status]", parameters);
 
             await HandleChangedAsync(_httpContextService.GetOrganizationId(), vacancyId);
+        }
+
+        public async Task RankSearchResultAsync(int searchResultId, RankSearchResultInputModel model)
+        {
+            try
+            {
+                model.Normalize();
+
+                List<KeyValuePair<string, object?>> parameters = [
+                    new("@p_search_result_id", searchResultId),
+                    new("@p_ranking", model.Raking),
+                    new("@p_comments", model.Comments),
+                    new("@p_updated_by", _httpContextService.GetUserId())
+                ];
+
+                await _sharedRepository.ExecuteAsync("[recruitment].[web_rank_search_result]", parameters);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(RankSearchResultAsync));
+                throw;
+            }
         }
     }
 }

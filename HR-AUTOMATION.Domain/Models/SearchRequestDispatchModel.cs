@@ -95,9 +95,6 @@ namespace HR_AUTOMATION.Domain.Models
         [Column("total_records")]
         public int TotalRecords { get; set; }
 
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
-
         [Column("previous_candidates")]
         public string? PreviousCandidates { get; set; }
 
@@ -106,5 +103,8 @@ namespace HR_AUTOMATION.Domain.Models
 
         [Column("min_match_score")]
         public int? MinMatchScore { get; set; }
+
+        [Column("vacancy_status_id")]
+        public int? VacancyStatusId { get; set; }
     }
 }
