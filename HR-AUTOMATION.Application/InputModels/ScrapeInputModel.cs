@@ -6,6 +6,12 @@ namespace HR_AUTOMATION.Application.InputModels;
 public class ScrapeInputModel
 {
     /// <summary>
+    /// Gets or sets the identifier of the search request this scrape job is running for, used to
+    /// report found candidates back to the main API.
+    /// </summary>
+    public int SearchRequestId { get; set; }
+
+    /// <summary>
     /// Gets or sets the credentials used to log in to the job portal.
     /// </summary>
     public ScrapeCredentialsInputModel Credentials { get; set; } = new();

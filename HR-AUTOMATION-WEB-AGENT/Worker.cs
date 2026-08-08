@@ -59,6 +59,13 @@ public class Worker(
     /// </summary>
     private readonly string _scraperPassword = configuration.GetValue<string>(WorkerConstants.ScraperPasswordKey)!;
 
+    /// <summary>
+    /// The search request the worker is currently committed to, if any. While set, dispatch results
+    /// for any other search request are skipped, so a scrape that gets interrupted (e.g. by a
+    /// timeout) is retried on the same vacancy instead of moving on to a different one.
+    /// </summary>
+    private int? _stickySearchRequestId;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using PeriodicTimer timer = new(_pollingInterval);
@@ -97,19 +104,34 @@ public class Worker(
 
             foreach (SearchRequestDispatchViewModel dispatch in response.DataResponse)
             {
+                if (_stickySearchRequestId is int sticky && sticky != dispatch.SearchRequestId)
+                {
+                    _logger.LogInformation(
+                        "Skipping search request {SearchRequestId}; still finishing search request {StickySearchRequestId} first",
+                        dispatch.SearchRequestId, sticky);
+                    continue;
+                }
+
                 Guid jobId = Guid.NewGuid();
 
                 _logger.LogInformation("Search request {SearchRequestId} received, starting scrape (job {JobId})", dispatch.SearchRequestId, jobId);
+
+                _stickySearchRequestId = dispatch.SearchRequestId;
 
                 try
                 {
                     ScrapeInputModel scrapeInput = BuildScrapeInputModel(dispatch);
 
                     await _scraperService.ScrapeAsync(scrapeInput, jobId);
+
+                    // Finished on its own (hit the candidate target or ran out of pages) - free to
+                    // move on to a different search request next time.
+                    _stickySearchRequestId = null;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Scrape failed for search request {SearchRequestId} (job {JobId})", dispatch.SearchRequestId, jobId);
+                    // Interrupted - stays sticky so the next tick retries this same search request.
                 }
             }
         }
@@ -141,6 +163,7 @@ public class Worker(
 
         return new ScrapeInputModel
         {
+            SearchRequestId = dispatch.SearchRequestId,
             Credentials = new ScrapeCredentialsInputModel
             {
                 Email = _scraperEmail,
@@ -155,6 +178,8 @@ public class Worker(
                 MinSalary = dispatch.SalaryRangeMin,
                 MaxSalary = dispatch.SalaryRangeMax,
                 MaxProfileAgeDays = dispatch.MaxProfileAgeDays,
+                MaxCvs = dispatch.MaxCvs ?? 20,
+                MinMatchScore = dispatch.MinMatchScore,
                 IncludedKeywords = dispatch.Included,
                 ExcludedKeywords = dispatch.Excluded,
                 PreviousCandidates = previousCandidates

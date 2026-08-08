@@ -52,6 +52,13 @@ public class CvSearchInputModel
     public int? MaxProfileAgeDays { get; set; }
 
     /// <summary>
+    /// Gets or sets the minimum AI match score (0-100) a candidate needs to be saved. Candidates
+    /// the model was able to score below this are discarded; candidates the model could not score
+    /// at all are kept, since there is no score to compare against the threshold.
+    /// </summary>
+    public int? MinMatchScore { get; set; }
+
+    /// <summary>
     /// Gets or sets keywords the candidate's profile must show (e.g. required technologies or companies).
     /// </summary>
     public string? IncludedKeywords { get; set; }
